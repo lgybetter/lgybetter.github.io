@@ -14,7 +14,7 @@
 <meta property="og:url" content="http://yoursite.com/2016/12/20/计算机网络体系结构/index.html">
 <meta property="og:site_name" content="Betterlin ’s Blog">
 <meta property="og:description" content="一. 层次总览1. TCP/IP 体系结构 应用层: TELNET, FTP, SMTP  运输层: TCP或UDP  网际层: IP  网络接口层   2. 五层协议体系结构(综合OSI和TCP/IP的优点) 应用层: 通过应用进程间的交互来完成特定网络应用  运输层: 两个主机进程之间的通信提供通用的数据传输服务  网络层: 为分组交换网上的不同主机提供通信服务。另一个任务就是要选择合适的路由">
-<meta property="og:updated_time" content="2018-01-24T16:04:53.000Z">
+<meta property="og:updated_time" content="2018-01-24T16:57:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="计算机网络体系结构">
 <meta name="twitter:description" content="一. 层次总览1. TCP/IP 体系结构 应用层: TELNET, FTP, SMTP  运输层: TCP或UDP  网际层: IP  网络接口层   2. 五层协议体系结构(综合OSI和TCP/IP的优点) 应用层: 通过应用进程间的交互来完成特定网络应用  运输层: 两个主机进程之间的通信提供通用的数据传输服务  网络层: 为分组交换网上的不同主机提供通信服务。另一个任务就是要选择合适的路由">
@@ -47,9 +47,9 @@
     </nav>
     <nav id="sub-nav">
       
-        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
       
-      <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
     </nav>
     <div id="search-form-wrap">
       <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -82,6 +82,8 @@
     <a class="article-category-link" href="/categories/基础知识/">基础知识</a>
   </div>
 
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
   </div>
   <div class="article-inner">
     
@@ -120,10 +122,8 @@
 <li><p>物理层: 传输比特数据</p>
 </li>
 </ul>
-<h2 id="二-层次分析"><a href="#二-层次分析" class="headerlink" title="二. 层次分析"></a>二. 层次分析</h2><h3 id="1-数据链路层"><a href="#1-数据链路层" class="headerlink" title="1. 数据链路层"></a>1. 数据链路层</h3><blockquote>
-<p>点对点信道: 一对一的点对点通信</p>
+<h2 id="二-层次分析"><a href="#二-层次分析" class="headerlink" title="二. 层次分析"></a>二. 层次分析</h2><h3 id="1-数据链路层"><a href="#1-数据链路层" class="headerlink" title="1. 数据链路层"></a>1. 数据链路层</h3><p>点对点信道: 一对一的点对点通信</p>
 <p>广播信道: 一对多的广播信道通信 </p>
-</blockquote>
 <ul>
 <li><p>同一个局域网，分组怎样从一个主机传送到另一个主机(不经过路由器)，这是属于数据链路层的范围</p>
 </li>
@@ -142,9 +142,7 @@
 <li><p>mac帧的格式: 目的地址 + 源地址 + 类型(标明交付上一层对应的协议) + 数据(IP数据报)</p>
 </li>
 </ul>
-<h3 id="2-网络层"><a href="#2-网络层" class="headerlink" title="2. 网络层"></a>2. 网络层</h3><blockquote>
-<p>网络层特点: 向上提供简单灵活的，无连接的，尽最大努力交付的数据报服务</p>
-</blockquote>
+<h3 id="2-网络层"><a href="#2-网络层" class="headerlink" title="2. 网络层"></a>2. 网络层</h3><p>网络层特点: 向上提供简单灵活的，无连接的，尽最大努力交付的数据报服务</p>
 <ul>
 <li><p>IP协议</p>
 <ul>
@@ -168,9 +166,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="3-运输层"><a href="#3-运输层" class="headerlink" title="3. 运输层"></a>3. 运输层</h3><blockquote>
-<p>运输层: 向它上面的应用层提供通信服务， 真正进行通信的实体是在主机中的进程(一个主机的进程和另一个主机的一个进程在交换数据)</p>
-</blockquote>
+<h3 id="3-运输层"><a href="#3-运输层" class="headerlink" title="3. 运输层"></a>3. 运输层</h3><p>运输层: 向它上面的应用层提供通信服务， 真正进行通信的实体是在主机中的进程(一个主机的进程和另一个主机的一个进程在交换数据)</p>
 <ul>
 <li><p>UDP在传送数据之前不需要建立连接，不需要提供可靠交付</p>
 </li>
@@ -196,7 +192,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjct8ileu000lbd98xariv6n8" class="article-share-link">Compartir</a>
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjctbtb8u000lol98s7hovi8o" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
@@ -208,7 +204,7 @@
 <nav id="article-nav">
   
     <a href="/2017/03/22/MongoDB原生命令CURD/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Nuevo</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
           MongoDB原生命令CURD
@@ -218,7 +214,7 @@
   
   
     <a href="/2016/08/10/设计模式之面向对象六大原则/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Viejo</strong>
+      <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">设计模式之面向对象六大原则</div>
     </a>
   
@@ -233,7 +229,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Categorías</h3>
+    <h3 class="widget-title">分类</h3>
     <div class="widget">
       <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
     </div>
@@ -243,7 +239,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
+    <h3 class="widget-title">标签</h3>
     <div class="widget">
       <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
     </div>
@@ -253,7 +249,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Nube de Tags</h3>
+    <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
       <a href="/tags/Css/" style="font-size: 10px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 20px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
     </div>
@@ -262,7 +258,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archivos</h3>
+    <h3 class="widget-title">归档</h3>
     <div class="widget">
       <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
     </div>
@@ -272,7 +268,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Posts recientes</h3>
+    <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
         
@@ -309,7 +305,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2018 betterlin<br>
-      Construido por <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
