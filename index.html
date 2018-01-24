@@ -72,10 +72,14 @@
   
     <article id="post-微信H5开发历程记录" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2018/01/24/微信H5开发历程记录/" class="article-date">
-  <time datetime="2018-01-24T14:14:17.000Z" itemprop="datePublished">2018-01-24</time>
+    <a href="/2017/10/28/微信H5开发历程记录/" class="article-date">
+  <time datetime="2017-10-28T14:14:17.000Z" itemprop="datePublished">2017-10-28</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Wechat/">Wechat</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -84,7 +88,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/24/微信H5开发历程记录/">微信H5开发历程记录</a>
+      <a class="article-title" href="/2017/10/28/微信H5开发历程记录/">微信H5开发历程记录</a>
     </h1>
   
 
@@ -95,7 +99,7 @@
         <h2 id="登录授权"><a href="#登录授权" class="headerlink" title="登录授权"></a>登录授权</h2><ul>
 <li>微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到</li>
 </ul>
-<p><a href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=${config.appId}&amp;redirect_uri=${encodeURIComponent(config.redirectUrl)}&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect" target="_blank" rel="noopener">https://open.weixin.qq.com/connect/oauth2/authorize?appid=${config.appId}&amp;redirect_uri=${encodeURIComponent(config.redirectUrl)}&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&#123;config.appId&#125;&amp;redirect_uri=$&#123;encodeURIComponent(config.redirectUrl)&#125;&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect</span><br></pre></td></tr></table></figure>
 <p>redirectUrl是表示授权后的回调路由跳转，然后回调路由微信会在url里面注入code和state，凭借code和state后端可以向微信获取用户的access_token，要获取用户信息，要使用access_token</p>
 <ul>
 <li>向微信请求用户信息</li>
@@ -130,10 +134,118 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/01/24/微信H5开发历程记录/" data-id="cjct6c2qd0007ma98ztv0jq2y" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjct8iles000hbd988zsb0l3z" class="article-share-link">Teilen</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-写作建议和性能优化小结" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/09/写作建议和性能优化小结/" class="article-date">
+  <time datetime="2017-10-09T15:32:18.000Z" itemprop="datePublished">2017-10-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Css/">Css</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/09/写作建议和性能优化小结/">CSS写作建议和性能优化小结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="CSS渲染规则"><a href="#CSS渲染规则" class="headerlink" title="CSS渲染规则"></a>CSS渲染规则</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.nav</span> <span class="selector-tag">h3</span> <span class="selector-tag">a</span> &#123; <span class="attribute">font-size</span>: <span class="number">14px</span>; &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>渲染过程: 首先找到所有的a，沿着a的父元素查找h3，然后再沿着h3，查找.nav。中途找到了符合匹配规则的节点就加入结果集。如果找到根元素html都没有匹配，则不再遍历这条路径，从下一个a开始重复这个查找匹配（只要页面上有多个最右节点为a）</p>
+</li>
+<li><p>CSS选择器从右向左匹配：从右向左的匹配在第一步就筛选掉了大量的不符合条件的最右节点（叶子节点）；而从左向右的匹配规则的性能都浪费在了失败的查找上面</p>
+</li>
+</ul>
+<h2 id="嵌套层级不要超过-3-级"><a href="#嵌套层级不要超过-3-级" class="headerlink" title="嵌套层级不要超过 3 级"></a>嵌套层级不要超过 3 级</h2><ul>
+<li>CSS的元素嵌套层级不能超过3级，过度的嵌套会导致代码臃肿，冗余，导致CSS文件的体积变大，影响渲染的速度，而且过于依赖HTML文档结构。如果以后要修改样式，可能要使用!important覆盖。</li>
+</ul>
+<h2 id="样式级别"><a href="#样式级别" class="headerlink" title="样式级别"></a>样式级别</h2><ul>
+<li>!important &gt; 行内样式 &gt; ID 样式 &gt; Class 样式 &gt; 标签名样式</li>
+<li>组合选择器使用权值会叠加的，ID 的权值是100，Class 是10，标签名是 1</li>
+</ul>
+<p><img src="/images/css-weight.png" alt="css-weight"></p>
+<h2 id="inline-block-的边距解决方法"><a href="#inline-block-的边距解决方法" class="headerlink" title="inline-block 的边距解决方法"></a>inline-block 的边距解决方法</h2><ul>
+<li>删除代码之前的空行空格</li>
+<li>父元素font-size设置为0</li>
+</ul>
+<h2 id="图片要设置-width-和-height"><a href="#图片要设置-width-和-height" class="headerlink" title="图片要设置 width 和 height"></a>图片要设置 width 和 height</h2><ul>
+<li><p>img很建议设置width和height。目的是为了在网速差或者其它原因加载不出图片的时候，保证布局不会乱</p>
+</li>
+<li><p>PC 站：建议在img标签的属性设置width和height。这样避免加载不出 CSS 而错位；</p>
+</li>
+<li><p>手机站：建议用 CSS 设置img的width和height，因为手机站要做适配，在属性设置width和height不灵活，比如使用rem布局，在属性那里设置不了width和height；</p>
+</li>
+<li><p>如果图片不固定：但是有一个max-width和max-height，那么建议在img的父元素设置width和height。img根据父元素的width和height设置max-width和max-height。</p>
+</li>
+</ul>
+<h2 id="任意元素垂直居中"><a href="#任意元素垂直居中" class="headerlink" title="任意元素垂直居中"></a>任意元素垂直居中</h2><ul>
+<li>table-cell：</li>
+</ul>
+<p><img src="/images/table-cell.png" alt="table-cell"></p>
+<ul>
+<li><p>flex (过于简单，忽略)</p>
+</li>
+<li><p>position， transform</p>
+</li>
+</ul>
+<p><img src="/images/pos-tran.png" alt="pos-tran"></p>
+<ul>
+<li>position margin</li>
+</ul>
+<p><img src="/images/pos-mar.png" alt="pos-mar"></p>
+<p>这个方式不推荐使用，因为这个写法，.div2的宽高必须要设置，否则就是 100%，比如设置了top:0;bottom:0;效果和设置height:100%;是一样的。如果想要避免，就必须要设置height。</p>
+<h2 id="图片预加载"><a href="#图片预加载" class="headerlink" title="图片预加载"></a>图片预加载</h2><ul>
+<li>懒加载：页面加载的时候，先加载一部分内容（一般是先加载首屏内容），其它内容等到需要加载的时候再进行加载。</li>
+<li>预加载：页面加载的时候，先加载一部分内容（一般是先加载首屏内容），其它内容等到先加载的一部分内容（一般是首屏内容）加载完了，再进行加载。</li>
+</ul>
+<h2 id="慎用-通配符"><a href="#慎用-通配符" class="headerlink" title="慎用 * 通配符"></a>慎用 * 通配符</h2><ul>
+<li>通配符代码少，但是性能差，因为渲染的时候，要匹配页面上所有的元素</li>
+</ul>
+<h2 id="CSS-在-head-引入"><a href="#CSS-在-head-引入" class="headerlink" title="CSS 在 head 引入"></a>CSS 在 head 引入</h2><ul>
+<li>浏览器在所有的 stylesheets 加载完成之后，才会开始渲染整个页面。在此之前，浏览器不会渲染页面里的任何内容，页面会一直呈现空白。这也是为什么要把 stylesheet 放在头部的原因。如果放在 HTML 页面底部，页面渲染就不仅仅是在等待 stylesheet 的加载，还要等待 HTML 内容加载完成，这样一来，用户看到页面的时间会更晚。</li>
+</ul>
+<h2 id="避免使用-import"><a href="#避免使用-import" class="headerlink" title="避免使用 @import"></a>避免使用 @import</h2><ul>
+<li>@import会影响浏览器的并行下载，使得页面在加载时增加额外的延迟，增添了额外的往返耗时。而且多个@import可能会导致下载顺序紊乱。</li>
+</ul>
+<h2 id="不要在-ID-选择器前面进行嵌套或写标签"><a href="#不要在-ID-选择器前面进行嵌套或写标签" class="headerlink" title="不要在 ID 选择器前面进行嵌套或写标签"></a>不要在 ID 选择器前面进行嵌套或写标签</h2><ul>
+<li>ID 在页面上本来就是唯一的，而且人家权值那么大，前方嵌套（.content #test）完全是浪费性能，以及多写一些没有意义的代码。这个虽然是一句话，但是还是有人犯这样的错。</li>
+<li>除了嵌套，在 ID 的前面也不需要加标签或者其它选择器。比如div#test或者.test#test。这两种方式完全是多余的，理由就是 ID 在页面就是唯一的。前面加任何东西都是多余的！</li>
+</ul>
+<h2 id="CSS3-动画的优化"><a href="#CSS3-动画的优化" class="headerlink" title="CSS3 动画的优化"></a>CSS3 动画的优化</h2><ul>
+<li>CSS3 动画或者过渡尽量使用transform和opacity来实现动画，不要使用left和top；</li>
+<li>动画和过渡能用CSS3解决的，就不要使用JS。如果是复杂的动画可以使用CSS3+JS（或者HTML5+CSS3+JS）配合开发</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjct8ilel0007bd98hdnxj1qa" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
 
     </footer>
   </div>
@@ -230,7 +342,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjct6c2qn000kma98yxpr3x1v" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjct8ilek0006bd98q3k2bz60" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
@@ -322,7 +434,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjct6c2q00000ma98ke084sga" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjct8ile90000bd98hdn0iarr" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
@@ -510,7 +622,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjct6c2qi000fma98cw841uk6" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjct8ilef0002bd984bxdijby" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -646,7 +758,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjct6c2qg000bma98gibv7bwz" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjct8ileu000lbd98xariv6n8" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
@@ -712,7 +824,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjct6c2qk000gma98rqlfprwa" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjct8ilew000nbd98ohmsfhnw" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
@@ -788,7 +900,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjct6c2qa0005ma98kkziil5w" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjct8ilej0005bd98mty6ba2s" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -835,7 +947,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjct6c2q50002ma98a1kjydn1" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjct8ilen000abd98b9b22pa7" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
@@ -888,7 +1000,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓自定义控件RecyclerView/" data-id="cjct6c2qe000ama98dty07za7" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/安卓自定义控件RecyclerView/" data-id="cjct8ileq000fbd985geybhvx" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
@@ -900,121 +1012,12 @@
 
 
   
-    <article id="post-安卓数据请求方式" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/07/31/安卓数据请求方式/" class="article-date">
-  <time datetime="2016-07-30T19:55:55.000Z" itemprop="datePublished">2016-07-31</time>
-</a>
+
+
+  <nav id="page-nav">
     
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/安卓/">安卓</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/31/安卓数据请求方式/">安卓数据请求方式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Post请求"><a href="#Post请求" class="headerlink" title="Post请求"></a>Post请求</h2><ul>
-<li>安卓要通过向服务器请求需要加入权限</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uses-permission android:name=<span class="string">"android.permission.INTERNET"</span>/&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>由于网络请求是一个耗时的操作，所以我们要开启一个子线程，在子线程中我们需要传递一个url地址，url地址通过字符串传递再封装到URL对象里面</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">URL httpUrl = <span class="keyword">new</span> URL(url);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>创建一个HttpURLConnection对象</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HttpURLConnection connection = (HttpURLConnection) httpUrl.openConnection();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置请求方式为post(也可以进行get方式)</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.setRequestMethod(<span class="string">"POST"</span>);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置是否可以进行流操作</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.setDoOutput(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置请求时间不超过5s</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.setReadTimeout(<span class="number">5000</span>);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>开启一个输出流，并获得向链接的服务器进行输入数据操作</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OutputStream out = connection.getOutputStream();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>向服务器提交数据的格式（post请求方式）</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String content = <span class="string">"phone="</span> + user.getPhone() + <span class="string">"&amp;username="</span> + user.getUsernanme() + <span class="string">"&amp;password="</span> + user.getPassword();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>提交数据</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">out.write(content.getBytes());</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>获取服务器返回的数据：</p>
-<ul>
-<li>开启读取服务器的带缓冲的读取器</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStream(connect.getInputStream()));</span><br></pre></td></tr></table></figure>
-<ul>
-<li>创建一个字符串缓冲器：</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">StringBuffer stringBuffer = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">String str;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>当读取到的字符串不为空时就追加到缓冲器中</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">While((str = reader.readline()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">    stringBuffer.append(str);</span><br><span class="line">&#125;</span><br><span class="line">Log.d(<span class="string">"info"</span>,stringBuffer.toString());</span><br></pre></td></tr></table></figure>
-<p>于是这样就可以跟服务器进行Post数据的交互了</p>
-<h2 id="Get请求"><a href="#Get请求" class="headerlink" title="Get请求"></a>Get请求</h2><ul>
-<li>url的参数是</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url = url + <span class="string">"?phone="</span> + user.getPhone() + <span class="string">"&amp;password="</span> + user.getPassword();</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>通过url的路由进行数据的请求，这是get的请求方式，但是如果进行大量的数据传输则不考虑使用get的方式</p>
-</li>
-<li><p>网络请求是一个耗时的操作，所以我们要开启一个子线程，在子线程中我们需要传递一个url地址，url地址通过字符串传递再封装到URL对象里面</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">URL httpUrl = <span class="keyword">new</span> URL(url);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>创建一个HttpURLConnection对象</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HttpURLConnection connection = (HttpURLConnection) httpUrl.openConnection();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置请求的方式为get:</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">connection.setRequestMethod(<span class="string">"GET"</span>);</span><br><span class="line">connection.setReadTimeout(<span class="number">5000</span>);</span><br><span class="line"></span><br><span class="line">BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(connection.getInputStr</span><br><span class="line">eam))); </span><br><span class="line">String str;</span><br><span class="line">StringBuffer stringBuffer = <span class="keyword">new</span> StringBuffer();</span><br><span class="line"><span class="keyword">while</span>((str = reader.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">      stringBuffer.append(str);</span><br><span class="line">&#125;</span><br><span class="line">Log.d(<span class="string">"info"</span>,stringBuffer.toString());</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓数据请求方式/" data-id="cjct6c2qc0006ma98n963emw0" class="article-share-link">Teilen</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Http/">Http</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">weiter &raquo;</a>
+  </nav>
 
 </section>
         
@@ -1024,7 +1027,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Kategorien</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/MongoDB/">MongoDB</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Node/">Node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/安卓/">安卓</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/设计模式/">设计模式</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Css/">Css</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MongoDB/">MongoDB</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Node/">Node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Wechat/">Wechat</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/安卓/">安卓</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/设计模式/">设计模式</a></li></ul>
     </div>
   </div>
 
@@ -1034,7 +1037,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
     </div>
   </div>
 
@@ -1044,7 +1047,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/Javascript/" style="font-size: 10px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 15px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 20px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Css/" style="font-size: 10px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Http/" style="font-size: 10px;">Http</a> <a href="/tags/Javascript/" style="font-size: 10px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 20px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -1053,7 +1056,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archiv</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
     </div>
   </div>
 
@@ -1066,7 +1069,11 @@
       <ul>
         
           <li>
-            <a href="/2018/01/24/微信H5开发历程记录/">微信H5开发历程记录</a>
+            <a href="/2017/10/28/微信H5开发历程记录/">微信H5开发历程记录</a>
+          </li>
+        
+          <li>
+            <a href="/2017/10/09/写作建议和性能优化小结/">CSS写作建议和性能优化小结</a>
           </li>
         
           <li>
@@ -1079,10 +1086,6 @@
         
           <li>
             <a href="/2017/03/22/MongoDB原生命令CURD/">MongoDB原生命令CURD</a>
-          </li>
-        
-          <li>
-            <a href="/2016/12/20/计算机网络体系结构/">计算机网络体系结构</a>
           </li>
         
       </ul>
