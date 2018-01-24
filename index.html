@@ -96,7 +96,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="登录授权"><a href="#登录授权" class="headerlink" title="登录授权"></a>登录授权</h2><ul>
+        <p><img src="/images/wechat.png" alt="wechat"></p>
+<h2 id="登录授权"><a href="#登录授权" class="headerlink" title="登录授权"></a>登录授权</h2><ul>
 <li>微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&#123;config.appId&#125;&amp;redirect_uri=$&#123;encodeURIComponent(config.redirectUrl)&#125;&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect</span><br></pre></td></tr></table></figure>
@@ -134,7 +135,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjct8iles000hbd988zsb0l3z" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjct92o09000cyf98ggqew6vw" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
@@ -172,7 +173,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="CSS渲染规则"><a href="#CSS渲染规则" class="headerlink" title="CSS渲染规则"></a>CSS渲染规则</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.nav</span> <span class="selector-tag">h3</span> <span class="selector-tag">a</span> &#123; <span class="attribute">font-size</span>: <span class="number">14px</span>; &#125;</span><br></pre></td></tr></table></figure>
+        <p><img src="/images/css-layout.png" alt="css"></p>
+<h2 id="CSS渲染规则"><a href="#CSS渲染规则" class="headerlink" title="CSS渲染规则"></a>CSS渲染规则</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.nav</span> <span class="selector-tag">h3</span> <span class="selector-tag">a</span> &#123; <span class="attribute">font-size</span>: <span class="number">14px</span>; &#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li><p>渲染过程: 首先找到所有的a，沿着a的父元素查找h3，然后再沿着h3，查找.nav。中途找到了符合匹配规则的节点就加入结果集。如果找到根元素html都没有匹配，则不再遍历这条路径，从下一个a开始重复这个查找匹配（只要页面上有多个最右节点为a）</p>
 </li>
@@ -242,7 +244,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjct8ilel0007bd98hdnxj1qa" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjct92o020005yf98qrirk3f4" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
@@ -342,7 +344,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjct8ilek0006bd98q3k2bz60" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjct92o040006yf98o56cvbwq" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
@@ -434,7 +436,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjct8ile90000bd98hdn0iarr" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjct92nzx0002yf98akmz4f61" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
@@ -622,7 +624,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjct8ilef0002bd984bxdijby" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjct92nzs0000yf984ql9tfh0" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -758,7 +760,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjct8ileu000lbd98xariv6n8" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjct92o0b000hyf98bxoadt71" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
@@ -824,7 +826,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjct8ilew000nbd98ohmsfhnw" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjct92o0g000myf98yhkziyu7" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
@@ -900,7 +902,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjct8ilej0005bd98mty6ba2s" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjct92o0e000lyf98ysv9dnfl" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -947,7 +949,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjct8ilen000abd98b9b22pa7" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjct92o0a000gyf98eieph83b" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
@@ -1000,7 +1002,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓自定义控件RecyclerView/" data-id="cjct8ileq000fbd985geybhvx" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/安卓自定义控件RecyclerView/" data-id="cjct92o07000byf98sukyyxly" class="article-share-link">Teilen</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
