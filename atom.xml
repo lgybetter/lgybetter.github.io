@@ -39,9 +39,9 @@
       <category term="前端" scheme="http://yoursite.com/categories/%E5%89%8D%E7%AB%AF/"/>
     
     
-      <category term="Vue" scheme="http://yoursite.com/tags/Vue/"/>
-    
       <category term="TypeScript" scheme="http://yoursite.com/tags/TypeScript/"/>
+    
+      <category term="Vue" scheme="http://yoursite.com/tags/Vue/"/>
     
   </entry>
   
@@ -67,9 +67,9 @@
       <category term="前端" scheme="http://yoursite.com/categories/%E5%89%8D%E7%AB%AF/"/>
     
     
-      <category term="TypeScript" scheme="http://yoursite.com/tags/TypeScript/"/>
-    
       <category term="React" scheme="http://yoursite.com/tags/React/"/>
+    
+      <category term="TypeScript" scheme="http://yoursite.com/tags/TypeScript/"/>
     
   </entry>
   
