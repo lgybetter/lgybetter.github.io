@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2019-04-21T17:09:46.689Z</updated>
+  <updated>2019-04-22T18:37:51.420Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,36 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>浏览器缓存中的HTTP缓存</title>
+    <link href="http://yoursite.com/2019/04/22/%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98%E4%B8%AD%E7%9A%84HTTP%E7%BC%93%E5%AD%98/"/>
+    <id>http://yoursite.com/2019/04/22/浏览器缓存中的HTTP缓存/</id>
+    <published>2019-04-22T14:30:06.000Z</published>
+    <updated>2019-04-22T18:37:51.420Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>缓存是一把双刃剑，既能帮你，也会害你。正确地使用缓存策略，能够让用户访问网页的速度大幅提升。</p></blockquote><h2 id="浏览器缓存"><a href="#浏览器缓存" class="headerlink" title="浏览器缓存"></a>浏览器缓存</h2><p>个人理解，指的是把已经获取到的资源进行副本复制并存储在浏览器中。根据缓存策略，实现资源复用，而防止重复请求加载。</p><h2 id="缓存带来的优点"><a href="#缓存带来的优点" class="headerlink" title="缓存带来的优点"></a>缓存带来的优点</h2><ul><li>减少网络请求延迟，提高页面访问速度</li><li>降低服务器请求压力</li><li>减少网络带宽的消耗，比如资源存放cdn的情况，减少带宽的使用，有效降低成本。</li></ul><h2 id="HTTP缓存"><a href="#HTTP缓存" class="headerlink" title="HTTP缓存"></a>HTTP缓存</h2><h3 id="强缓存"><a href="#强缓存" class="headerlink" title="强缓存"></a>强缓存</h3><p>强缓存是指通过使用Http的响应头 Expires 或 Cache-Control 对资源进行缓存有效期进行设置。两者都是通过控制资源的有效期来实现缓存策略，当对应的资源在有效期内命中，浏览器则不向后端发送通信，直接使用缓存策略命中的资源。</p><p>这两者该如何去使用呢？有什么区别？</p><ul><li>Expires</li></ul><p>Expires是Http 1.0的产物，其实用法是后端在Http的响应头设置如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">expires: Apr, 22 2019 23:58:12 GMT</span><br></pre></td></tr></table></figure></p><p>其中是通过设置了一个时间戳，浏览器下次进行资源获取的时候会对比当前时间和此时间戳，如果当前时间小于该时间戳，就表示缓存仍在有效期中命中。如果要让缓存失效，则配置如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">expires: -1</span><br></pre></td></tr></table></figure><p>由以上可发现问题，Expires依赖客户端本地时间，如果客户端的本地时间错误，就会让缓存策略失效，于是Http 1.1就新增了 Cache-Control 来替代 Expires。</p><ul><li>Cache-Control<br>Cache-Control 可配置的字段比较多，我们逐个来了解<ul><li>no-cache: 浏览器获取资源时，浏览器都要向服务器进行通信验证缓存是否命中。</li><li>no-store: 强制浏览器在任何情况下都不要保留任何副本，也就是不进行任何缓存策略。</li><li>max-age=(second): 通过设置时间长度，判断该资源在此时间范围内以内是否命中，避免时间戳带来的问题</li><li>s-maxage=(second): s-maxage 优先级高于 max-age，s-maxage 用于表示 cache 服务器上（比如 CDN）的缓存的有效时间，并只对 public 缓存有效。</li><li>public: 任何路径的缓存者（本地缓存、代理服务器），可以无条件的缓存改资源</li><li>private: 只针对单个用户或者实体（不同用户、窗口）缓存资源</li></ul></li></ul><p>可见 Cache-Control 的功能比 Expires 完善，而且优先级更高。</p><h3 id="协商缓存"><a href="#协商缓存" class="headerlink" title="协商缓存"></a>协商缓存</h3><p>协商缓存依赖于浏览器于服务器端进行通信，浏览器需要向服务器询问当前资源是否命中缓存有效期。当请求讯问的资源命中缓存，则服务器会返回Http响应码304务端告知浏览器缓存资源命中，请求会被重定向到浏览器缓存。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;blockquote&gt;
+&lt;p&gt;缓存是一把双刃剑，既能帮你，也会害你。正确地使用缓存策略，能够让用户访问网页的速度大幅提升。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;浏览器缓存&quot;&gt;&lt;a href=&quot;#浏览器缓存&quot; class=&quot;headerlink&quot; title=&quot;浏
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="http://yoursite.com/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="Http" scheme="http://yoursite.com/tags/Http/"/>
+    
+      <category term="Browser" scheme="http://yoursite.com/tags/Browser/"/>
+    
+  </entry>
   
   <entry>
     <title>2019我和前端有一个约定</title>
