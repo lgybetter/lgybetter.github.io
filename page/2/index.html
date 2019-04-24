@@ -73,6 +73,440 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-微信H5开发历程记录" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/10/28/微信H5开发历程记录/" class="article-date">
+  <time datetime="2017-10-28T14:14:17.000Z" itemprop="datePublished">2017-10-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/28/微信H5开发历程记录/">微信H5开发历程记录</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/wechat.png" alt="wechat"></p>
+<h2 id="登录授权"><a href="#登录授权" class="headerlink" title="登录授权"></a>登录授权</h2><ul>
+<li>微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&#123;config.appId&#125;&amp;redirect_uri=$&#123;encodeURIComponent(config.redirectUrl)&#125;&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect</span><br></pre></td></tr></table></figure>
+<p>redirectUrl是表示授权后的回调路由跳转，然后回调路由微信会在url里面注入code和state，凭借code和state后端可以向微信获取用户的access_token，要获取用户信息，要使用access_token</p>
+<ul>
+<li>向微信请求用户信息</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> nconf <span class="keyword">from</span> <span class="string">'nconf'</span></span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Promise</span> <span class="keyword">from</span> <span class="string">'bluebird'</span></span><br><span class="line"><span class="keyword">const</span> request = <span class="built_in">Promise</span>.promisifyAll(<span class="built_in">require</span>(<span class="string">'request'</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> getToken = <span class="keyword">async</span> (code) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="string">`<span class="subst">$&#123;nconf.get(<span class="string">'wechat:baseUrl'</span>)&#125;</span>/sns/oauth2/access_token?appid=<span class="subst">$&#123;nconf.get(<span class="string">'wechat:appId'</span>)&#125;</span>&amp;secret=<span class="subst">$&#123;nconf.get(<span class="string">'wechat:appSecret'</span>)&#125;</span>&amp;code=<span class="subst">$&#123;code&#125;</span>&amp;grant_type=authorization_code`</span>;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> request.getAsync(&#123;</span><br><span class="line">    url,</span><br><span class="line">    json: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">const</span> body = res.body</span><br><span class="line">  <span class="keyword">if</span> (!body.access_token) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(<span class="keyword">new</span> <span class="built_in">Error</span>(body.errcode +<span class="string">'/'</span>+ body.errmsg))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> body</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> getUserInfo =<span class="keyword">async</span> (token, openid) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="string">`<span class="subst">$&#123;nconf.get(<span class="string">'wechat:baseUrl'</span>)&#125;</span>/sns/userinfo?access_token=<span class="subst">$&#123;token&#125;</span>&amp;openid=<span class="subst">$&#123;openid&#125;</span>&amp;lang=zh_CN`</span></span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> request.getAsync(&#123;</span><br><span class="line">    url,</span><br><span class="line">    json: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">const</span> body = res.body</span><br><span class="line">  <span class="keyword">if</span>(!body.openid) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(<span class="keyword">new</span> <span class="built_in">Error</span>(body.errcode +<span class="string">'/'</span>+ body.errmsg))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> body</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123;</span><br><span class="line">  getToken,</span><br><span class="line">  getUserInfo</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li>JS-SDK设置：微信的js-sdk调用比较简单，但是配置需要注意安全域名</li>
+</ul>
+<p><img src="/images/save-domain.png" alt="安全域名"><br>切记：只能填写域名或者ip，不要多加其他字段</p>
+<p><img src="/images/save-domain2.png" alt="安全域名"><br>切记：这个地方还要设置安全域名，坑爹！一开始不知道</p>
+<ul>
+<li>微信的js-sdk需要config，这时候需要服务器提供签名认证，使用wechat-api自动获取access_token(注意保存，不能多次频繁获取)</li>
+</ul>
+<h2 id="服务器认证"><a href="#服务器认证" class="headerlink" title="服务器认证"></a>服务器认证</h2><p><img src="/images/server.png" alt="服务器"></p>
+<p>微信需要对你的服务器进行认证，你的服务器需要进行http或者https的响应</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; exchangeToken, getJSConfig &#125; <span class="keyword">from</span> <span class="string">'../controllers/wechat'</span>;</span><br><span class="line"><span class="keyword">import</span> nconf <span class="keyword">from</span> <span class="string">'nconf'</span></span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">"crypto"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function">(<span class="params">router, commonRouter, authRouter, wechatRouter</span>) =&gt;</span> &#123;</span><br><span class="line">  wechatRouter.post(<span class="string">'/exchangeToken'</span>, exchangeToken);</span><br><span class="line">  wechatRouter.get(<span class="string">'/getJSConfig'</span>, getJSConfig);</span><br><span class="line">  wechatRouter.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> signature = req.query.signature,</span><br><span class="line">      timestamp = req.query.timestamp,</span><br><span class="line">      nonce = req.query.nonce,</span><br><span class="line">      echostr = req.query.echostr;</span><br><span class="line">    <span class="keyword">let</span> array = [nconf.get(<span class="string">'wechat:token'</span>), timestamp, nonce];</span><br><span class="line">    array.sort();</span><br><span class="line">    <span class="keyword">let</span> tempStr = array.join(<span class="string">""</span>);</span><br><span class="line">    <span class="keyword">const</span> hashCode = crypto.createHash(<span class="string">"sha1"</span>);</span><br><span class="line">    <span class="keyword">let</span> resultCode = hashCode.update(tempStr, <span class="string">"utf8"</span>).digest(<span class="string">"hex"</span>);</span><br><span class="line">    <span class="keyword">if</span> (resultCode === signature) &#123;</span><br><span class="line">      res.send(echostr);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      res.send(<span class="string">"mismatch"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="要点注意"><a href="#要点注意" class="headerlink" title="要点注意"></a>要点注意</h3><ul>
+<li><p>vue.js History路由和后台接口冲突问题：vue前端路由push一个路由可以正常跳转，但是如果路由直接复制到浏览器或者刷新就会和后端的服务接口发生冲突，解决方法是对nginx进行url强制转化</p>
+</li>
+<li><p>vue.js Hash路由在微信授权跳转回来的时候由于带有#的原因，导致注入code和state会在#前面，无法用this.$route.query来获取，需要使用window.location.href自行正则匹配获取</p>
+</li>
+<li><p>Nuxt服务端渲染由于是第一次加使用后端直出的模版，但是当前端路由跳转后，就不是又后端直出了，而是使用前端的bundle文件进行渲染，在ios不会出现js-sdk invalid url的错误，但是在安卓下就会出错，而且js-sdk不能配置多次，一个页面进去只能配置一次，而且需要在wx.ready的回调方法里面对微信的js-sdk接口进行配置和使用。解决方法是不使用nuxt的vue-router，而是使用window的location.href来路由跳转，不过这样性能不好，最好是不要在router-view的外层进行配置，而是单独对里面的子页面进行配置</p>
+</li>
+<li><p>H5下，音频播放问题，在ios下面，播放音频视频都需要用户去触发事件才能执行</p>
+</li>
+<li><p>正式配置微信的服务号，设置安全域名需要上传一个文件，类似证书吧，这个路径微信写着要放置到web的根目录下面，原来所谓的web根目录就是静态服务器下面的public文件夹，一开始配置nginx root路径好久，发现没卵用。</p>
+</li>
+<li><p>原来微信下每个公众号的对应用户的openid都是不一样的，在发送消息推送，以为和测试号的id一样，最后查了数据库发现不一致</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjuvhimzx001c7kyv4u4fzo4x" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-写作建议和性能优化小结" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/10/09/写作建议和性能优化小结/" class="article-date">
+  <time datetime="2017-10-09T15:32:18.000Z" itemprop="datePublished">2017-10-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/09/写作建议和性能优化小结/">CSS写作建议和性能优化小结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/css-layout.png" alt="css"></p>
+<h2 id="CSS渲染规则"><a href="#CSS渲染规则" class="headerlink" title="CSS渲染规则"></a>CSS渲染规则</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.nav</span> <span class="selector-tag">h3</span> <span class="selector-tag">a</span> &#123; <span class="attribute">font-size</span>: <span class="number">14px</span>; &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>渲染过程: 首先找到所有的a，沿着a的父元素查找h3，然后再沿着h3，查找.nav。中途找到了符合匹配规则的节点就加入结果集。如果找到根元素html都没有匹配，则不再遍历这条路径，从下一个a开始重复这个查找匹配（只要页面上有多个最右节点为a）</p>
+</li>
+<li><p>CSS选择器从右向左匹配：从右向左的匹配在第一步就筛选掉了大量的不符合条件的最右节点（叶子节点）；而从左向右的匹配规则的性能都浪费在了失败的查找上面</p>
+</li>
+</ul>
+<h2 id="嵌套层级不要超过-3-级"><a href="#嵌套层级不要超过-3-级" class="headerlink" title="嵌套层级不要超过 3 级"></a>嵌套层级不要超过 3 级</h2><ul>
+<li>CSS的元素嵌套层级不能超过3级，过度的嵌套会导致代码臃肿，冗余，导致CSS文件的体积变大，影响渲染的速度，而且过于依赖HTML文档结构。如果以后要修改样式，可能要使用!important覆盖。</li>
+</ul>
+<h2 id="样式级别"><a href="#样式级别" class="headerlink" title="样式级别"></a>样式级别</h2><ul>
+<li>!important &gt; 行内样式 &gt; ID 样式 &gt; Class 样式 &gt; 标签名样式</li>
+<li>组合选择器使用权值会叠加的，ID 的权值是100，Class 是10，标签名是 1</li>
+</ul>
+<p><img src="/images/css-weight.png" alt="css-weight"></p>
+<h2 id="inline-block-的边距解决方法"><a href="#inline-block-的边距解决方法" class="headerlink" title="inline-block 的边距解决方法"></a>inline-block 的边距解决方法</h2><ul>
+<li>删除代码之前的空行空格</li>
+<li>父元素font-size设置为0</li>
+</ul>
+<h2 id="图片要设置-width-和-height"><a href="#图片要设置-width-和-height" class="headerlink" title="图片要设置 width 和 height"></a>图片要设置 width 和 height</h2><ul>
+<li><p>img很建议设置width和height。目的是为了在网速差或者其它原因加载不出图片的时候，保证布局不会乱</p>
+</li>
+<li><p>PC 站：建议在img标签的属性设置width和height。这样避免加载不出 CSS 而错位；</p>
+</li>
+<li><p>手机站：建议用 CSS 设置img的width和height，因为手机站要做适配，在属性设置width和height不灵活，比如使用rem布局，在属性那里设置不了width和height；</p>
+</li>
+<li><p>如果图片不固定：但是有一个max-width和max-height，那么建议在img的父元素设置width和height。img根据父元素的width和height设置max-width和max-height。</p>
+</li>
+</ul>
+<h2 id="任意元素垂直居中"><a href="#任意元素垂直居中" class="headerlink" title="任意元素垂直居中"></a>任意元素垂直居中</h2><ul>
+<li>table-cell：</li>
+</ul>
+<p><img src="/images/table-cell.png" alt="table-cell"></p>
+<ul>
+<li><p>flex (过于简单，忽略)</p>
+</li>
+<li><p>position， transform</p>
+</li>
+</ul>
+<p><img src="/images/pos-tran.png" alt="pos-tran"></p>
+<ul>
+<li>position margin</li>
+</ul>
+<p><img src="/images/pos-mar.png" alt="pos-mar"></p>
+<p>这个方式不推荐使用，因为这个写法，.div2的宽高必须要设置，否则就是 100%，比如设置了top:0;bottom:0;效果和设置height:100%;是一样的。如果想要避免，就必须要设置height。</p>
+<h2 id="图片预加载"><a href="#图片预加载" class="headerlink" title="图片预加载"></a>图片预加载</h2><ul>
+<li>懒加载：页面加载的时候，先加载一部分内容（一般是先加载首屏内容），其它内容等到需要加载的时候再进行加载。</li>
+<li>预加载：页面加载的时候，先加载一部分内容（一般是先加载首屏内容），其它内容等到先加载的一部分内容（一般是首屏内容）加载完了，再进行加载。</li>
+</ul>
+<h2 id="慎用-通配符"><a href="#慎用-通配符" class="headerlink" title="慎用 * 通配符"></a>慎用 * 通配符</h2><ul>
+<li>通配符代码少，但是性能差，因为渲染的时候，要匹配页面上所有的元素</li>
+</ul>
+<h2 id="CSS-在-head-引入"><a href="#CSS-在-head-引入" class="headerlink" title="CSS 在 head 引入"></a>CSS 在 head 引入</h2><ul>
+<li>浏览器在所有的 stylesheets 加载完成之后，才会开始渲染整个页面。在此之前，浏览器不会渲染页面里的任何内容，页面会一直呈现空白。这也是为什么要把 stylesheet 放在头部的原因。如果放在 HTML 页面底部，页面渲染就不仅仅是在等待 stylesheet 的加载，还要等待 HTML 内容加载完成，这样一来，用户看到页面的时间会更晚。</li>
+</ul>
+<h2 id="避免使用-import"><a href="#避免使用-import" class="headerlink" title="避免使用 @import"></a>避免使用 @import</h2><ul>
+<li>@import会影响浏览器的并行下载，使得页面在加载时增加额外的延迟，增添了额外的往返耗时。而且多个@import可能会导致下载顺序紊乱。</li>
+</ul>
+<h2 id="不要在-ID-选择器前面进行嵌套或写标签"><a href="#不要在-ID-选择器前面进行嵌套或写标签" class="headerlink" title="不要在 ID 选择器前面进行嵌套或写标签"></a>不要在 ID 选择器前面进行嵌套或写标签</h2><ul>
+<li>ID 在页面上本来就是唯一的，而且人家权值那么大，前方嵌套（.content #test）完全是浪费性能，以及多写一些没有意义的代码。这个虽然是一句话，但是还是有人犯这样的错。</li>
+<li>除了嵌套，在 ID 的前面也不需要加标签或者其它选择器。比如div#test或者.test#test。这两种方式完全是多余的，理由就是 ID 在页面就是唯一的。前面加任何东西都是多余的！</li>
+</ul>
+<h2 id="CSS3-动画的优化"><a href="#CSS3-动画的优化" class="headerlink" title="CSS3 动画的优化"></a>CSS3 动画的优化</h2><ul>
+<li>CSS3 动画或者过渡尽量使用transform和opacity来实现动画，不要使用left和top；</li>
+<li>动画和过渡能用CSS3解决的，就不要使用JS。如果是复杂的动画可以使用CSS3+JS（或者HTML5+CSS3+JS）配合开发</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjuvhimz5000f7kyvtye0rwgj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-初音未来也会跳极乐净土" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/08/11/初音未来也会跳极乐净土/" class="article-date">
+  <time datetime="2017-08-11T10:19:16.000Z" itemprop="datePublished">2017-08-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/11/初音未来也会跳极乐净土/">初音未来也会跳极乐净土</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/bikini-miku.jpg" alt="bikini-miku"></p>
+<h2 id="ThreeJS"><a href="#ThreeJS" class="headerlink" title="ThreeJS"></a>ThreeJS</h2><h3 id="三个必要元素：-场景-scene-相机-camera-渲染器-renderer"><a href="#三个必要元素：-场景-scene-相机-camera-渲染器-renderer" class="headerlink" title="三个必要元素： 场景(scene), 相机(camera),  渲染器(renderer)"></a>三个必要元素： 场景(scene), 相机(camera),  渲染器(renderer)</h3><blockquote>
+<p>场景相当于舞台,相机相当于眼睛,渲染器用来把相机拍到的呈现在渲染在浏览器上</p>
+</blockquote>
+<ul>
+<li><p>场景：场景提供了添加/删除物体的方法, 同时也涵盖添加雾效果以及材质覆盖等方法;</p>
+</li>
+<li><p>相机：相机提供在浏览器下以不同的角度去观看场景，常用的相机类型为：CubeCamera(立方体),  OrthographicCamera(正交),PerspectiveCamera(远景)</p>
+</li>
+<li><p>渲染器：渲染器决定了渲染的结果应该画在页面的什么元素上面，并且以怎样的方式来绘制</p>
+</li>
+</ul>
+<h3 id="详细概念"><a href="#详细概念" class="headerlink" title="详细概念"></a>详细概念</h3><ul>
+<li><p>相机：照相机分为两种, 使用透视投影照相机获得的结果是类似人眼在真实世界中看到的有“近大远小”的效果，而使用正交投影照相机获得的结果就像我们在数学几何学课上老师教我们画的效果，对于在三维空间内平行的线，投影到二维空间中也一定是平行的。然后创建6个透视投影相机并渲染到1个WebGL渲染器目标(WebGLRenderTarget)Cube对象上就形成了CubeCamera(立方体相机)</p>
+</li>
+<li><p>坐标系：右手坐标，需要注意物体的坐标位置与相机之间的关系</p>
+</li>
+<li><p>光源</p>
+</li>
+</ul>
+<blockquote>
+<p>环境光：经过多次反射而来的光称为环境光，无法确定其最初的方向。环境光是一种无处不在的光。环境光源放出的光线被认为来自任何方向。因此，当你仅为场景指定环境光时，所有的物体无论法向量如何，都将表现为同样的明暗程度。<br>点光源：由这种光源放出的光线来自同一点，且方向辐射自四面八方。例如蜡烛放出的光，萤火虫放出的光。<br>聚光灯：这种光源的光线从一个锥体中射出，在被照射的物体上产生聚光的效果。使用这种光源需要指定光的射出方向以及锥体的顶角。<br>平行光：也称方向光（Directional Light），是一组没有衰减的平行的光线，类似太阳光的效果</p>
+</blockquote>
+<p>多种光源可以叠加进行使用，实现不同的视觉灯光效果，也可以通过控制光源来实现阴影效果。</p>
+<ul>
+<li>渲染器<ul>
+<li>CanvasRenderer</li>
+<li>WebGLRenderer<blockquote>
+<p>Canvas渲染器不使用WebGL来绘制场景，而使用相对较慢的Canvas 2D Context API<br>WebGL渲染器使用WebGL来绘制您的场景，使用WebGL将能够利用GPU硬件加速从而提高渲染性能。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="ThreeJS实现必要过程"><a href="#ThreeJS实现必要过程" class="headerlink" title="ThreeJS实现必要过程"></a>ThreeJS实现必要过程</h3><ul>
+<li><p>初始化相机</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">initCamera() &#123;</span><br><span class="line">  <span class="comment">// 使用远景相机PerspectiveCamera</span></span><br><span class="line">  <span class="keyword">this</span>.camera = <span class="keyword">new</span> THREE.PerspectiveCamera(<span class="number">45</span>, <span class="built_in">window</span>.innerWidth / <span class="built_in">window</span>.innerHeight, <span class="number">1</span>, <span class="number">2000</span>)</span><br><span class="line">  <span class="keyword">this</span>.camera.position.z = <span class="number">30</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化场景</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">initScene() &#123;</span><br><span class="line">  <span class="keyword">this</span>.scene = <span class="keyword">new</span> THREE.Scene()</span><br><span class="line">  <span class="keyword">this</span>.scene.background = <span class="keyword">new</span> THREE.Color(<span class="number">0x000000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化光线</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">initLight() &#123;</span><br><span class="line">  <span class="comment">// 使用环境光</span></span><br><span class="line">  <span class="keyword">let</span> ambient = <span class="keyword">new</span> THREE.AmbientLight(<span class="number">0x666666</span>)</span><br><span class="line">  <span class="comment">// 添加光源到场景中</span></span><br><span class="line">  <span class="keyword">this</span>.scene.add(ambient)</span><br><span class="line">  <span class="comment">// 使用平行光</span></span><br><span class="line">  <span class="keyword">let</span> directionalLight = <span class="keyword">new</span> THREE.DirectionalLight(<span class="number">0x887766</span>)</span><br><span class="line">  directionalLight.position.set(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">1</span>).normalize()</span><br><span class="line">  <span class="keyword">this</span>.scene.add(directionalLight)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化渲染器</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">initRenderer() &#123;</span><br><span class="line">  <span class="comment">// 插入DOM节点</span></span><br><span class="line">  <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.container)</span><br><span class="line">  <span class="comment">// 使用WebGLRenderer</span></span><br><span class="line">  <span class="keyword">this</span>.renderer = <span class="keyword">new</span> THREE.WebGLRenderer(&#123;</span><br><span class="line">    antialias: <span class="literal">true</span> <span class="comment">// 抗锯齿</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// 设置像素</span></span><br><span class="line">  <span class="keyword">this</span>.renderer.setPixelRatio(<span class="built_in">window</span>.devicePixelRatio)</span><br><span class="line">  <span class="comment">// 设置渲染面积</span></span><br><span class="line">  <span class="keyword">this</span>.renderer.setSize(<span class="built_in">window</span>.innerWidth, <span class="built_in">window</span>.innerHeight)</span><br><span class="line">  <span class="comment">// 渲染器renderer的domElement元素，表示渲染器中的画布，所有的渲染都是画在domElement上的</span></span><br><span class="line">  <span class="keyword">this</span>.container.appendChild(<span class="keyword">this</span>.renderer.domElement)</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">``</span><span class="string">` </span></span><br><span class="line"><span class="string">- 添加一个物体</span></span><br><span class="line"><span class="string">`</span><span class="string">``</span>javascript</span><br><span class="line">initObject() &#123;</span><br><span class="line">  <span class="comment">// 几何物体,一个立方体</span></span><br><span class="line">  <span class="keyword">let</span> geometry = <span class="keyword">new</span> THREE.CubeGeometry(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">  <span class="comment">// 物体材质</span></span><br><span class="line">  <span class="keyword">let</span> material = <span class="keyword">new</span> THREE.MeshBasicMaterial(&#123; <span class="attr">color</span>: <span class="number">0x00ff60</span> &#125;);</span><br><span class="line">  <span class="comment">// 物体实例</span></span><br><span class="line">  <span class="keyword">this</span>.cube = <span class="keyword">new</span> THREE.Mesh(geometry, material); </span><br><span class="line">  <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.cube);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加动画</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">animate () &#123;</span><br><span class="line">  <span class="keyword">this</span>.cube.rotation.x += <span class="number">0.1</span>;</span><br><span class="line">  <span class="keyword">this</span>.cube.rotation.y += <span class="number">0.1</span>;</span><br><span class="line">  <span class="keyword">this</span>.renderer.render(<span class="keyword">this</span>.scene, <span class="keyword">this</span>.camera)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>循环渲染</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">this</span>.animate()</span><br><span class="line">  <span class="comment">// 利用requestAnimationFrame()实现动画递归</span></span><br><span class="line">  循环</span><br><span class="line">  requestAnimationFrame(<span class="keyword">this</span>.render.bind(<span class="keyword">this</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>根据上面六个过程可以组合为一个通用的类来进行Three的简单使用<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseThree</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.renderer = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.width = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.height = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.camera = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.scene = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.light = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.windowHalfX = <span class="built_in">window</span>.innerWidth / <span class="number">2</span></span><br><span class="line">    <span class="keyword">this</span>.windowHalfY = <span class="built_in">window</span>.innerHeight / <span class="number">2</span></span><br><span class="line">    <span class="keyword">this</span>.container = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  initCamera() &#123;&#125;</span><br><span class="line">  initScene() &#123;&#125;</span><br><span class="line">  initLight() &#123;&#125;</span><br><span class="line">  initRenderer() &#123;&#125;</span><br><span class="line">  initObject() &#123;&#125;</span><br><span class="line">  render () &#123;&#125;</span><br><span class="line">  animate () &#123;&#125;</span><br><span class="line">  </span><br><span class="line">  start () &#123;</span><br><span class="line">    <span class="comment">// 初始化</span></span><br><span class="line">    <span class="keyword">this</span>.initCamera()</span><br><span class="line">    <span class="keyword">this</span>.initScene()</span><br><span class="line">    <span class="keyword">this</span>.initLight()</span><br><span class="line">    <span class="keyword">this</span>.initRenderer()</span><br><span class="line">    <span class="keyword">this</span>.initObject()</span><br><span class="line">    <span class="comment">// 开始渲染</span></span><br><span class="line">    <span class="keyword">this</span>.render()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="WebVR"><a href="#WebVR" class="headerlink" title="WebVR"></a>WebVR</h2><h3 id="WebVR简单了解"><a href="#WebVR简单了解" class="headerlink" title="WebVR简单了解"></a>WebVR简单了解</h3><ul>
+<li>WebVR的体验方式<ul>
+<li>VR模式<ul>
+<li>滑配式HMD + 移动端浏览器：浏览器水平陀螺仪的参数来获取用户的头部倾斜和转动的朝向，并告知页面需要渲染哪一个朝向的场景，移动端需使用Chrome Beta版本的浏览器</li>
+<li>分离式HMD + PC端浏览器：佩戴Oculus Rift的分离式头显浏览连接在PC主机端的网页，没有体验过。。。</li>
+</ul>
+</li>
+<li>裸眼模式： 使用鼠标拖拽场景</li>
+</ul>
+</li>
+</ul>
+<h3 id="实现WebVR准备工作"><a href="#实现WebVR准备工作" class="headerlink" title="实现WebVR准备工作"></a>实现WebVR准备工作</h3><blockquote>
+<p>需要引入的js插件：</p>
+<ol>
+<li>webvr-polyfill.js：需要引入webvr-polyfill.js来支持WebVR网页，它提供了大量VR相关的API，比如Navigator.getVRDevices()获取VR头显信息的方法</li>
+<li>VRcontrols.js：VR控制器，是three.js的一个相机控制器对象，引入VRcontrols.js可以根据用户在空间的朝向渲染场景，它通过调用WebVR API的orientation值控制camera的rotation属性</li>
+<li>VReffect.js：VR分屏器，这是three.js的一个场景分屏的渲染器，提供戴上VR头显的显示方式，VREffect.js重新创建了左右两个相机，对场景做二次渲染，产生双屏效果。</li>
+<li>webvr-manager.js：这是WebVR的方案适配插件，它提供PC端和移动端的两种适配方式，通过new WebVRManager()可以生成一个VR图标，提供VR模式和裸眼模式的不同体验，当用户在移动端点击按钮进入VR模式时，WebVRManager便会调用VREffect分屏器进行分屏，而退出VR模式时，WebVRManager便用回renderer渲染器进行单屏渲染。</li>
+</ol>
+</blockquote>
+<h3 id="初始化VR控件"><a href="#初始化VR控件" class="headerlink" title="初始化VR控件"></a>初始化VR控件</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">initVR() &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.effect = <span class="keyword">new</span> THREE.VREffect(<span class="keyword">this</span>.renderer)</span><br><span class="line">  <span class="keyword">this</span>.controls = <span class="keyword">new</span> THREE.VRControls(<span class="keyword">this</span>.camera)</span><br><span class="line">  <span class="keyword">this</span>.manager = <span class="keyword">new</span> WebVRManager(<span class="keyword">this</span>.renderer, <span class="keyword">this</span>.effect)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 动画渲染更新</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.ready) &#123;</span><br><span class="line">    <span class="keyword">this</span>.helper.animate(<span class="keyword">this</span>.clock.getDelta())</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.physicsHelper != <span class="literal">null</span> &amp;&amp; <span class="keyword">this</span>.physicsHelper.visible) &#123;</span><br><span class="line">      <span class="comment">// 物理重力等效果</span></span><br><span class="line">      <span class="keyword">this</span>.physicsHelper.update()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 加载MMD模型时使用</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.ikHelper != <span class="literal">null</span> &amp;&amp; <span class="keyword">this</span>.ikHelper.visible) &#123;</span><br><span class="line">      <span class="keyword">this</span>.ikHelper.update()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 使控制器能够实时更新</span></span><br><span class="line">    <span class="keyword">this</span>.controls.update()</span><br><span class="line">    <span class="comment">// this.renderer.render(this.scene, this.camera)</span></span><br><span class="line">    <span class="keyword">this</span>.manager.render(<span class="keyword">this</span>.scene, <span class="keyword">this</span>.camera)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="WebVR结合ThreeJS发生的碰撞"><a href="#WebVR结合ThreeJS发生的碰撞" class="headerlink" title="WebVR结合ThreeJS发生的碰撞"></a>WebVR结合ThreeJS发生的碰撞</h2><h3 id="导入MMD模型"><a href="#导入MMD模型" class="headerlink" title="导入MMD模型"></a>导入MMD模型</h3><ul>
+<li>引入MMD模型解析脚本<ul>
+<li>MMDParser.js</li>
+<li>TGALoader.js</li>
+<li>MMDLoader.js</li>
+<li>CCDIKSolver.js</li>
+<li>MMDPhysics.js</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入mmd模型</span></span><br><span class="line">importMMD() &#123;</span><br><span class="line">  <span class="comment">// 模型文件路径 ^_^可以引入各种性感的初音未来模型</span></span><br><span class="line">  <span class="keyword">let</span> modelFile = <span class="string">'asserts/models/mmd/bikini-miku/sakura.pmx'</span></span><br><span class="line">  <span class="comment">// 模型动作文件, 用了极乐净土的模型动作</span></span><br><span class="line">  <span class="keyword">let</span> vmdFiles = [<span class="string">'asserts/models/mmd/vmds/power.vmd'</span>]</span><br><span class="line">  <span class="comment">// 背景音乐文件, 背景音乐当然是极乐净土啦</span></span><br><span class="line">  <span class="keyword">let</span> audioFile = <span class="string">'asserts/models/mmd/audios/power.mp3'</span></span><br><span class="line">  <span class="keyword">let</span> audioParams = &#123; <span class="attr">delayTime</span>: <span class="number">0</span> &#125;</span><br><span class="line">  <span class="comment">// 新建一个loader用于加载mmd模型</span></span><br><span class="line">  <span class="keyword">let</span> loader = <span class="keyword">new</span> THREE.MMDLoader()</span><br><span class="line">  <span class="keyword">this</span>.helper = <span class="keyword">new</span> THREE.MMDHelper()</span><br><span class="line">  <span class="comment">// 异步加载文件</span></span><br><span class="line">  loader.load(modelFile, vmdFiles, object =&gt; &#123;</span><br><span class="line">    <span class="keyword">this</span>.mesh = object</span><br><span class="line">    <span class="keyword">this</span>.mesh.position.y = <span class="number">-10</span></span><br><span class="line">    <span class="comment">// this.scene.add(this.mesh)</span></span><br><span class="line">    <span class="keyword">this</span>.helper.add(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="comment">// 设置模型动画</span></span><br><span class="line">    <span class="keyword">this</span>.helper.setAnimation(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.ikHelper = <span class="keyword">new</span> THREE.CCDIKHelper(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.ikHelper.visible = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.ikHelper)</span><br><span class="line">    <span class="comment">// 设置模型物理动效</span></span><br><span class="line">    <span class="keyword">this</span>.helper.setPhysics(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.physicsHelper = <span class="keyword">new</span> THREE.MMDPhysicsHelper(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.physicsHelper.visible = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.physicsHelper)</span><br><span class="line">    <span class="keyword">this</span>.helper.doAnimation = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">this</span>.helper.doIk = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">this</span>.helper.enablePhysics = <span class="literal">true</span></span><br><span class="line">    <span class="comment">// 加载音乐</span></span><br><span class="line">    loader.loadAudio(audioFile, (audio, listener) =&gt; &#123;</span><br><span class="line">      listener.position.z = <span class="number">1</span></span><br><span class="line">      <span class="keyword">this</span>.helper.setAudio(audio, listener, audioParams)</span><br><span class="line">      <span class="keyword">this</span>.helper.unifyAnimationDuration(&#123; <span class="attr">afterglow</span>: <span class="number">2.0</span> &#125;)</span><br><span class="line">      <span class="keyword">this</span>.scene.add(audio)</span><br><span class="line">      <span class="keyword">this</span>.scene.add(listener)</span><br><span class="line">      <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.mesh)</span><br><span class="line">      <span class="keyword">this</span>.ready = <span class="literal">true</span></span><br><span class="line">    &#125;, xhr =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (xhr.lengthComputable) &#123;</span><br><span class="line">        <span class="keyword">var</span> percentComplete = xhr.loaded / xhr.total * <span class="number">100</span></span><br><span class="line">        <span class="built_in">console</span>.log(<span class="built_in">Math</span>.round(percentComplete, <span class="number">2</span>) + <span class="string">'% downloaded'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;, err =&gt; &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(err)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;, xhr =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (xhr.lengthComputable) &#123;</span><br><span class="line">      <span class="keyword">var</span> percentComplete = xhr.loaded / xhr.total * <span class="number">100</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="built_in">Math</span>.round(percentComplete, <span class="number">2</span>) + <span class="string">'% downloaded'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, err =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="创建一个全景环境"><a href="#创建一个全景环境" class="headerlink" title="创建一个全景环境"></a>创建一个全景环境</h3><ul>
+<li><p>准备文件：6张不同视角的图片，或者一张全景拍摄的图片</p>
+</li>
+<li><p>读取图片文件并渲染</p>
+</li>
+<li><p>使用6张不同视角图片组合的立体全景效果</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> urls = [</span><br><span class="line">  r + <span class="string">"px.jpg"</span>, r + <span class="string">"nx.jpg"</span>,</span><br><span class="line">  r + <span class="string">"py.jpg"</span>, r + <span class="string">"ny.jpg"</span>,</span><br><span class="line">  r + <span class="string">"pz.jpg"</span>, r + <span class="string">"nz.jpg"</span></span><br><span class="line">]</span><br><span class="line"><span class="comment">// 加载图片</span></span><br><span class="line"><span class="keyword">let</span> textureCube = <span class="keyword">new</span> THREE.CubeTextureLoader().load(urls)</span><br><span class="line">textureCube.format = THREE.RGBFormat</span><br><span class="line">textureCube.mapping = THREE.CubeReflectionMapping</span><br><span class="line"><span class="keyword">let</span> cubeShader = THREE.ShaderLib[<span class="string">"cube"</span>]</span><br><span class="line"><span class="keyword">let</span> cubeMaterial = <span class="keyword">new</span> THREE.ShaderMaterial(&#123;</span><br><span class="line">  fragmentShader: cubeShader.fragmentShader,</span><br><span class="line">  vertexShader: cubeShader.vertexShader,</span><br><span class="line">  uniforms: cubeShader.uniforms,</span><br><span class="line">  depthWrite: <span class="literal">false</span>,</span><br><span class="line">  side: THREE.BackSide</span><br><span class="line">&#125;)</span><br><span class="line">cubeMaterial.uniforms[<span class="string">"tCube"</span>].value = textureCube</span><br><span class="line"><span class="keyword">let</span> cubeMesh = <span class="keyword">new</span> THREE.Mesh(<span class="keyword">new</span> THREE.BoxBufferGeometry(<span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>), cubeMaterial)</span><br><span class="line"><span class="keyword">this</span>.scene.add(cubeMesh)</span><br></pre></td></tr></table></figure>
+<p>由于只是为了体验，没有关注性能优化，请见谅。<br><a href="https://github.com/lgybetter/webvr-threejs," title="github源码" target="_blank" rel="noopener">github源码</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjuvhimzf000q7kyvhx24maw6" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Node环境开发Opencv" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/04/24/Node环境开发Opencv/" class="article-date">
+  <time datetime="2017-04-24T06:31:51.000Z" itemprop="datePublished">2017-04-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/后端/">后端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/24/Node环境开发Opencv/">Node环境开发Opencv</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Opencv-安装使用"><a href="#Opencv-安装使用" class="headerlink" title="Opencv 安装使用"></a>Opencv 安装使用</h3><ul>
+<li><p>下载Opencv安装包: <a href="http://opencv.org/releases.html" target="_blank" rel="noopener">http://opencv.org/releases.html</a></p>
+</li>
+<li><p>解压进入Opencv目录</p>
+</li>
+<li><p>编译Opencv(需要cmake)</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir release</span><br><span class="line"><span class="built_in">cd</span> release</span><br><span class="line">cmake -G <span class="string">"Unix Makefiles"</span> .. (为Unix 系统生成Makefile，Mac OSX是基于Unix的。未安装cmake 可以通过Homebrew安装，未安装Homebrew需安装Homebrew）</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装Opencv</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装完成的目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/lib (Opencv库文件)</span><br><span class="line">/usr/<span class="built_in">local</span>/include (Opencv头文件）</span><br><span class="line">/usr/<span class="built_in">local</span>/share/ (Opencv xml配置文件)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用Opencv(C++ Version)</li>
+</ul>
+<p>编写CMakeLists.txt文件<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">project( ORBFeatureAndCompare ) <span class="comment">// 项目的名称</span></span><br><span class="line">cmake_minimum_required(VERSION <span class="number">2.8</span>) <span class="comment">// cmake的版本要求</span></span><br><span class="line">find_package( OpenCV REQUIRED ) <span class="comment">// 查找对应的Opencv依赖库</span></span><br><span class="line">find_package(Boost COMPONENTS <span class="built_in">log</span> log_setup thread filesystem system) <span class="comment">// 查找对应的Boost依赖库(下文出现Boost的安装方法)</span></span><br><span class="line">add_executable( ORBFeatureAndCompare ORBFeatureAndCompare )  <span class="comment">// 指定可运行的文件</span></span><br><span class="line"><span class="comment">// 引入对应的依赖库文件的位置</span></span><br><span class="line">target_link_libraries(ORBFeatureAndCompare</span><br><span class="line">    $&#123;OpenCV_LIBS&#125;</span><br><span class="line">    $&#123;Boost_LOG_SETUP_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_LOG_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_FILESYSTEM_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_THREAD_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_SYSTEM_LIBRARY&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>编写Opencv的cpp文件<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//必要的头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/imgproc/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem/fstream.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;  </span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">  ....</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>创建一个images(其他命名都可以)的资源文件夹<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> images</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line">./ORBFeatureAndCompare //编译出的可执行程序</span><br></pre></td></tr></table></figure></p>
+<h3 id="安装使用Boost进行数据序列化"><a href="#安装使用Boost进行数据序列化" class="headerlink" title="安装使用Boost进行数据序列化"></a>安装使用Boost进行数据序列化</h3><ul>
+<li><p>下载Boost安装包: <a href="https://dl.bintray.com/boostorg/release/1.64.0/source/" target="_blank" rel="noopener">https://dl.bintray.com/boostorg/release/1.64.0/source/</a></p>
+</li>
+<li><p>解压进入Boost目录</p>
+</li>
+<li><p>编译安装Boost</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap.sh</span><br><span class="line">./b2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>引入Boost库进行数据序列化,同样是在CmakeList中引入文件路径, 在cpp文件中使用</li>
+</ul>
+<h3 id="封装cpp程序为Node-Addon"><a href="#封装cpp程序为Node-Addon" class="headerlink" title="封装cpp程序为Node Addon"></a>封装cpp程序为Node Addon</h3><ul>
+<li><p>依赖安装</p>
+<ul>
+<li>全局安装node-gyp</li>
+<li>本地安装nan</li>
+</ul>
+</li>
+<li><p>编写binding.gyp</p>
+</li>
+</ul>
+<figure class="highlight gyp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"targets"</span>: [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">"target_name"</span>: <span class="string">"feature"</span>,</span><br><span class="line">    <span class="string">"sources"</span>: [ <span class="string">"./src/feature.cc"</span> ],</span><br><span class="line">    <span class="string">"include_dirs"</span>: [</span><br><span class="line">      <span class="string">"&lt;!(node -e \"require('nan')\")"</span>,</span><br><span class="line">      <span class="string">"/usr/local/include/boost"</span>,</span><br><span class="line">      <span class="string">"/usr/local/include/opencv2"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">"conditions"</span>: [</span><br><span class="line">      [ <span class="string">"OS==\"linux\" or OS==\"freebsd\" or OS==\"openbsd\" or OS==\"solaris\" or OS==\"aix\""</span>, &#123;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      [<span class="string">"OS==\"mac\""</span>, &#123;</span><br><span class="line">          <span class="string">"libraries"</span>: [</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_log_setup-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_log-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_filesystem-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_thread-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_system-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_core.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_highgui.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_imgproc.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_features2d.3.2.0.dylib"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写node c++ 插件</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;node.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;nan.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/imgproc/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem/fstream.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;</span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> v8;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;uchar&gt; matToString(cv::Mat descriptorMat) &#123;</span><br><span class="line">  <span class="built_in">vector</span>&lt;uchar&gt; buf;</span><br><span class="line">  imencode(<span class="string">".png"</span>, descriptorMat, buf);</span><br><span class="line">  <span class="keyword">return</span> buf;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;uchar&gt; descriptorMat(cv::Mat image) &#123;</span><br><span class="line">  <span class="built_in">vector</span>&lt;cv::KeyPoint&gt; keyPoint;</span><br><span class="line">  cv::Ptr&lt;cv::ORB&gt; orb = cv::ORB::create(<span class="number">4000</span>, <span class="number">1.2f</span>, <span class="number">8</span>, <span class="number">31</span>, <span class="number">0</span>, <span class="number">2</span>,             cv::ORB::HARRIS_SCORE, <span class="number">31</span>, <span class="number">20</span>);</span><br><span class="line">  orb-&gt;detect(image, keyPoint);</span><br><span class="line">  cv::Mat descriptorMat;</span><br><span class="line">  orb-&gt;compute(image, keyPoint, descriptorMat);</span><br><span class="line">  <span class="keyword">return</span> matToString(descriptorMat);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">imageFeature</span><span class="params">(<span class="keyword">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  <span class="keyword">if</span> (args.Length() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong number of arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!args[<span class="number">0</span>]-&gt;IsString()) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  String::Utf8Value pathValue(Local&lt;String&gt;::Cast(args[0]));</span><br><span class="line">  <span class="built_in">string</span> path = <span class="built_in">string</span>(*pathValue);</span><br><span class="line">  cv::Mat image = cv::imread(path, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (image.empty()) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Input image error"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">vector</span>&lt;uchar&gt; descriptorString = descriptorMat(image);</span><br><span class="line">  Local&lt;Object&gt; buf = Nan::NewBuffer(descriptorString.size()).ToLocalChecked();</span><br><span class="line">  uchar* data = (uchar*) node::Buffer::Data(buf);</span><br><span class="line">  <span class="built_in">memcpy</span>(data, &amp;descriptorString[<span class="number">0</span>], descriptorString.size());</span><br><span class="line">  v8::Local&lt;v8::Object&gt; globalObj = Nan::GetCurrentContext()-&gt;Global();</span><br><span class="line">  v8::Local&lt;v8::Function&gt; bufferConstructor = v8::Local&lt;v8::Function&gt;::Cast(globalObj-&gt;Get(Nan::New&lt;String&gt;(<span class="string">"Buffer"</span>).ToLocalChecked()));</span><br><span class="line">  v8::Local&lt;v8::Value&gt; constructorArgs[<span class="number">3</span>] = &#123;buf, Nan::New&lt;v8::Integer&gt;((<span class="keyword">unsigned</span>)descriptorString.size()), Nan::New&lt;v8::Integer&gt;(<span class="number">0</span>)&#125;;</span><br><span class="line">  v8::Local&lt;v8::Object&gt; actualBuffer = bufferConstructor-&gt;NewInstance(<span class="number">3</span>, constructorArgs);</span><br><span class="line">  args.GetReturnValue().Set(actualBuffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bfMatcherCompare</span> <span class="params">(cv::Mat &amp;descriptors1, cv::Mat &amp;descriptors2)</span> </span>&#123;</span><br><span class="line">  cv::<span class="function">BFMatcher <span class="title">matcher</span><span class="params">(cv::NORM_HAMMING)</span></span>;</span><br><span class="line">  <span class="built_in">vector</span>&lt;cv::DMatch&gt; matches;</span><br><span class="line">  matcher.match(descriptors1, descriptors2, matches);</span><br><span class="line">  <span class="keyword">double</span> max_dist = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">double</span> min_dist = <span class="number">100</span>;</span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">  for (int i = 0; i &lt; descriptors1.rows; i++)</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    double dist = matches[i].distance;</span></span><br><span class="line"><span class="comment">    if (dist &lt; min_dist)</span></span><br><span class="line"><span class="comment">      min_dist = dist;</span></span><br><span class="line"><span class="comment">    if (dist &gt; max_dist)</span></span><br><span class="line"><span class="comment">      max_dist = dist;</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  vector&lt;cv::DMatch&gt; good_matches;</span></span><br><span class="line"><span class="comment">  for (int i = 0; i &lt; descriptors1.rows; i++)</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    if (matches[i].distance &lt; 3 * min_dist)</span></span><br><span class="line"><span class="comment">      good_matches.push_back(matches[i]);</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  return good_matches.size();</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; descriptors1.rows; i++) &#123;</span><br><span class="line">    <span class="keyword">double</span> dist = matches[i].distance;</span><br><span class="line">    <span class="keyword">if</span> (dist &lt; min_dist) &#123;</span><br><span class="line">      min_dist = dist;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (dist &gt; max_dist) &#123;</span><br><span class="line">      max_dist = dist;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; good_matches;</span><br><span class="line">  <span class="keyword">double</span> good_matches_sum = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; descriptors1.rows; i++) &#123;</span><br><span class="line">    <span class="keyword">double</span> distance = matches[i].distance;</span><br><span class="line">    <span class="keyword">if</span> (distance &lt;= <span class="built_in">std</span>::max(<span class="number">2</span> * min_dist, <span class="number">0.02</span>)) &#123;</span><br><span class="line">      good_matches.push_back(matches[i]);</span><br><span class="line">      good_matches_sum += distance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">double</span>) good_matches_sum / (<span class="keyword">double</span>) good_matches.size();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">similarity</span><span class="params">(<span class="keyword">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  Local&lt;Object&gt; arg1 = args[<span class="number">0</span>]-&gt;ToObject();</span><br><span class="line">  <span class="keyword">int</span> size1 = args[<span class="number">1</span>]-&gt;NumberValue();</span><br><span class="line">  Local&lt;Object&gt; arg2 = args[<span class="number">2</span>]-&gt;ToObject();</span><br><span class="line">  <span class="keyword">int</span> size2 = args[<span class="number">3</span>]-&gt;NumberValue();</span><br><span class="line">  <span class="keyword">if</span> (args.Length() &lt; <span class="number">4</span>) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong number of arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  uchar*buffer1 = (uchar*) node::Buffer::Data(arg1);</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;uchar&gt; vec1(buffer1, buffer1 +  (<span class="keyword">unsigned</span> <span class="keyword">int</span>) size1);</span><br><span class="line">  cv::Mat img_decode1;</span><br><span class="line">  img_decode1 = cv::imdecode(vec1, CV_8U);</span><br><span class="line">  uchar*buffer2 = (uchar*) node::Buffer::Data(arg2);</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;uchar&gt; vec2(buffer2, buffer2 +  (<span class="keyword">unsigned</span> <span class="keyword">int</span>) size2);</span><br><span class="line">  cv::Mat img_decode2;</span><br><span class="line">  img_decode2 = cv::imdecode(vec2, CV_8U);</span><br><span class="line">  <span class="keyword">int</span> similarity = bfMatcherCompare(img_decode1, img_decode2);</span><br><span class="line">  args.GetReturnValue().Set(similarity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">(Local&lt;Object&gt; exports, Local&lt;Object&gt; <span class="keyword">module</span>)</span> </span>&#123;</span><br><span class="line">  NODE_SET_METHOD(exports, <span class="string">"imageFeature"</span>, imageFeature);</span><br><span class="line">  NODE_SET_METHOD(exports, <span class="string">"similarity"</span>, similarity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">NODE_MODULE(addon, init)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写Js文件</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> feature = <span class="built_in">require</span>(<span class="string">'./build/Release/feature'</span>);</span><br><span class="line"></span><br><span class="line">exports.getImageFeature = <span class="function">(<span class="params">filePath</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> feature.imageFeature(filePath).toString(<span class="string">'utf8'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">exports.getImageSimilarity = <span class="function">(<span class="params">descriptor1, descriptor2</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> matBuffer1 = Buffer.from(descriptor1);</span><br><span class="line">  <span class="keyword">let</span> matBuffer2 = Buffer.from(descriptor2);</span><br><span class="line">  <span class="keyword">return</span> feature.similarity(matBuffer1, matBuffer1.length, matBuffer2, matBuffer2.length);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node-gyp configure build</span><br><span class="line">node test.js</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjuvhimyt00067kyv7on0v5h5" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Cpp语法解析器" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2017/03/26/Cpp语法解析器/" class="article-date">
@@ -155,7 +589,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjutwnpai000240yv1qv36c3w" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjuvhimym00027kyvrrb8ekag" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
@@ -342,7 +776,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjutwnpao000540yvjewyapw4" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjuvhimz2000b7kyvsruv3kca" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -474,7 +908,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjutwnpcb001740yv4vcpryk2" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjuvhin00001f7kyv2es71kiy" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
@@ -542,7 +976,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjutwnpcd001b40yvko7v0qtk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjuvhin07001n7kyva4cgx1nn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
@@ -620,7 +1054,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjutwnpau000740yv5w38el9e" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjuvhimyr00057kyv4zntjsbk" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -669,181 +1103,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjutwnpbm000m40yva7vb2010" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjuvhimzq00147kyv8iiaj0ek" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-安卓自定义控件RecyclerView" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2016/07/31/安卓自定义控件RecyclerView/" class="article-date">
-  <time datetime="2016-07-30T23:56:41.000Z" itemprop="datePublished">2016-07-31</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/客户端/">客户端</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/31/安卓自定义控件RecyclerView/">安卓自定义控件RecyclerView</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>RecyclerView是安卓5.0版本对列表视图控件ListView的升级，也是属于MD设计的一部分，其功能十分强大，但是使用起来相比ListView比较复杂。</p>
-</blockquote>
-<h2 id="布局文件"><a href="#布局文件" class="headerlink" title="布局文件"></a>布局文件</h2><p>在xml布局文件中添加RecyclerView控件</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">android.support.design.widget.CoordinatorLayout</span></span></span><br><span class="line"><span class="tag">  <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:fitsSystemWindows</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:orientation</span>=<span class="string">"vertical"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">android.support.v7.widget.RecyclerView</span></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">"@+id/rv_message_list"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_below</span>=<span class="string">"@+id/view"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">android.support.design.widget.FloatingActionButton</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_gravity</span>=<span class="string">"right|bottom"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_margin</span>=<span class="string">"@dimen/fab_margin"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:src</span>=<span class="string">"@android:drawable/ic_dialog_email"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">android.support.design.widget.CoordinatorLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="JAVA文件中使用控件的步骤"><a href="#JAVA文件中使用控件的步骤" class="headerlink" title="JAVA文件中使用控件的步骤"></a>JAVA文件中使用控件的步骤</h2><h3 id="定义适配器："><a href="#定义适配器：" class="headerlink" title="定义适配器："></a>定义适配器：</h3><p>使用自定义的适配器，继承了RecyclerView.Adapter，并给出封装的Holder类型</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessageAdapter</span> <span class="keyword">extends</span> <span class="title">RecyclerView</span>.<span class="title">Adapter</span>&lt;<span class="title">MessageViewHolder</span>&gt; </span>&#123;</span><br><span class="line">  <span class="comment">//上下文引入</span></span><br><span class="line">  <span class="keyword">private</span> Context context;</span><br><span class="line">  <span class="comment">//保存对象的信息列表</span></span><br><span class="line">  <span class="keyword">private</span> List&lt;MessageBeanClass&gt; dataList;</span><br><span class="line">  <span class="comment">//用于进行点击事件的监听器</span></span><br><span class="line">  <span class="keyword">private</span> MyItemClickListener mItemClickListener;</span><br><span class="line">  <span class="keyword">private</span> MyItemLongClickListener mItemLongClickListener;</span><br><span class="line">  <span class="comment">//构造函数，传递上下文和数据列表</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MessageAdapter</span><span class="params">(Context c, List&lt;MessageBeanClass&gt; d)</span> </span>&#123;</span><br><span class="line">    context = c;</span><br><span class="line">    dataList = d;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//创建Holder</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> MessageViewHolder <span class="title">onCreateViewHolder</span><span class="params">(ViewGroup parent, <span class="keyword">int</span> viewType)</span> </span>&#123;</span><br><span class="line">    MessageViewHolder messageViewHolder = (MessageViewHolder) parent.getTag();</span><br><span class="line">    <span class="keyword">if</span>(messageViewHolder == <span class="keyword">null</span>) &#123;</span><br><span class="line">      messageViewHolder = <span class="keyword">new</span> MessageViewHolder(LayoutInflater.</span><br><span class="line">      from(context).inflate(R.layout.activity_tab_message_item,parent,<span class="keyword">false</span>),</span><br><span class="line">      mItemClickListener,mItemLongClickListener);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> messageViewHolder;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//对每个列表中的选项进行设置</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onBindViewHolder</span><span class="params">(MessageViewHolder holder, <span class="keyword">int</span> position)</span> </span>&#123;</span><br><span class="line">    holder.name.setText(dataList.get(position).getName());</span><br><span class="line">    holder.message.setText(dataList.get(position).getMessageText());</span><br><span class="line">    holder.time.setText(dataList.get(position).getTime());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//返回列表的长度用于显示列表中的选项数目</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getItemCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> dataList.size();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//监听器设置</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOnItemClickListener</span><span class="params">(MyItemClickListener listener)</span></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.mItemClickListener = listener;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOnItemLongClickListener</span><span class="params">(MyItemLongClickListener listener)</span></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.mItemLongClickListener = listener;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="定义ViewHolder"><a href="#定义ViewHolder" class="headerlink" title="定义ViewHolder"></a>定义ViewHolder</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//自定义的Holder,继承RecyclerView.ViewHolder,引用点击事件接口</span></span><br><span class="line"><span class="keyword">public</span>  <span class="class"><span class="keyword">class</span>  <span class="title">MessageViewHolder</span>  <span class="keyword">extends</span>  <span class="title">RecyclerView</span>.<span class="title">ViewHolder</span> <span class="keyword">implements</span> <span class="title">View</span>.<span class="title">OnClickListener</span>,</span></span><br><span class="line"><span class="class">  <span class="title">View</span>.<span class="title">OnLongClickListener</span></span></span><br><span class="line"><span class="class">  </span>&#123;</span><br><span class="line">    <span class="comment">//事件监听器</span></span><br><span class="line">    <span class="keyword">private</span> MyItemClickListener mListener;</span><br><span class="line">    <span class="keyword">private</span> MyItemLongClickListener mLongListener;</span><br><span class="line">    <span class="keyword">public</span> TextView name, message,time;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MessageViewHolder</span><span class="params">(View itemView,MyItemClickListener </span></span></span><br><span class="line"><span class="function"><span class="params">    listener,MyItemLongClickListener longListener)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(itemView);</span><br><span class="line">    <span class="keyword">this</span>.mListener = listener;</span><br><span class="line">    <span class="keyword">this</span>.mLongListener = longListener;</span><br><span class="line">    initView();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initView</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    time = (TextView) itemView.findViewById(R.id.tv_time);</span><br><span class="line">    name = (TextView) itemView.findViewById(R.id.tv_user_name);</span><br><span class="line">    message = (TextView) itemView.findViewById(R.id.tv_user_message);</span><br><span class="line">    itemView.setBackgroundResource(R.drawable.recycler_view_background);</span><br><span class="line">    itemView.setOnClickListener(<span class="keyword">this</span>);</span><br><span class="line">    itemView.setOnLongClickListener(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(mListener != <span class="keyword">null</span>) &#123;</span><br><span class="line">      mListener.onItemClick(view,getAdapterPosition());</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onLongClick</span><span class="params">(View view)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(mLongListener != <span class="keyword">null</span>) &#123;</span><br><span class="line">      mLongListener.onItemLongClick(view,getAdapterPosition());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="在Activity或Fragment中使用："><a href="#在Activity或Fragment中使用：" class="headerlink" title="在Activity或Fragment中使用："></a>在Activity或Fragment中使用：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessageFragment</span> <span class="keyword">extends</span> <span class="title">Fragment</span> <span class="keyword">implements</span> <span class="title">MyItemClickListener</span>, </span></span><br><span class="line"><span class="class">  <span class="title">MyItemLongClickListener</span></span>&#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 测试数据</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">  <span class="keyword">private</span> String[] nameTest = &#123;<span class="string">"TOM"</span>,<span class="string">"BOB"</span>,<span class="string">"JAME"</span>&#125;;</span><br><span class="line">  <span class="keyword">private</span> String[] messageTest = &#123;<span class="string">"FUCK YOU"</span>,<span class="string">"YOU GET OUT"</span>,<span class="string">"ONE NIGHT"</span>&#125;;</span><br><span class="line">  <span class="keyword">private</span> String[] timeTest = &#123;<span class="string">"2小时前"</span>,<span class="string">"昨天"</span>,<span class="string">"2016-12-31"</span>&#125;;</span><br><span class="line">  <span class="keyword">private</span> RecyclerView recyclerView;</span><br><span class="line">  <span class="keyword">private</span> View messageView;</span><br><span class="line">  <span class="keyword">private</span> MessageAdapter adapter;</span><br><span class="line">  <span class="keyword">private</span> MessageBeanClass messageBean;</span><br><span class="line">  <span class="keyword">private</span> List&lt;MessageBeanClass&gt; messageList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> View <span class="title">onCreateView</span><span class="params">(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreateView(inflater, container, savedInstanceState);</span><br><span class="line">    messageView = inflater.inflate(R.layout.activity_tab_message, container,<span class="keyword">false</span>);</span><br><span class="line">    initView();</span><br><span class="line">    initData();</span><br><span class="line">    <span class="keyword">return</span> messageView;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  messageList.clear();</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span> ; i++) &#123;</span><br><span class="line">      <span class="comment">//Bitmap bitmap = BitmapFactory.decodeResource(getResources(),imageTest[i]);</span></span><br><span class="line">      String name = nameTest[i];</span><br><span class="line">      String message = messageTest[i];</span><br><span class="line">      String time = timeTest[i];</span><br><span class="line">      messageBean = <span class="keyword">new</span> MessageBeanClass(name,message,time,<span class="number">0</span>);</span><br><span class="line">      messageList.add(messageBean);</span><br><span class="line">    &#125;</span><br><span class="line">    adapter = <span class="keyword">new</span> MessageAdapter(getContext(),messageList);</span><br><span class="line">    recyclerView.setAdapter(adapter);</span><br><span class="line">    adapter.setOnItemClickListener(<span class="keyword">this</span>);</span><br><span class="line">    adapter.setOnItemLongClickListener(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initView</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    recyclerView = (RecyclerView) messageView.findViewById(R.id.rv_message_list);</span><br><span class="line">    <span class="comment">//设置RecyclerView的布局管理器，如果是网格类型可以选择GridLayoutManager</span></span><br><span class="line">    recyclerView.setLayoutManager(<span class="keyword">new</span> LinearLayoutManager(getContext()));</span><br><span class="line">    <span class="comment">//给视图选项添加分割线</span></span><br><span class="line">    recyclerView.addItemDecoration(newDividerItemDecoration(getContext(),</span><br><span class="line">    DividerItemDecoration.VERTICAL_LIST));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onActivityCreated</span><span class="params">(Bundle savedInstanceState)</span></span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onActivityCreated(savedInstanceState);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(View view, <span class="keyword">int</span> postion)</span> </span>&#123;</span><br><span class="line">    MessageBeanClass messageBeanClass = messageList.get(postion);</span><br><span class="line">    <span class="keyword">if</span>(messageBeanClass != <span class="keyword">null</span>) &#123;</span><br><span class="line">      Intent intent = <span class="keyword">new</span> Intent();</span><br><span class="line">      intent.setClass(getContext(), ChattingActivity.class);</span><br><span class="line">      startActivity(intent);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(View view, <span class="keyword">int</span> postion)</span> </span>&#123;</span><br><span class="line">    MessageBeanClass messageBeanClass = messageList.get(postion);</span><br><span class="line">      <span class="keyword">if</span>(messageBeanClass != <span class="keyword">null</span>) &#123;</span><br><span class="line">      Toast.makeText(getContext(),<span class="string">"onItemLongClick"</span>postion,Toast.LENGTH_SHORT).show();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="点击事件的接口："><a href="#点击事件的接口：" class="headerlink" title="点击事件的接口："></a>点击事件的接口：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MyItemClickListener</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemClick</span><span class="params">(View view, <span class="keyword">int</span> postion)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MyItemLongClickListener</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onItemLongClick</span><span class="params">(View view, <span class="keyword">int</span> postion)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>于是这样就完成了对RecyclerView的使用，由于在上述例子中使用了分割线，但是因为绘制分割线的代码较长，而且对该实例中可以不使用，于是就省略代码，避免篇幅太长了。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓自定义控件RecyclerView/" data-id="cjutwnpbx000w40yv9msxv52j" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-安卓数据请求方式" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2016/07/31/安卓数据请求方式/" class="article-date">
-  <time datetime="2016-07-30T19:55:55.000Z" itemprop="datePublished">2016-07-31</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/客户端/">客户端</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/31/安卓数据请求方式/">安卓数据请求方式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Post请求"><a href="#Post请求" class="headerlink" title="Post请求"></a>Post请求</h2><ul>
-<li>安卓要通过向服务器请求需要加入权限</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uses-permission android:name=<span class="string">"android.permission.INTERNET"</span>/&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>由于网络请求是一个耗时的操作，所以我们要开启一个子线程，在子线程中我们需要传递一个url地址，url地址通过字符串传递再封装到URL对象里面</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">URL httpUrl = <span class="keyword">new</span> URL(url);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>创建一个HttpURLConnection对象</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HttpURLConnection connection = (HttpURLConnection) httpUrl.openConnection();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置请求方式为post(也可以进行get方式)</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.setRequestMethod(<span class="string">"POST"</span>);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置是否可以进行流操作</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.setDoOutput(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置请求时间不超过5s</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">connection.setReadTimeout(<span class="number">5000</span>);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>开启一个输出流，并获得向链接的服务器进行输入数据操作</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OutputStream out = connection.getOutputStream();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>向服务器提交数据的格式（post请求方式）</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String content = <span class="string">"phone="</span> + user.getPhone() + <span class="string">"&amp;username="</span> + user.getUsernanme() + <span class="string">"&amp;password="</span> + user.getPassword();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>提交数据</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">out.write(content.getBytes());</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>获取服务器返回的数据：</p>
-<ul>
-<li>开启读取服务器的带缓冲的读取器</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStream(connect.getInputStream()));</span><br></pre></td></tr></table></figure>
-<ul>
-<li>创建一个字符串缓冲器：</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">StringBuffer stringBuffer = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">String str;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>当读取到的字符串不为空时就追加到缓冲器中</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">While((str = reader.readline()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">    stringBuffer.append(str);</span><br><span class="line">&#125;</span><br><span class="line">Log.d(<span class="string">"info"</span>,stringBuffer.toString());</span><br></pre></td></tr></table></figure>
-<p>于是这样就可以跟服务器进行Post数据的交互了</p>
-<h2 id="Get请求"><a href="#Get请求" class="headerlink" title="Get请求"></a>Get请求</h2><ul>
-<li>url的参数是</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url = url + <span class="string">"?phone="</span> + user.getPhone() + <span class="string">"&amp;password="</span> + user.getPassword();</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>通过url的路由进行数据的请求，这是get的请求方式，但是如果进行大量的数据传输则不考虑使用get的方式</p>
-</li>
-<li><p>网络请求是一个耗时的操作，所以我们要开启一个子线程，在子线程中我们需要传递一个url地址，url地址通过字符串传递再封装到URL对象里面</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">URL httpUrl = <span class="keyword">new</span> URL(url);</span><br></pre></td></tr></table></figure>
-<ul>
-<li>创建一个HttpURLConnection对象</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HttpURLConnection connection = (HttpURLConnection) httpUrl.openConnection();</span><br></pre></td></tr></table></figure>
-<ul>
-<li>设置请求的方式为get:</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">connection.setRequestMethod(<span class="string">"GET"</span>);</span><br><span class="line">connection.setReadTimeout(<span class="number">5000</span>);</span><br><span class="line"></span><br><span class="line">BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(connection.getInputStr</span><br><span class="line">eam))); </span><br><span class="line">String str;</span><br><span class="line">StringBuffer stringBuffer = <span class="keyword">new</span> StringBuffer();</span><br><span class="line"><span class="keyword">while</span>((str = reader.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">      stringBuffer.append(str);</span><br><span class="line">&#125;</span><br><span class="line">Log.d(<span class="string">"info"</span>,stringBuffer.toString());</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓数据请求方式/" data-id="cjutwnpbv000u40yvt5x075fk" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Http/">Http</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
 
     </footer>
   </div>
@@ -856,7 +1119,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -877,7 +1140,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
     </div>
   </div>
 
@@ -887,7 +1150,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 13.33px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 13.33px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 16.67px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 13.33px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -909,23 +1172,23 @@
       <ul>
         
           <li>
+            <a href="/2019/04/25/前端必备知识库之ES6篇/">前端必备知识库之ES6篇</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/25/前端必备知识库之Js篇/">前端必备知识库之Js篇</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/25/前端必备知识库之Html篇/">前端必备知识库之Html篇</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/25/前端必备知识库之CSS篇/">前端必备知识库之CSS篇</a>
+          </li>
+        
+          <li>
             <a href="/2019/04/22/浏览器缓存中的HTTP缓存/">浏览器缓存中的HTTP缓存</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/22/2019我和前端有一个约定/">2019我和前端有一个约定</a>
-          </li>
-        
-          <li>
-            <a href="/2018/05/26/Vue和TypeScript的Webpack4-尝鲜/">Vue和TypeScript的Webpack4.+尝鲜</a>
-          </li>
-        
-          <li>
-            <a href="/2018/05/05/React结合TypeScript和Mobx初体验/">React结合TypeScript和Mobx初体验</a>
-          </li>
-        
-          <li>
-            <a href="/2018/03/31/高举vue-ssr/">高举 Vue-SSR</a>
           </li>
         
       </ul>
