@@ -73,6 +73,91 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Vue源码浅析之异步组件注册" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/06/13/Vue源码浅析之异步组件注册/" class="article-date">
+  <time datetime="2019-06-13T14:44:09.000Z" itemprop="datePublished">2019-06-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/13/Vue源码浅析之异步组件注册/">Vue源码浅析之异步组件注册</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/vue-logo.png" alt="Vue"></p>
+<h2 id="Vue的异步组件注册"><a href="#Vue的异步组件注册" class="headerlink" title="Vue的异步组件注册"></a>Vue的异步组件注册</h2><p>Vue官方文档提供注册异步组件的方式有三种:</p>
+<ol>
+<li>工厂函数执行 resolve 回调</li>
+<li>工厂函数中返回Promise</li>
+<li>工厂函数返回一个配置化组件对象</li>
+</ol>
+<h2 id="工厂函数执行-resolve-回调"><a href="#工厂函数执行-resolve-回调" class="headerlink" title="工厂函数执行 resolve 回调"></a>工厂函数执行 resolve 回调</h2><p>我们看下 Vue 官方文档提供的示例:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(<span class="string">'async-webpack-example'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 这个特殊的 `require` 语法将会告诉 webpack</span></span><br><span class="line">  <span class="comment">// 自动将你的构建代码切割成多个包, 这些包</span></span><br><span class="line">  <span class="comment">// 会通过 Ajax 请求加载</span></span><br><span class="line">  <span class="built_in">require</span>([<span class="string">'./my-async-component'</span>], resolve)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>简单说明一下, 这个示例调用 Vue 的静态方法 component 实现组件注册, 需要了解下 Vue.component 的大致实现</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此时type为component</span></span><br><span class="line">Vue[type] = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  id: string,</span></span></span><br><span class="line"><span class="function"><span class="params">  definition: Function | Object</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Function</span> | <span class="title">Object</span> | <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!definition) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id]</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/* istanbul ignore if */</span></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; type === <span class="string">'component'</span>) &#123;</span><br><span class="line">      validateComponentName(id)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 是否为对象</span></span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">'component'</span> &amp;&amp; isPlainObject(definition)) &#123;</span><br><span class="line">      definition.name = definition.name || id</span><br><span class="line">      definition = <span class="keyword">this</span>.options._base.extend(definition)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">'directive'</span> &amp;&amp; <span class="keyword">typeof</span> definition === <span class="string">'function'</span>) &#123;</span><br><span class="line">      definition = &#123; <span class="attr">bind</span>: definition, <span class="attr">update</span>: definition &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 记录当前Vue的全局components, filters, directives对应的声明映射</span></span><br><span class="line">    <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id] = definition</span><br><span class="line">    <span class="keyword">return</span> definition</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先判断传入的 definition 也就是我们的工厂函数, 是否为对象, 都说是工厂函数了, 那肯定不为对象, 于是这里不调用 this.options._base.extend(definition) 来获取组件的构造函数, 而是直接把当前的 definition(工厂函数) 保存到 this.options.components 的 ‘async-webpack-example’ 属性值中, 并返回definition。</p>
+<p>接下来发生什么事情呢？<br>其实刚才我们只是调用了 Vue.component 注册一个异步组件, 但是我们最终是通过 new Vue 实例来实现页面的渲染。这里大致浏览一下渲染的过程：</p>
+<p>Run:</p>
+<ul>
+<li>new Vue执行构造函数 </li>
+<li>构造函数 执行 this._init, 在 initMixin 执行的时候定义 Vue.prototype._init</li>
+<li>$mount执行, 在 web/runtime/index.js 中已经进行定义 Vue.prototype.$mount</li>
+<li>执行 core/instance/lifecycle.js 中的 mountComponent</li>
+<li>实例化渲染Watcher, 并传入 updateComponent(通过 Watcher 实例对象的 getter 触发vm._update, 而至于怎么触发先忽略, 会另外讲解)</li>
+<li>vm._update 触发 vm._render(renderMixin 时定义在 Vue.prototype._render) 执行</li>
+<li>在 vm.$options 中获取 render 函数并执行, 使得传入的 vm.$createElement(在 initRender 中定义在vm中)执行, vm.$createElement也就是平时书写的 h =&gt; h(App)这个h函数。</li>
+<li>vm.$createElement = createElement</li>
+<li>createComponent 通过 resolveAsset 查询当前组件是否正常注册</li>
+</ul>
+<p>所以我们现在以及进入到 createComponent 这个函数了, 看下这里异步组件具体的实现逻辑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  Ctor: Class&lt;Component&gt; | Function | Object | void,</span></span></span><br><span class="line"><span class="function"><span class="params">  data: ?VNodeData,</span></span></span><br><span class="line"><span class="function"><span class="params">  context: Component, <span class="regexp">//</span> vm实例</span></span></span><br><span class="line"><span class="function"><span class="params">  children: ?Array&lt;VNode&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  tag?: string</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">VNode</span> | <span class="title">Array</span>&lt;<span class="title">VNode</span>&gt; | <span class="title">void</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在init初始化的时候赋值Vue</span></span><br><span class="line">  <span class="keyword">const</span> baseCtor = context.$options._base</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Ctor当前为异步组件的工厂函数, 所以此步骤不执行</span></span><br><span class="line">  <span class="keyword">if</span> (isObject(Ctor)) &#123;</span><br><span class="line">    <span class="comment">// 获取构造器, 对于非全局注册的组件使用</span></span><br><span class="line">    Ctor = baseCtor.extend(Ctor)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// async component</span></span><br><span class="line">  <span class="keyword">let</span> asyncFactory</span><br><span class="line">  <span class="comment">// 如果Ctro.cid为undefined, 则说明h会是异步组件注册</span></span><br><span class="line">  <span class="comment">// 原因是没有调用过 Vue.extend 进行组件构造函数转换获取</span></span><br><span class="line">  <span class="keyword">if</span> (isUndef(Ctor.cid)) &#123;</span><br><span class="line">    asyncFactory = Ctor</span><br><span class="line">    <span class="comment">// 解析异步组件</span></span><br><span class="line">    Ctor = resolveAsyncComponent(asyncFactory, baseCtor)</span><br><span class="line">    <span class="comment">// Ctor为undefined则直接创建并返回异步组件的占位符组件Vnode</span></span><br><span class="line">    <span class="keyword">if</span> (Ctor === <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> createAsyncPlaceholder(</span><br><span class="line">        asyncFactory,</span><br><span class="line">        data,</span><br><span class="line">        context,</span><br><span class="line">        children,</span><br><span class="line">        tag</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...此处省略不分析的代码</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 安装组件的钩子</span></span><br><span class="line">  installComponentHooks(data)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// return a placeholder vnode</span></span><br><span class="line">  <span class="keyword">const</span> name = Ctor.options.name || tag</span><br><span class="line">  <span class="keyword">const</span> vnode = <span class="keyword">new</span> VNode(</span><br><span class="line">    <span class="string">`vue-component-<span class="subst">$&#123;Ctor.cid&#125;</span><span class="subst">$&#123;name ? <span class="string">`-<span class="subst">$&#123;name&#125;</span>`</span> : <span class="string">''</span>&#125;</span>`</span>,</span><br><span class="line">    data, <span class="literal">undefined</span>, <span class="literal">undefined</span>, <span class="literal">undefined</span>, context,</span><br><span class="line">    &#123; Ctor, propsData, listeners, tag, children &#125;, <span class="comment">// 组件对象componentOptions</span></span><br><span class="line">    asyncFactory</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> vnode</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从源码我们可以看出, 异步组件不执行组件构造器的转换获取, 而是执行 resolveAsyncComponent 来获取返回的组件对象。由于改过程是异步请求组件, 所以我们看下 resolveAsyncComponent 的实现  </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义在render.js中的全局变量, 用于记录当前正在渲染的vm实例</span></span><br><span class="line"><span class="keyword">import</span> &#123; currentRenderingInstance &#125; <span class="keyword">from</span> <span class="string">'core/instance/render'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveAsyncComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  factory: Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  baseCtor: Class&lt;Component&gt;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Class</span>&lt;<span class="title">Component</span>&gt; | <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 高级异步组件使用</span></span><br><span class="line">  <span class="keyword">if</span> (isTrue(factory.error) &amp;&amp; isDef(factory.errorComp)) &#123;...先省略&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isDef(factory.resolved)) &#123;</span><br><span class="line">    <span class="keyword">return</span> factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 获取当前正在渲染的vm实例</span></span><br><span class="line">  <span class="keyword">const</span> owner = currentRenderingInstance</span><br><span class="line">  <span class="keyword">if</span> (owner &amp;&amp; isDef(factory.owners) &amp;&amp; factory.owners.indexOf(owner) === <span class="number">-1</span>) &#123;</span><br><span class="line">    <span class="comment">// already pending</span></span><br><span class="line">    factory.owners.push(owner)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isTrue(factory.loading) &amp;&amp; isDef(factory.loadingComp)) &#123;...省略&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 执行该逻辑</span></span><br><span class="line">  <span class="keyword">if</span> (owner &amp;&amp; !isDef(factory.owners)) &#123;</span><br><span class="line">    <span class="keyword">const</span> owners = factory.owners = [owner]</span><br><span class="line">    <span class="comment">// 用于标记是否</span></span><br><span class="line">    <span class="keyword">let</span> sync = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    ...省略</span><br><span class="line">    <span class="keyword">const</span> forceRender = <span class="function">(<span class="params">renderCompleted: boolean</span>) =&gt;</span> &#123; ...省略 &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// once让被once包装的任何函数的其中一个只执行一次</span></span><br><span class="line">    <span class="keyword">const</span> resolve = once(<span class="function">(<span class="params">res: <span class="built_in">Object</span> | Class&lt;Component&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// cache resolved</span></span><br><span class="line">      factory.resolved = ensureCtor(res, baseCtor)</span><br><span class="line">      <span class="comment">// invoke callbacks only if this is not a synchronous resolve</span></span><br><span class="line">      <span class="comment">// (async resolves are shimmed as synchronous during SSR)</span></span><br><span class="line">      <span class="keyword">if</span> (!sync) &#123;</span><br><span class="line">        forceRender(<span class="literal">true</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        owners.length = <span class="number">0</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> reject = once(<span class="function"><span class="params">reason</span> =&gt;</span> &#123; ...省略 &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行工厂函数, 比如webpack获取异步组件资源</span></span><br><span class="line">    <span class="keyword">const</span> res = factory(resolve, reject)</span><br><span class="line">    </span><br><span class="line">    ...省略</span><br><span class="line">    </span><br><span class="line">    sync = <span class="literal">false</span></span><br><span class="line">    <span class="comment">// return in case resolved synchronously</span></span><br><span class="line">    <span class="keyword">return</span> factory.loading</span><br><span class="line">      ? factory.loadingComp</span><br><span class="line">      : factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>resolveAsyncComponent 传入异步组件工厂函数和 baseCtor(也就是Vue.extend), 先获取当前渲染的vm实例接着标记sync为true, 表示当前为执行同步代码阶段, 定义 resolve 和 reject 函数(忽略不分析), 此时我们可以发现 resolve 和 reject 都被 once 函数所封装, 目的是让被 once 包装的任何函数的其中一个只执行一次, 保证 resolve 和 reject 两者只能择一并只执行一次。OK, 接着来到 factory 的执行, 其实就是执行官方示例中传入的工厂函数, 这时候发起异步组件的请求。同步代码继续执行, sync置位false, 表示当前的同步代码执行完毕, 然后返回undefined</p>
+<p>这里可能会问怎么会返回undefined, 因为我们传入的工厂函数没有loading属性, 然后当前的 factory 也没有 resolved 属性。</p>
+<p>接着回到 createComponent 的代码中:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isUndef(Ctor.cid)) &#123;</span><br><span class="line">    asyncFactory = Ctor</span><br><span class="line">    <span class="comment">// 解析异步组件</span></span><br><span class="line">    Ctor = resolveAsyncComponent(asyncFactory, baseCtor)</span><br><span class="line">    <span class="comment">// Ctor为undefined则直接创建并返回异步组件的占位符组件Vnode</span></span><br><span class="line">    <span class="keyword">if</span> (Ctor === <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> createAsyncPlaceholder(</span><br><span class="line">        asyncFactory,</span><br><span class="line">        data,</span><br><span class="line">        context,</span><br><span class="line">        children,</span><br><span class="line">        tag</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>因为刚才说 resolveAsyncComponent 执行返回了undefined, 所以执行 createAsyncPlaceholder 创建注释vnode</p>
+<p>这里可能还会问为什么要创建一个注释vnode, 提前揭晓答案: </p>
+<p>因为先要返回一个占位的 vnode, 等待异步请求加载后执行 forceUpdate 重新渲染, 然后这个节点会被更新渲染成组件的节点。</p>
+<p>那继续,  刚才答案说了, 当异步组件请求完成后, 则执行 resolve 并传入对应的异步组件, 这时候 factory.resolved 被赋值为 ensureCtor 执行的返回结果, 就是一个组件构造器, 然后这时候 sync 为 false, 所以执行 forceRender, 而 forceRender 其实就是调用 vm.$forceUpdate 实现如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype.$forceUpdate = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">if</span> (vm._watcher) &#123;</span><br><span class="line">    vm._watcher.update()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>$forceUpdate 执行渲染 watcher 的 update 方法，于是我们又会执行 createComponent 的方法, 执行 resolveAsyncComponent, 这时候 factory.resolved 已经定义过了，于是直接返回 factory.resolved 的组件构造器。 于是就执行 createComponent 的后续组件的渲染和 patch 逻辑了。组件渲染和 patch 这里先不展开。</p>
+<p>于是整个异步组件的流程就结束了。</p>
+<h2 id="工厂函数中返回Promise"><a href="#工厂函数中返回Promise" class="headerlink" title="工厂函数中返回Promise"></a>工厂函数中返回Promise</h2><p>啊!!! 凌晨2.42了，先睡觉，明天继续补充。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjwv0hlt40000h0yv360e8cg8" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-前端必备知识库之ES6篇" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2019/04/25/前端必备知识库之ES6篇/" class="article-date">
@@ -102,7 +187,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjuww8sdf000tmkyv0giktxzv" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjwus0z7g0010psyvxh1s6ial" class="article-share-link">Share</a>
       
       
     </footer>
@@ -141,7 +226,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjuww8sdp001dmkyvm7i5feve" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjwus0z7g0014psyv7jjls7wg" class="article-share-link">Share</a>
       
       
     </footer>
@@ -184,7 +269,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjuww8sdf000pmkyv02l84zc9" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjwus0z76000upsyv0ahwf3ss" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Html/">Html</a></li></ul>
@@ -232,7 +317,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjuww8scp000bmkyvr6hsub7s" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjwus0z6m000mpsyvxixbx4py" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
@@ -316,7 +401,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/22/浏览器缓存中的HTTP缓存/" data-id="cjuww8sdp001amkyvjwladt1n" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/22/浏览器缓存中的HTTP缓存/" data-id="cjwus0z7q001hpsyv0odk8f9v" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Browser/">Browser</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Http/">Http</a></li></ul>
@@ -438,7 +523,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/22/2019我和前端有一个约定/" data-id="cjuww8scb0002mkyvebg6zky2" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/22/2019我和前端有一个约定/" data-id="cjwus0z5i0000psyviamx2ao4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
@@ -554,7 +639,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/05/26/Vue和TypeScript的Webpack4-尝鲜/" data-id="cjuww8sd7000mmkyvjdkueszd" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/05/26/Vue和TypeScript的Webpack4-尝鲜/" data-id="cjwus0z6c000bpsyvzs2l3v4x" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -670,7 +755,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/05/05/React结合TypeScript和Mobx初体验/" data-id="cjuww8scp000amkyvhopo3ubn" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/05/05/React结合TypeScript和Mobx初体验/" data-id="cjwus0z8a001upsyvifmkwu97" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TypeScript/">TypeScript</a></li></ul>
@@ -768,122 +853,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/31/高举vue-ssr/" data-id="cjuww8sdy001rmkyvovayl5ey" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/03/31/高举vue-ssr/" data-id="cjwus0z80001qpsyv0p2ovo0j" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-This浅析" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2017/11/14/This浅析/" class="article-date">
-  <time datetime="2017-11-13T16:02:26.000Z" itemprop="datePublished">2017-11-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/前端/">前端</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/14/This浅析/">This浅析</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="/images/you-don-kown.jpg" alt="你不知道的js"></p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
-<li>this的绑定和函数的声明位置没有任何关系，只取决于函数的调用方式。当一个函数被调用时，会创建一个活动记录（有时候也称为执行上下文）。这个记录会包含函数在哪里被调用（调用栈），函数的调用方式，传入的参数等信息。this就是这个记录的一个属性，会在函数执行的过程中用到。</li>
-</ul>
-<h2 id="调用位置"><a href="#调用位置" class="headerlink" title="调用位置"></a>调用位置</h2><ul>
-<li>调用位置就是函数在代码中被调用的位置（而不是声明位置）</li>
-</ul>
-<h2 id="绑定规则"><a href="#绑定规则" class="headerlink" title="绑定规则"></a>绑定规则</h2><ul>
-<li>默认绑定</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span></span><br><span class="line">foo() <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-<p>当函数调用直接使用不带任何修饰的函数引用进行调用时，在非严格模式下，这时this会绑定到全局对象window/global，而在严格模式下，就会绑定到undefined</p>
-<ul>
-<li>隐式绑定</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span>,</span><br><span class="line">  foo: foo</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">obj.foo() <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-<p>当函数引用拥有上下文对象时，隐式绑定规则会把函数调用中的this绑定到这个上下文对象。因为调用foo()时this被绑定到obj，因此this.a和obj.a是一样的。</p>
-<ul>
-<li>隐式丢失</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span>,</span><br><span class="line">  foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = obj.foo <span class="comment">// 函数别名</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'lgybetter'</span></span><br><span class="line">bar() <span class="comment">// 'lgybetter'</span></span><br></pre></td></tr></table></figure>
-<p>虽然bar是obj.foo的一个引用，但是它引用的是foo函数本身，因此此时的bar()其实是一个不带任何修饰的函数调用，使用了默认绑定(非严格模式)</p>
-<ul>
-<li>参数传递引起的隐式绑定</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span>,</span><br><span class="line">  foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'lgybetter'</span></span><br><span class="line">setTimeout(obj.foo, <span class="number">100</span>) <span class="comment">// 'lgybetter'</span></span><br></pre></td></tr></table></figure>
-<p>JavaScript环境内置的setTimeout()函数实现和以下伪代码类似：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setTimeout</span> (<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">  fn() <span class="comment">// &lt;--- 调用位置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>显示绑定：</p>
-<ul>
-<li>call 和 apply：</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line">foo.call(obj) <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-<p>简单使用call和apply显示绑定无法解决丢失绑定问题</p>
-<ul>
-<li><p>硬绑定</p>
-<ul>
-<li>手动创建函数强制绑定</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  foo.call(obj)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bar() <span class="comment">// 2</span></span><br><span class="line">setTimeout(bar, <span class="number">100</span>) <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 硬绑定的bar不可能再修改它的this</span></span><br><span class="line">bar.call(<span class="built_in">window</span>) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-<p>通过创建bar()，并在它的内部手动调用foo.call(obj)，因此强制把foo的this绑定到了obj</p>
-<ul>
-<li>创建一个可以重复使用的函数</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params">something</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a, something)</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.a + something</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bind</span> (<span class="params">fn, obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> fn.apply(obj, <span class="built_in">arguments</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = bind(foo, obj)</span><br><span class="line"><span class="keyword">var</span> b = bar(<span class="number">3</span>) <span class="comment">// 2 3</span></span><br><span class="line"><span class="built_in">console</span>.log(b) <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
-<p>由于硬绑定式一种非常常用的模式，于是ES5提供了内置方法Function.prototype.bind，bind会返回一个硬编码的新函数，它会把你指定的参数设置为this的上下文并调用原始函数。</p>
-<ul>
-<li>API调用的”上下文”：</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params">el</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(el, <span class="keyword">this</span>.id)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  id: <span class="string">'lgybetter'</span></span><br><span class="line">&#125;</span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].forEach(foo, obj)</span><br><span class="line"><span class="comment">// 1 lgybetter 2 lgybetter 3 lgybetter</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>new绑定:</li>
-</ul>
-<p>JavaScript中构造函数只是一些使用new操作符时被调用的函数。它们并不会属于某个类，也不会实例化一个类。它们就是被new操作符调用的普通函数而已。<br>实际上，不存在所谓的构造函数，只有对函数的“构造调用”。</p>
-<p>new调用函数操作：</p>
-<ol>
-<li>创建一个全新的对象</li>
-<li>新对象会被执行[[Prototype]]连接</li>
-<li>新对象会绑定到函数调用的this</li>
-<li>如果函数没有返回其他对象，那么new表达式中的函数调用会自动返回这个新对象。</li>
-</ol>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span> (<span class="params">a</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.a = a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> Foo(<span class="number">2</span>)</span><br><span class="line"><span class="built_in">console</span>.log(bar.a) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-<p>使用new来调用Foo(…)， 会构造一个新对象并把它绑定到Foo(…)调用中的this上。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/11/14/This浅析/" data-id="cjuww8scw000fmkyvfjv12dho" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
 
     </footer>
   </div>
@@ -927,7 +900,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 16.67px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 13.33px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 16.67px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 16.67px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -936,7 +909,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
     </div>
   </div>
 
@@ -947,6 +920,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/06/13/Vue源码浅析之异步组件注册/">Vue源码浅析之异步组件注册</a>
+          </li>
         
           <li>
             <a href="/2019/04/25/前端必备知识库之ES6篇/">前端必备知识库之ES6篇</a>
@@ -962,10 +939,6 @@
         
           <li>
             <a href="/2019/04/25/前端必备知识库之CSS篇/">前端必备知识库之CSS篇</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/22/浏览器缓存中的HTTP缓存/">浏览器缓存中的HTTP缓存</a>
           </li>
         
       </ul>

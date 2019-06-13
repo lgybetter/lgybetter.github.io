@@ -73,6 +73,118 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-This浅析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/11/14/This浅析/" class="article-date">
+  <time datetime="2017-11-13T16:02:26.000Z" itemprop="datePublished">2017-11-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/14/This浅析/">This浅析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/you-don-kown.jpg" alt="你不知道的js"></p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
+<li>this的绑定和函数的声明位置没有任何关系，只取决于函数的调用方式。当一个函数被调用时，会创建一个活动记录（有时候也称为执行上下文）。这个记录会包含函数在哪里被调用（调用栈），函数的调用方式，传入的参数等信息。this就是这个记录的一个属性，会在函数执行的过程中用到。</li>
+</ul>
+<h2 id="调用位置"><a href="#调用位置" class="headerlink" title="调用位置"></a>调用位置</h2><ul>
+<li>调用位置就是函数在代码中被调用的位置（而不是声明位置）</li>
+</ul>
+<h2 id="绑定规则"><a href="#绑定规则" class="headerlink" title="绑定规则"></a>绑定规则</h2><ul>
+<li>默认绑定</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span></span><br><span class="line">foo() <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>当函数调用直接使用不带任何修饰的函数引用进行调用时，在非严格模式下，这时this会绑定到全局对象window/global，而在严格模式下，就会绑定到undefined</p>
+<ul>
+<li>隐式绑定</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span>,</span><br><span class="line">  foo: foo</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">obj.foo() <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>当函数引用拥有上下文对象时，隐式绑定规则会把函数调用中的this绑定到这个上下文对象。因为调用foo()时this被绑定到obj，因此this.a和obj.a是一样的。</p>
+<ul>
+<li>隐式丢失</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span>,</span><br><span class="line">  foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = obj.foo <span class="comment">// 函数别名</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'lgybetter'</span></span><br><span class="line">bar() <span class="comment">// 'lgybetter'</span></span><br></pre></td></tr></table></figure>
+<p>虽然bar是obj.foo的一个引用，但是它引用的是foo函数本身，因此此时的bar()其实是一个不带任何修饰的函数调用，使用了默认绑定(非严格模式)</p>
+<ul>
+<li>参数传递引起的隐式绑定</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span>,</span><br><span class="line">  foo: foo</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> a = <span class="string">'lgybetter'</span></span><br><span class="line">setTimeout(obj.foo, <span class="number">100</span>) <span class="comment">// 'lgybetter'</span></span><br></pre></td></tr></table></figure>
+<p>JavaScript环境内置的setTimeout()函数实现和以下伪代码类似：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setTimeout</span> (<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">  fn() <span class="comment">// &lt;--- 调用位置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>显示绑定：</p>
+<ul>
+<li>call 和 apply：</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line">foo.call(obj) <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>简单使用call和apply显示绑定无法解决丢失绑定问题</p>
+<ul>
+<li><p>硬绑定</p>
+<ul>
+<li>手动创建函数强制绑定</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  foo.call(obj)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">bar() <span class="comment">// 2</span></span><br><span class="line">setTimeout(bar, <span class="number">100</span>) <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 硬绑定的bar不可能再修改它的this</span></span><br><span class="line">bar.call(<span class="built_in">window</span>) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>通过创建bar()，并在它的内部手动调用foo.call(obj)，因此强制把foo的this绑定到了obj</p>
+<ul>
+<li>创建一个可以重复使用的函数</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params">something</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">this</span>.a, something)</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.a + something</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bind</span> (<span class="params">fn, obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> fn.apply(obj, <span class="built_in">arguments</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  a: <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> bar = bind(foo, obj)</span><br><span class="line"><span class="keyword">var</span> b = bar(<span class="number">3</span>) <span class="comment">// 2 3</span></span><br><span class="line"><span class="built_in">console</span>.log(b) <span class="comment">// 5</span></span><br></pre></td></tr></table></figure>
+<p>由于硬绑定式一种非常常用的模式，于是ES5提供了内置方法Function.prototype.bind，bind会返回一个硬编码的新函数，它会把你指定的参数设置为this的上下文并调用原始函数。</p>
+<ul>
+<li>API调用的”上下文”：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params">el</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(el, <span class="keyword">this</span>.id)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> obj = &#123;</span><br><span class="line">  id: <span class="string">'lgybetter'</span></span><br><span class="line">&#125;</span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>].forEach(foo, obj)</span><br><span class="line"><span class="comment">// 1 lgybetter 2 lgybetter 3 lgybetter</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>new绑定:</li>
+</ul>
+<p>JavaScript中构造函数只是一些使用new操作符时被调用的函数。它们并不会属于某个类，也不会实例化一个类。它们就是被new操作符调用的普通函数而已。<br>实际上，不存在所谓的构造函数，只有对函数的“构造调用”。</p>
+<p>new调用函数操作：</p>
+<ol>
+<li>创建一个全新的对象</li>
+<li>新对象会被执行[[Prototype]]连接</li>
+<li>新对象会绑定到函数调用的this</li>
+<li>如果函数没有返回其他对象，那么new表达式中的函数调用会自动返回这个新对象。</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Foo</span> (<span class="params">a</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.a = a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> Foo(<span class="number">2</span>)</span><br><span class="line"><span class="built_in">console</span>.log(bar.a) <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>使用new来调用Foo(…)， 会构造一个新对象并把它绑定到Foo(…)调用中的this上。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/11/14/This浅析/" data-id="cjwus0z6c000fpsyvp35gm8x3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-微信H5开发历程记录" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2017/10/28/微信H5开发历程记录/" class="article-date">
@@ -140,7 +252,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjuww8sdp001gmkyvcjsak604" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjwus0z7q001epsyv241qffg0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
@@ -251,7 +363,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjuww8sd5000hmkyvrxb1wt16" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjwus0z6m000hpsyvvxy5ik0h" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
@@ -393,7 +505,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjuww8sdf000zmkyv4jdrbbfx" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjwus0z6w000ppsyvf9yba4nq" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li></ul>
@@ -495,7 +607,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjuww8sck0006mkyvcd4p0rxq" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjwus0z5s0006psyvzo9q1ri3" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
@@ -589,7 +701,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjuww8sc60000mkyvob340m0s" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjwus0z5s0002psyvzytyewt8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
@@ -776,7 +888,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjuww8scb0005mkyvwtty34vo" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjwus0z5s0005psyvj9779w9s" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -908,7 +1020,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjuww8sdy001jmkyvn8m675ub" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjwus0z7q001jpsyvs97f1ads" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
@@ -976,7 +1088,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjuww8sdy001nmkyv8qs5dbc5" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjwus0z80001mpsyvx6d6x7y3" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
@@ -1054,59 +1166,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjuww8scp0007mkyvr38wx3j0" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="cjwus0z620007psyv7qgymvn1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-安卓动画点击呈现水波效果" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2016/07/31/安卓动画点击呈现水波效果/" class="article-date">
-  <time datetime="2016-07-31T00:09:58.000Z" itemprop="datePublished">2016-07-31</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/客户端/">客户端</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/31/安卓动画点击呈现水波效果/">安卓动画点击呈现水波效果</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="安卓5-0以下的版本实现"><a href="#安卓5-0以下的版本实现" class="headerlink" title="安卓5.0以下的版本实现"></a>安卓5.0以下的版本实现</h2><p>recycler_view_background.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">selector</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:state_pressed</span>=<span class="string">"true"</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">shape</span> <span class="attr">android:shape</span>=<span class="string">"rectangle"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">"#cfd8dc"</span>&gt;</span><span class="tag">&lt;/<span class="name">solid</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">selector</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="5-0以上的版本实现为-ripple是5-0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下"><a href="#5-0以上的版本实现为-ripple是5-0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下" class="headerlink" title="5.0以上的版本实现为(ripple是5.0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下)"></a>5.0以上的版本实现为(ripple是5.0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下)</h2><p>recycler_view_background.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">ripple</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:color</span>=<span class="string">"#cfd8dc"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:drawable</span>=<span class="string">"@drawable/recycler_view_rectangle"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ripple</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>recycler_view_rectangle.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">shape</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:shape</span>=<span class="string">"rectangle"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">"#FFFFFF"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="cjuww8sdf000wmkyvmygx0m93" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
 
     </footer>
   </div>
@@ -1150,7 +1213,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 16.67px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 13.33px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 16.67px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 16.67px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -1159,7 +1222,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
     </div>
   </div>
 
@@ -1170,6 +1233,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/06/13/Vue源码浅析之异步组件注册/">Vue源码浅析之异步组件注册</a>
+          </li>
         
           <li>
             <a href="/2019/04/25/前端必备知识库之ES6篇/">前端必备知识库之ES6篇</a>
@@ -1185,10 +1252,6 @@
         
           <li>
             <a href="/2019/04/25/前端必备知识库之CSS篇/">前端必备知识库之CSS篇</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/22/浏览器缓存中的HTTP缓存/">浏览器缓存中的HTTP缓存</a>
           </li>
         
       </ul>
