@@ -73,6 +73,122 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-React结合TypeScript和Mobx初体验" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2018/05/05/React结合TypeScript和Mobx初体验/" class="article-date">
+  <time datetime="2018-05-05T13:16:42.000Z" itemprop="datePublished">2018-05-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/05/React结合TypeScript和Mobx初体验/">React结合TypeScript和Mobx初体验</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/20180505210245.png" alt="banner"></p>
+<h2 id="为什么要使用TypeScript"><a href="#为什么要使用TypeScript" class="headerlink" title="为什么要使用TypeScript"></a>为什么要使用TypeScript</h2><h3 id="侦测错误"><a href="#侦测错误" class="headerlink" title="侦测错误"></a>侦测错误</h3><p>通过静态类型检测可以尽早检测出程序中隐藏的的逻辑错误，对于JavaScript动态的弱类型语言，虽然灵活性高，但是对于初学者来说，如果不熟悉JavaScript内部的语言机制，很容易造成隐藏的事故。但是通过TypeScript的静态类型检测可以规避这些问题，因为其能够约束变量产生的类型。结合IDE编辑器可以推导变量对应的类型以及内部的结构，提高代码的健壮性和可维护性。</p>
+<h3 id="抽象"><a href="#抽象" class="headerlink" title="抽象"></a>抽象</h3><p>类型系统能够强化规范编程，TypeScript提供定义接口。在开发大型复杂的应用软件时十分重要，一个系统模块可以抽象的看做一个TypeScript定义的接口。让设计脱离实现，最终体现出一种 IDL（接口定义语言，Interface Define Language），让程序设计回归本质。</p>
+<h3 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h3><p>TypeScript可以自动根据类型标注生成文档，对于简单的功能实现都不需要编写注释。</p>
+<h2 id="为什么要使用Mobx"><a href="#为什么要使用Mobx" class="headerlink" title="为什么要使用Mobx"></a>为什么要使用Mobx</h2><h3 id="MobX-和-Redux-的比较"><a href="#MobX-和-Redux-的比较" class="headerlink" title="MobX 和 Redux 的比较"></a>MobX 和 Redux 的比较</h3><p>先要明白 mobx 和 redux 的定位是不同的。redux 管理的是 (STORE -&gt; VIEW -&gt; ACTION) 的整个闭环，而 mobx 只关心 STORE -&gt; VIEW 的部分。</p>
+<p>Redux优缺点：</p>
+<ul>
+<li><p>数据流流动很自然，因为任何 dispatch 都会触发广播，依据对象引用是否变化来控制更新粒度。</p>
+</li>
+<li><p>通过充分利用时间回溯的特征，可以增强业务的可预测性与错误定位能力。</p>
+</li>
+<li><p>时间回溯代价高，因为每次都要更新引用，除非增加代码复杂度，或使用 immutable。</p>
+</li>
+<li><p>时间回溯的另一个代价是 action 与 reducer 完全脱节，原因是可回溯必然不能保证引用关系。</p>
+</li>
+<li><p>引入中间件，解决异步带来的副作用，业务逻辑或多或少参杂着 magic。</p>
+</li>
+<li><p>灵活利用中间件，可以通过约定完成许多复杂的工作。</p>
+</li>
+<li><p>对 typescript 支持困难。</p>
+</li>
+</ul>
+<p>Mobx优缺点：</p>
+<ul>
+<li><p>数据流流动不自然，只有用到的数据才会引发绑定，局部精确更新，但避免了粒度控制烦恼。</p>
+</li>
+<li><p>没有时间回溯能力，因为数据只有一份引用。自始至终一份引用，不需要 immutable，也没有复制对象的额外开销。</p>
+</li>
+<li><p>数据流动由函数调用一气呵成，便于调试。</p>
+</li>
+<li><p>业务开发不是脑力活，而是体力活，少一些 magic，多一些效率。</p>
+</li>
+<li><p>由于没有 magic，所以没有中间件机制，没法通过 magic 加快工作效率（这里 magic 是指 action 分发到 reducer 的过程）。</p>
+</li>
+<li><p>完美支持 typescript。</p>
+</li>
+</ul>
+<p>SO: 前端数据流不太复杂的情况，使用 Mobx，因为更加清晰，也便于维护；如果前端数据流极度复杂，建议谨慎使用 Redux，通过中间件减缓巨大业务复杂度</p>
+<h2 id="使用Create-React-App来建立TypeScript的环境"><a href="#使用Create-React-App来建立TypeScript的环境" class="headerlink" title="使用Create-React-App来建立TypeScript的环境"></a>使用Create-React-App来建立TypeScript的环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">npm i -g create-react-app</span><br><span class="line">create-react-app tinylog-ui --scripts-version=react-scripts-ts</span><br><span class="line"><span class="built_in">cd</span> tinylog-ui/</span><br><span class="line">npm start</span><br><span class="line">npm run eject</span><br></pre></td></tr></table></figure>
+<p>TPS: 最后一个命令使用eject将所有内建的配置暴露出来</p>
+<p>通过create-react-app可以很方便地对整个项目完成环境初始化，如果愿意折腾TypeScript和webpack的环境可以试试，这里忽略webpack和TypeScript的环境搭建过程，而是使用create-react-app来实现环境搭建。</p>
+<h2 id="加入React-Router"><a href="#加入React-Router" class="headerlink" title="加入React-Router"></a>加入React-Router</h2><p>单页应用怎么可以没有前端路由呢，所以我们要加入React-Rotuer, 这里使用的React-Router的版本是v4.2.0</p>
+<h3 id="路由配置使用姿势"><a href="#路由配置使用姿势" class="headerlink" title="路由配置使用姿势"></a>路由配置使用姿势</h3><p>对于React-Router，这里使用到的模块有Router, Route, Switch</p>
+<blockquote>
+<p>React Router 是建立在 history 之上的。 简而言之，一个 history 知道如何去监听浏览器地址栏的变化， 并解析这个 URL 转化为 location 对象， 然后 router 使用它匹配到路由，最后正确地渲染对应的组件。</p>
+</blockquote>
+<p>代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">import * as React from &apos;react&apos;;</span><br><span class="line">import * as ReactDOM from &apos;react-dom&apos;;</span><br><span class="line">import &#123; Router, Route, Switch &#125; from &apos;react-router&apos;;</span><br><span class="line">import &#123; createBrowserHistory &#125; from &apos;history&apos;;</span><br><span class="line">import registerServiceWorker from &apos;./registerServiceWorker&apos;;</span><br><span class="line">import &#123; Root &#125; from &apos;./containers/Root&apos;;</span><br><span class="line">import &apos;./index.css&apos;;</span><br><span class="line">import Container from &apos;./containers/Container&apos;;</span><br><span class="line">import SignIn from &apos;./containers/Auth/signIn&apos;;</span><br><span class="line">import SignUp from &apos;./containers/Auth/signUp&apos;;</span><br><span class="line"></span><br><span class="line">const history = createBrowserHistory();</span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  &lt;Root&gt;</span><br><span class="line">    &lt;Router history=&#123;history&#125;&gt;</span><br><span class="line">      &lt;Switch&gt;</span><br><span class="line">        &lt;Route</span><br><span class="line">          path=&quot;/signIn&quot;</span><br><span class="line">          component=&#123;SignIn&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">        &lt;Route</span><br><span class="line">          path=&quot;/signUp&quot;</span><br><span class="line">          component=&#123;SignUp&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">        &lt;Route</span><br><span class="line">          path=&quot;/&quot;</span><br><span class="line">          component=&#123;Container&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      &lt;/Switch&gt;</span><br><span class="line">    &lt;/Router&gt;</span><br><span class="line">  &lt;/Root&gt;,</span><br><span class="line">  document.getElementById(&apos;root&apos;) as HTMLElement</span><br><span class="line">);</span><br><span class="line">registerServiceWorker();</span><br></pre></td></tr></table></figure>
+<h3 id="页面的编写"><a href="#页面的编写" class="headerlink" title="页面的编写"></a>页面的编写</h3><p>这里描述一写Container这个组件的编写</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">import * as React from &apos;react&apos;;</span><br><span class="line">import Header from &apos;../../layout/Header&apos;;</span><br><span class="line">import &#123; IAuth &#125; from &apos;../../interfaces&apos;;</span><br><span class="line">import &#123; Route, Switch &#125; from &apos;react-router&apos;;</span><br><span class="line">import App from &apos;../App&apos;;</span><br><span class="line">import Website from &apos;../Website&apos;;</span><br><span class="line"></span><br><span class="line">// 这部分是坑点，一开始不知道配置，后发现react-rotuer的4.0版本下需要配置prop的接口</span><br><span class="line">interface Container extends RouteComponentProps&lt;&#123;&#125;&gt; &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Container extends React.Component&lt;Container, &#123;&#125;&gt; &#123;</span><br><span class="line">  render () &#123;</span><br><span class="line">    return (</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &lt;Header &#123;...this.props&#125; /&gt;</span><br><span class="line">        &lt;Switch&gt;</span><br><span class="line">          &lt;Route path=&quot;/website&quot; component=&#123;Website&#125;/&gt;</span><br><span class="line">          &lt;Route  path=&quot;/&quot; component=&#123;App&#125;/&gt;</span><br><span class="line">        &lt;/Switch&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">export default Container;</span><br></pre></td></tr></table></figure>
+<p>这样，当我们访问url为’/‘的时候，默认会进入Container，其中Container里面是一层子页面，会匹配url，如果url为’/website’, 则进入Website页面，若为’/‘,则进入App页面。</p>
+<p>具体关于React-Router的使用请阅读<a href="https://reacttraining.com/react-router/" target="_blank" rel="noopener">React-Router文档</a></p>
+<h2 id="加入Mobx"><a href="#加入Mobx" class="headerlink" title="加入Mobx"></a>加入Mobx</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i mobx react-mobx mobx-react-router -S</span><br></pre></td></tr></table></figure>
+<h3 id="重新修改index-tsx的入口配置"><a href="#重新修改index-tsx的入口配置" class="headerlink" title="重新修改index.tsx的入口配置"></a>重新修改index.tsx的入口配置</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">import * as React from &apos;react&apos;;</span><br><span class="line">import * as ReactDOM from &apos;react-dom&apos;;</span><br><span class="line">import &#123; Router, Route, Switch &#125; from &apos;react-router&apos;;</span><br><span class="line">import &#123; createBrowserHistory &#125; from &apos;history&apos;;</span><br><span class="line">import &#123; useStrict &#125; from &apos;mobx&apos;;</span><br><span class="line">import &#123; Provider &#125; from &apos;mobx-react&apos;;</span><br><span class="line">import &#123; RouterStore, syncHistoryWithStore &#125; from &apos;mobx-react-router&apos;;</span><br><span class="line">// 定义需要使用到的store来进行数据状态的管理</span><br><span class="line">import &#123; </span><br><span class="line">  TokenStore, </span><br><span class="line">  AuthStore, </span><br><span class="line">  HostStore, </span><br><span class="line">  OverViewStore,</span><br><span class="line">  AssetsStore,</span><br><span class="line">  CommonDataStore,</span><br><span class="line">  PageStore,</span><br><span class="line">  RealTimeStore  </span><br><span class="line">&#125; from &apos;./stores&apos;;</span><br><span class="line">import registerServiceWorker from &apos;./registerServiceWorker&apos;;</span><br><span class="line">import &#123; Root &#125; from &apos;./containers/Root&apos;;</span><br><span class="line">import &apos;./index.css&apos;;</span><br><span class="line">import Container from &apos;./containers/Container&apos;;</span><br><span class="line">import SignIn from &apos;./containers/Auth/signIn&apos;;</span><br><span class="line">import SignUp from &apos;./containers/Auth/signUp&apos;;</span><br><span class="line">// 引入Echarts</span><br><span class="line">import &apos;./macarons&apos;;</span><br><span class="line">import &apos;echarts/map/js/world&apos;;</span><br><span class="line"></span><br><span class="line">// 开启mobx的严格模式，规范数据修改操作只能在action中进行</span><br><span class="line">useStrict(true);</span><br><span class="line"></span><br><span class="line">const browserHistory = createBrowserHistory();</span><br><span class="line">const routerStore =  new RouterStore();</span><br><span class="line">// 同步路由与mobx的数据状态</span><br><span class="line">const history = syncHistoryWithStore(browserHistory, routerStore);</span><br><span class="line">const rootStore = &#123;</span><br><span class="line">  token: new TokenStore(),</span><br><span class="line">  auth: new AuthStore(),</span><br><span class="line">  host: new HostStore(),</span><br><span class="line">  overview: new OverViewStore(),</span><br><span class="line">  assets: new AssetsStore(),</span><br><span class="line">  commmon: new CommonDataStore(),</span><br><span class="line">  page: new PageStore(),</span><br><span class="line">  realtime: new RealTimeStore(),</span><br><span class="line">  router: routerStore</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  &lt;Provider &#123;...rootStore&#125;&gt;</span><br><span class="line">    &lt;Root&gt;</span><br><span class="line">      &lt;Router history=&#123;history&#125;&gt;</span><br><span class="line">        &lt;Switch&gt;</span><br><span class="line">          &lt;Route</span><br><span class="line">            path=&quot;/signIn&quot;</span><br><span class="line">            component=&#123;SignIn&#125;</span><br><span class="line">          /&gt;</span><br><span class="line">          &lt;Route</span><br><span class="line">            path=&quot;/signUp&quot;</span><br><span class="line">            component=&#123;SignUp&#125;</span><br><span class="line">          /&gt;</span><br><span class="line">          &lt;Route</span><br><span class="line">            path=&quot;/&quot;</span><br><span class="line">            component=&#123;Container&#125;</span><br><span class="line">          /&gt;</span><br><span class="line">        &lt;/Switch&gt;</span><br><span class="line">      &lt;/Router&gt;</span><br><span class="line">    &lt;/Root&gt;</span><br><span class="line">  &lt;/Provider&gt;,</span><br><span class="line">  document.getElementById(&apos;root&apos;) as HTMLElement</span><br><span class="line">);</span><br><span class="line">registerServiceWorker();</span><br></pre></td></tr></table></figure>
+<h3 id="Container容器的修改"><a href="#Container容器的修改" class="headerlink" title="Container容器的修改"></a>Container容器的修改</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">import * as React from &apos;react&apos;;</span><br><span class="line">import Header from &apos;../../layout/Header&apos;;</span><br><span class="line">import &#123; IAuth &#125; from &apos;../../interfaces&apos;;</span><br><span class="line">import &#123; Route, Switch &#125; from &apos;react-router&apos;;</span><br><span class="line">// 使用inject和observer来进行数据监听和数据依赖声明</span><br><span class="line">import &#123; inject, observer &#125; from &apos;mobx-react&apos;;</span><br><span class="line">import App from &apos;../App&apos;;</span><br><span class="line">import Website from &apos;../Website&apos;;</span><br><span class="line"></span><br><span class="line">interface Container extends IAuth &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@inject(&apos;router&apos;, &apos;auth&apos;)</span><br><span class="line">@observer</span><br><span class="line">class Container extends React.Component&lt;Container, &#123;&#125;&gt; &#123;</span><br><span class="line">  render () &#123;</span><br><span class="line">    return (</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &lt;Header &#123;...this.props&#125; /&gt;</span><br><span class="line">        &lt;Switch&gt;</span><br><span class="line">          &lt;Route path=&quot;/website&quot; component=&#123;Website&#125;/&gt;</span><br><span class="line">          &lt;Route  path=&quot;/&quot; component=&#123;App&#125;/&gt;</span><br><span class="line">        &lt;/Switch&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">export default Container;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>@observable 可以在实例字段和属性 getter 上使用。 对于对象的哪部分需要成为可观察的，@observable 提供了细粒度的控制。</p>
+</blockquote>
+<blockquote>
+<p>@inject 相当于Provider 的高阶组件。可以用来从 React 的context中挑选 store 作为 prop 传递给目标组件</p>
+</blockquote>
+<h3 id="组件的接口定义"><a href="#组件的接口定义" class="headerlink" title="组件的接口定义"></a>组件的接口定义</h3><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; RouteComponentProps &#125; <span class="keyword">from</span> <span class="string">'react-router'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123;</span><br><span class="line">  RouterStore,</span><br><span class="line">  AuthStore</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">'../stores'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> IBase <span class="keyword">extends</span> RouteComponentProps&lt;&#123;&#125;&gt; &#123;</span><br><span class="line">  router: RouterStore;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> IAuth <span class="keyword">extends</span> IBase &#123;</span><br><span class="line">  auth: AuthStore;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Store的配置"><a href="#Store的配置" class="headerlink" title="Store的配置"></a>Store的配置</h3><p>先看一下RouterStore:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; History &#125; <span class="keyword">from</span> <span class="string">'history'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; RouterStore <span class="keyword">as</span> BaseRouterStore, syncHistoryWithStore &#125; <span class="keyword">from</span> <span class="string">'mobx-react-router'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 路由状态同步</span></span><br><span class="line"><span class="keyword">class</span> RouterStore <span class="keyword">extends</span> BaseRouterStore &#123;</span><br><span class="line">  <span class="keyword">public</span> history;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">history?: History</span>) &#123;</span><br><span class="line">    <span class="keyword">super</span>();</span><br><span class="line">    <span class="keyword">if</span> (history) &#123;</span><br><span class="line">      <span class="keyword">this</span>.history = syncHistoryWithStore(history, <span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> RouterStore;</span><br></pre></td></tr></table></figure>
+<p>然后是AuthStore:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; ISignIn, ISignUp &#125; <span class="keyword">from</span> <span class="string">'./../interfaces/index'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; observable, action &#125; <span class="keyword">from</span> <span class="string">'mobx'</span>;</span><br><span class="line"><span class="keyword">import</span> api <span class="keyword">from</span> <span class="string">'../api/auth'</span>; </span><br><span class="line"><span class="keyword">import</span> &#123; IUser &#125; <span class="keyword">from</span> <span class="string">'../models'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 登录注册状态</span></span><br><span class="line"><span class="keyword">class</span> AuthStore &#123;</span><br><span class="line">  <span class="meta">@observable</span> token;</span><br><span class="line">  <span class="meta">@observable</span> id;</span><br><span class="line">  <span class="meta">@observable</span> email;</span><br><span class="line">  <span class="keyword">constructor</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.id = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">this</span>.token = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">this</span>.email = <span class="string">''</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  setLocalStorage (&#123; id, token, email &#125;: IUser) &#123;</span><br><span class="line">    localStorage.setItem(<span class="string">'id'</span>, id);</span><br><span class="line">    localStorage.setItem(<span class="string">'token'</span>, token);</span><br><span class="line">    localStorage.setItem(<span class="string">'email'</span>, email);</span><br><span class="line">  &#125;</span><br><span class="line">  clearStorage () &#123;</span><br><span class="line">    localStorage.clear();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="meta">@action</span> <span class="keyword">async</span> signIn (data: ISignIn) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123; data: res &#125; = <span class="keyword">await</span> api.signIn(data);</span><br><span class="line">      <span class="keyword">this</span>.id = res.data.id;</span><br><span class="line">      <span class="keyword">this</span>.token = res.data.token;</span><br><span class="line">      <span class="keyword">this</span>.email = res.data.email;</span><br><span class="line">      <span class="keyword">this</span>.setLocalStorage(&#123;</span><br><span class="line">        id: <span class="keyword">this</span>.id,</span><br><span class="line">        token: <span class="keyword">this</span>.token,</span><br><span class="line">        email: <span class="keyword">this</span>.email</span><br><span class="line">      &#125;);</span><br><span class="line">      <span class="keyword">return</span> res;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">      <span class="keyword">return</span> error;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@action</span> <span class="keyword">async</span> signUp (data: ISignUp) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123; data: res &#125; = <span class="keyword">await</span> api.signUp(data);</span><br><span class="line">      <span class="keyword">this</span>.id = res.data.id;</span><br><span class="line">      <span class="keyword">this</span>.token = res.data.token;</span><br><span class="line">      <span class="keyword">this</span>.email = res.data.email;</span><br><span class="line">      <span class="keyword">this</span>.setLocalStorage(&#123;</span><br><span class="line">        id: <span class="keyword">this</span>.id,</span><br><span class="line">        token: <span class="keyword">this</span>.token,</span><br><span class="line">        email: <span class="keyword">this</span>.email</span><br><span class="line">      &#125;);</span><br><span class="line">      <span class="keyword">return</span> res;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">      <span class="keyword">return</span> error;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@action</span> signOut () &#123;</span><br><span class="line">    <span class="keyword">this</span>.id = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">this</span>.token = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">this</span>.email = <span class="string">''</span>;</span><br><span class="line">    <span class="keyword">this</span>.clearStorage()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> AuthStore;</span><br></pre></td></tr></table></figure>
+<p>Auth是用于网站的登录注册事件以及对应的Token的数据状态保存，登录注册事件的接口请求等操作。</p>
+<p>具体的有关Mobx的用法请阅读<a href="https://cn.mobx.js.org/" target="_blank" rel="noopener">Mobx文档</a></p>
+<h2 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">app</span><br><span class="line">├── api             后端提供的接口数据请求</span><br><span class="line">├── components      编写的可复用组件</span><br><span class="line">├── config          侧边栏以及导航栏配置</span><br><span class="line">├── constants       常量编写</span><br><span class="line">├── interfaces      接口编写</span><br><span class="line">├── layout          布局外框</span><br><span class="line">├── stores          mobx的数据状态管理</span><br><span class="line">├── index.css       全局样式</span><br><span class="line">├── index.tsx       页面入口</span><br><span class="line">├── reset.css       浏览器重置样式</span><br></pre></td></tr></table></figure>
+<p>本项目使用了Ant-Design来作为依赖的组件库，具体怎么使用以及配置请参考<a href="https://ant.design/docs/react/use-in-typescript-cn" target="_blank" rel="noopener">Ant-Design</a></p>
+<p>到这里其实以及完成对React下TypeScript结合React-Router和Mobx的配置。具体的业务模块如何编写有兴趣可以参阅项目<a href="https://github.com/tinylog/tinylog-ui" target="_blank" rel="noopener">tinylog-ui</a></p>
+<p>个人表达能力有限，无法描述得太清晰，请见谅！</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2018/05/05/React结合TypeScript和Mobx初体验/" data-id="cjx21uabv000bigyvhdll351i" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TypeScript/">TypeScript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-高举vue-ssr" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2018/03/31/高举vue-ssr/" class="article-date">
@@ -159,7 +275,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/31/高举vue-ssr/" data-id="cjwzavfgw001vy0yvm6qzqbdk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/03/31/高举vue-ssr/" data-id="cjx21uae6001xigyv20upa4a6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -271,7 +387,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/11/14/This浅析/" data-id="cjwzavfey000by0yv8yliumqy" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/11/14/This浅析/" data-id="cjx21uac6000higyvfm54fenc" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
@@ -350,7 +466,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjwzavfgm001ky0yvgf8i9z5p" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjx21uado001nigyv3lr9del8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
@@ -461,7 +577,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjwzavffs000qy0yvo6vz6h59" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjx21uacc000ligyvs0eshlcw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
@@ -603,7 +719,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjwzavfg2000ty0yvp90ahoa1" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjx21uacn000sigyv1qhpfoct" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li></ul>
@@ -705,7 +821,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjwzavfeo000ay0yvq57hw9az" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjx21uabj0006igyvb4acy4tl" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
@@ -799,7 +915,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjwzavfee0002y0yv8phtvt2w" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjx21uab90002igyvra3szzc8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
@@ -986,7 +1102,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjwzavfeo0005y0yv2li47rgk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjx21uab20001igyvv646vxko" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
@@ -1118,78 +1234,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjwzavfgw001ry0yv2sj2e98n" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="cjx21uadj001kigyvhwetj4jh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-设计模式之面向对象六大原则" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2016/08/10/设计模式之面向对象六大原则/" class="article-date">
-  <time datetime="2016-08-10T03:20:40.000Z" itemprop="datePublished">2016-08-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/基础知识/">基础知识</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/08/10/设计模式之面向对象六大原则/">设计模式之面向对象六大原则</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="1-单一职责原则"><a href="#1-单一职责原则" class="headerlink" title="1.单一职责原则"></a>1.单一职责原则</h3><ul>
-<li>单一职责原则是：对一个类而言，应该仅有一个引起它变化的原因。也就是，一个类中应该是一组相关性很高的函数，数据的封装。</li>
-</ul>
-<h3 id="2-开闭原则"><a href="#2-开闭原则" class="headerlink" title="2.开闭原则"></a>2.开闭原则</h3><ul>
-<li>开闭原则是：软件中的对象（类，模块，函数等）应该对于扩展是开放的，但是，对于修改时封闭的。程序一旦完成，程序中的一个类的实现只是因为错误而被修改，新的或者改变的特性应该通过新建不同的类实现，新建的类可以通过继承的方式来重用原类的代码。</li>
-</ul>
-<h3 id="3-里氏替换原则"><a href="#3-里氏替换原则" class="headerlink" title="3.里氏替换原则"></a>3.里氏替换原则</h3><ul>
-<li>里氏替换原则是：如果对每个类型为S的对象O1，都有类型为T的对象O2，使得以T定义的所有程序P在所有的对象O1都代换成O2时，程序P的行为没有发生变化，那么类型S是类型T的子类型。简单来说就是，所有引用基类的地方必须能透明地使用其子类的对象，就是父类能出现的地方子类就可以出现，替换成子类时不会发生错误，反过来就不行。</li>
-</ul>
-<h3 id="4-依赖倒置原则"><a href="#4-依赖倒置原则" class="headerlink" title="4.依赖倒置原则"></a>4.依赖倒置原则</h3><ul>
-<li><p>依赖倒置原则指代了一种特定的解耦形式，使得高层的模块不依赖低层的模块的实现细节的目的。有几个关键点如下：</p>
-<ol>
-<li>高层的模块不应该依赖低层模块，两者都应该依赖抽象。</li>
-<li>抽象不应该依赖细节。</li>
-<li>细节应该依赖抽象。</li>
-</ol>
-</li>
-</ul>
-<h3 id="5-接口隔离原则"><a href="#5-接口隔离原则" class="headerlink" title="5.接口隔离原则"></a>5.接口隔离原则</h3><ul>
-<li>接口隔离原则是：客户端不应该依赖它不需要的接口。也是说，类间的依赖关系应该建立在最小的接口上。</li>
-</ul>
-<h3 id="6-迪米特原则、"><a href="#6-迪米特原则、" class="headerlink" title="6.迪米特原则、"></a>6.迪米特原则、</h3><ul>
-<li>迪米特原则是：一个类应该对自己需要耦合或调用的类知道得最少，类的内部如何实现应该与调用者或者依赖者没关系。</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="cjwzavfgw001py0yvjwjcoxvl" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
 
     </footer>
   </div>
@@ -1233,7 +1281,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 16.67px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 13.33px;">Http</a> <a href="/tags/Javascript/" style="font-size: 16.67px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 13.33px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 20px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 13.33px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 16.67px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
     </div>
   </div>
 
@@ -1255,6 +1303,10 @@
       <ul>
         
           <li>
+            <a href="/2019/06/18/Vue源码浅析之依赖收集/">Vue源码浅析之依赖收集</a>
+          </li>
+        
+          <li>
             <a href="/2019/06/17/Vue源码浅析之响应式对象初始化/">Vue源码浅析之响应式对象初始化</a>
           </li>
         
@@ -1268,10 +1320,6 @@
         
           <li>
             <a href="/2019/04/25/前端必备知识库之Js篇/">前端必备知识库之Js篇</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/25/前端必备知识库之Html篇/">前端必备知识库之Html篇</a>
           </li>
         
       </ul>
