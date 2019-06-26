@@ -73,6 +73,128 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-2019我和前端有一个约定" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/04/22/2019我和前端有一个约定/" class="article-date">
+  <time datetime="2019-04-21T16:59:33.000Z" itemprop="datePublished">2019-04-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/04/22/2019我和前端有一个约定/">2019我和前端有一个约定</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="规范简介"><a href="#规范简介" class="headerlink" title="规范简介"></a>规范简介</h2><blockquote>
+<p>该规范目的是保证前端代码的整洁性和代码风格一致性，提高代码的可读性和可维护性。</p>
+</blockquote>
+<h2 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h2><h3 id="项目命名"><a href="#项目命名" class="headerlink" title="项目命名"></a>项目命名</h3><p>全部采用小写方式，使用中划线 - 进行分隔</p>
+<h3 id="目录结构规范"><a href="#目录结构规范" class="headerlink" title="目录结构规范"></a>目录结构规范</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line"> |-- src</span><br><span class="line"> |    |-- libs // 公用的库文件，例如：主题样式，鉴权插件，定制化的图表库</span><br><span class="line"> |    |-- assets // 资源目录，比如png，jpg，svg图片等</span><br><span class="line"> |    |    |-- images</span><br><span class="line"> |    |         |-- svg // svg的图片单独放一个目录</span><br><span class="line"> |    |-- components // 通用的自定义组件</span><br><span class="line"> |    |-- pages // 页面</span><br><span class="line"> |-- config // webpack等前端配置文件</span><br></pre></td></tr></table></figure>
+<h3 id="目录文件命名规范（推荐2种）"><a href="#目录文件命名规范（推荐2种）" class="headerlink" title="目录文件命名规范（推荐2种）"></a>目录文件命名规范（推荐2种）</h3><ul>
+<li>目录和文件都使用小写单词并使用中划线 - 进行分隔</li>
+<li>目录和文件使用小写单词并使用中划线 - 进行分隔，唯独.vue组件使用大驼峰进行命名<h3 id="package-json管理"><a href="#package-json管理" class="headerlink" title="package.json管理"></a>package.json管理</h3></li>
+<li><p>对于项目中代码需要依赖引入的使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm i vue -S</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对于项目中开发环境下进行运行调试压缩编译的使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm i wepack -D</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对于npm包的管理一定要规范，不需要引入的不要随便安装并写入package.json文件，当需要引入新的依赖需要告知所有的项目成员。</p>
+</li>
+<li>npm的依赖包的版本需要谨慎操作，不要随便进行任意升级。中间版本号和小版本号可以进行定期升级，并commit对应的修改以及通知项目成员。而大版本号需要确定其版本是否兼容目前使用的版本并进行仔细的测试才可以提交修改。<h2 id="HTML书写规范"><a href="#HTML书写规范" class="headerlink" title="HTML书写规范"></a>HTML书写规范</h2><h3 id="语法格式"><a href="#语法格式" class="headerlink" title="语法格式"></a>语法格式</h3></li>
+<li>使用2个空格进行缩进</li>
+<li>嵌套的节点应该使用缩进</li>
+<li>节点属性使用双引号，而不用单引号</li>
+<li><p>非自动闭合的HTML元素一定要使用斜线进行闭合！！！，自动闭合HTML元素则可选, 举例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"images/logo.png"</span> <span class="attr">alt</span>=<span class="string">"logo"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对于HTML 元素属性大于3个，推荐使用如下方式(适用于vue模板)，避免代码横向增长：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"switch-btn"</span></span></span><br><span class="line"><span class="tag">   <span class="attr">:class</span>=<span class="string">"switchBtnIcon"</span></span></span><br><span class="line"><span class="tag">   <span class="attr">:style</span>=<span class="string">"switchBtnLeftDistance"</span></span></span><br><span class="line"><span class="tag">   @<span class="attr">click</span>=<span class="string">"changeVisible"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="语义化"><a href="#语义化" class="headerlink" title="语义化"></a>语义化</h3><ul>
+<li>根据使用场景选择正确的 HTML 元素。例如，使用 h1 元素创建标题，p 元素创建段落，a 元素创建链接，i 元素创建图标等等。正确的使用 HTML 元素对于可访问性、可重用性以及编码效率都很重要。<h3 id="资源引入"><a href="#资源引入" class="headerlink" title="资源引入"></a>资源引入</h3></li>
+<li>引入资源使用相对路径，不要指定资源所带的具体协议 ( http:,https: ) ，除非这两者协议都不可用。<br>示例：<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"//ticket1000-1253841380.file.myqcloud.com/assets/release/vue/vue.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="优化Dom结构"><a href="#优化Dom结构" class="headerlink" title="优化Dom结构"></a>优化Dom结构</h3><ul>
+<li>尽量避免多余的父节点，通过迭代和重构来使HTML元素变得更少。<h3 id="属性顺序"><a href="#属性顺序" class="headerlink" title="属性顺序"></a>属性顺序</h3></li>
+<li>class</li>
+<li>id</li>
+<li>name</li>
+<li>data-*</li>
+<li>src,for,type,href,value,max-length,max,min,pattern</li>
+<li>placeholder,title,alt</li>
+<li>aria-*,role</li>
+<li>required,readonly,disabled<h2 id="CSS书写规范"><a href="#CSS书写规范" class="headerlink" title="CSS书写规范"></a>CSS书写规范</h2><h3 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h3></li>
+<li>类名使用小写字母，以中划线分隔</li>
+<li>id采用驼峰式命名</li>
+<li>less, scss中的变量、函数、混合、placeholder采用驼峰式命名<h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3></li>
+<li>每个属性声明末尾都要加分号</li>
+<li>去掉小数点前面的0</li>
+<li>去掉数字中不必要的小数点和末尾的0</li>
+<li>属性值’0’后面不要加单位</li>
+<li>用border: 0;代替border: none;</li>
+<li>选择器不要超过4层</li>
+<li>尽量少用’*’选择器<h3 id="需要加空格"><a href="#需要加空格" class="headerlink" title="需要加空格"></a>需要加空格</h3></li>
+<li>属性值前</li>
+<li>选择器 ‘&gt;’, ‘+’, ‘~’前后</li>
+<li>‘{‘前</li>
+<li>!important’!’前</li>
+<li>@else前后</li>
+<li>属性值中的’,’后</li>
+<li>注释’/<em>‘后和’</em>/‘前<h3 id="需要换行"><a href="#需要换行" class="headerlink" title="需要换行"></a>需要换行</h3></li>
+<li>‘{‘后和’}’前</li>
+<li>每个属性独占一行</li>
+<li>多个规则的分隔符’,’后<h3 id="颜色"><a href="#颜色" class="headerlink" title="颜色"></a>颜色</h3></li>
+<li>尽量使用16进制的颜色，当不需要控制透明度，避免使用rgba的写法。</li>
+<li>16进制的颜色尽量使用简写代替<h3 id="属性顺序-1"><a href="#属性顺序-1" class="headerlink" title="属性顺序"></a>属性顺序</h3></li>
+<li><p>简单示例：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.order</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">float</span>: right;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">top</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#e5e5e5</span>;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">3px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">font</span>: normal <span class="number">13px</span> <span class="string">"Helvetica Neue"</span>, sans-serif;</span><br><span class="line">    <span class="attribute">line-height</span>: <span class="number">1.5</span>;</span><br><span class="line">    <span class="attribute">text-align</span>: center;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">color</span>: <span class="number">#333</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#f5f5f5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">opacity</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>完整顺序：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"display"</span>,</span><br><span class="line">        <span class="string">"visibility"</span>,</span><br><span class="line">        <span class="string">"float"</span>,</span><br><span class="line">        <span class="string">"clear"</span>,</span><br><span class="line">        <span class="string">"overflow"</span>,</span><br><span class="line">        <span class="string">"clip"</span>,</span><br><span class="line">        <span class="string">"zoom"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"position"</span>,</span><br><span class="line">        <span class="string">"top"</span>,</span><br><span class="line">        <span class="string">"right"</span>,</span><br><span class="line">        <span class="string">"bottom"</span>,</span><br><span class="line">        <span class="string">"left"</span>,</span><br><span class="line">        <span class="string">"z-index"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"margin"</span>,</span><br><span class="line">        <span class="string">"box-sizing"</span>,</span><br><span class="line">        <span class="string">"border"</span>,</span><br><span class="line">        <span class="string">"border-radius"</span>,</span><br><span class="line">        <span class="string">"padding"</span>,</span><br><span class="line">        <span class="string">"width"</span>,</span><br><span class="line">        <span class="string">"height"</span>,</span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"font"</span>,</span><br><span class="line">        <span class="string">"line-height"</span>,</span><br><span class="line">        <span class="string">"text-align"</span>,</span><br><span class="line">        <span class="string">"vertical-align"</span>,</span><br><span class="line">        <span class="string">"white-space"</span>,</span><br><span class="line">        <span class="string">"text-decoration"</span>,</span><br><span class="line">        <span class="string">"word-spacing"</span>,</span><br><span class="line">        <span class="string">"text-overflow"</span>,</span><br><span class="line">        <span class="string">"word-wrap"</span>,</span><br><span class="line">        <span class="string">"word-break"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"color"</span>,</span><br><span class="line">        <span class="string">"background"</span>,</span><br><span class="line">        <span class="string">"background-color"</span>,</span><br><span class="line">        <span class="string">"background-image"</span>,</span><br><span class="line">        <span class="string">"background-repeat"</span>,</span><br><span class="line">        <span class="string">"background-attachment"</span>,</span><br><span class="line">        <span class="string">"background-position"</span>,</span><br><span class="line">        <span class="string">"background-clip"</span>,</span><br><span class="line">        <span class="string">"background-origin"</span>,</span><br><span class="line">        <span class="string">"background-size"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"outline"</span>,</span><br><span class="line">        <span class="string">"opacity"</span>,</span><br><span class="line">        <span class="string">"box-shadow"</span>,</span><br><span class="line">        <span class="string">"text-shadow"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"transition"</span>,</span><br><span class="line">        <span class="string">"transition-delay"</span>,</span><br><span class="line">        <span class="string">"transition-timing-function"</span>,</span><br><span class="line">        <span class="string">"transition-duration"</span>,</span><br><span class="line">        <span class="string">"transition-property"</span>,</span><br><span class="line">        <span class="string">"transform"</span>,</span><br><span class="line">        <span class="string">"transform-origin"</span>,</span><br><span class="line">        <span class="string">"animation"</span>,</span><br><span class="line">        <span class="string">"animation-duration"</span>,</span><br><span class="line">        <span class="string">"animation-delay"</span>,</span><br><span class="line">        <span class="string">"animation-direction"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"content"</span>,</span><br><span class="line">        <span class="string">"resize"</span>,</span><br><span class="line">        <span class="string">"cursor"</span>,</span><br><span class="line">        <span class="string">"user-select"</span>,</span><br><span class="line">        <span class="string">"tab-size"</span>,</span><br><span class="line">    ]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="JavaScript规范"><a href="#JavaScript规范" class="headerlink" title="JavaScript规范"></a>JavaScript规范</h2><ul>
+<li>遵循<a href="https://standardjs.com/" target="_blank" rel="noopener">standardjs</a>规范<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// http://eslint.org/docs/user-guide/configuring</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    root: <span class="literal">true</span>,</span><br><span class="line">    parser: <span class="string">'babel-eslint'</span>,</span><br><span class="line">    parserOptions: &#123;</span><br><span class="line">        sourceType: <span class="string">'module'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    env: &#123;</span><br><span class="line">        browser: <span class="literal">true</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style</span></span><br><span class="line">    extends: <span class="string">'standard'</span>,</span><br><span class="line">    <span class="comment">// required to lint *.vue files</span></span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="string">'html'</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="comment">// add your custom rules here</span></span><br><span class="line">    <span class="string">'rules'</span>: &#123;</span><br><span class="line">        <span class="comment">// allow paren-less arrow functions</span></span><br><span class="line">        <span class="string">'arrow-parens'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="comment">// allow async-await</span></span><br><span class="line">        <span class="string">'generator-star-spacing'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="comment">// allow semi</span></span><br><span class="line">        <span class="string">'semi'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="comment">// allow debugger during development</span></span><br><span class="line">        <span class="string">'no-debugger'</span>: process.env.NODE_ENV === <span class="string">'production'</span> ? <span class="number">2</span> : <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="Vue规范"><a href="#Vue规范" class="headerlink" title="Vue规范"></a>Vue规范</h2><ul>
+<li>请仔细阅读<a href="https://cn.vuejs.org/v2/style-guide/" target="_blank" rel="noopener">vue风格指南</a>!!!</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/04/22/2019我和前端有一个约定/" data-id="cjxdfyftc00011oyvg8scq3na" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Vue和TypeScript的Webpack4-尝鲜" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2018/05/26/Vue和TypeScript的Webpack4-尝鲜/" class="article-date">
@@ -177,7 +299,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/05/26/Vue和TypeScript的Webpack4-尝鲜/" data-id="cjx4vcfv3000an4yvo80p52ok" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/05/26/Vue和TypeScript的Webpack4-尝鲜/" data-id="cjxdfyfuh000h1oyvq8zgzmeg" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -293,7 +415,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/05/05/React结合TypeScript和Mobx初体验/" data-id="cjx4vcfvp000ln4yv8l66sq4k" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/05/05/React结合TypeScript和Mobx初体验/" data-id="cjxdfyfu3000a1oyvszzefvy8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TypeScript/">TypeScript</a></li></ul>
@@ -391,7 +513,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/31/高举vue-ssr/" data-id="cjx4vcfx30022n4yvht92x7ei" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2018/03/31/高举vue-ssr/" data-id="cjxdfyfwd00261oyv4z466gnb" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -503,7 +625,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/11/14/This浅析/" data-id="cjx4vcfvs000on4yvjtucjmpi" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/11/14/This浅析/" data-id="cjxdfyfu7000b1oyvpnejwo46" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
@@ -582,7 +704,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjx4vcfwq001qn4yv7222c6rt" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="cjxdfyfw700201oyvzcpxbgbx" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
@@ -693,7 +815,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjx4vcfw80015n4yv5zdff52e" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="cjxdfyfux000v1oyv6oq017s5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
@@ -835,7 +957,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjx4vcfvy000vn4yvymqwju3e" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="cjxdfyfv600111oyv11kexysw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li></ul>
@@ -937,7 +1059,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjx4vcfv00007n4yv8p6ii4kl" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="cjxdfyfu000071oyvjb9a3hk6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
@@ -1031,197 +1153,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjx4vcfu70000n4yvmcm454hk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="cjxdfyftp00021oyvgjaba0h0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-MongoDB原生命令CURD" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2017/03/22/MongoDB原生命令CURD/" class="article-date">
-  <time datetime="2017-03-22T14:39:05.000Z" itemprop="datePublished">2017-03-22</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/数据库/">数据库</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/22/MongoDB原生命令CURD/">MongoDB原生命令CURD</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>《MongoDB权威指南》学习摘录</p>
-</blockquote>
-<h2 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h2><h3 id="使用insert方法"><a href="#使用insert方法" class="headerlink" title="使用insert方法"></a>使用insert方法</h3><ul>
-<li>该操作文档会自动生成一个”_id”键</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.foo.insert(&#123;“bar” : “baz”&#125;)</span><br></pre></td></tr></table></figure>
-<h3 id="批量插入，使用batchInsert函数"><a href="#批量插入，使用batchInsert函数" class="headerlink" title="批量插入，使用batchInsert函数"></a>批量插入，使用batchInsert函数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.foo.batchInsert([&#123; <span class="string">"_id"</span> : 0 &#125; , &#123; <span class="string">"_id"</span> : 1 &#125; , &#123; <span class="string">"_id"</span> : 2 &#125;])</span><br></pre></td></tr></table></figure>
-<p>当前mongodb能接受的最大消息长度是48MB,并且如果在执行批量插入过程中有一个文档插入失败，则在该文档之前的所有文档都会成功插入到集合中，而这个文档之后的所有文档全部插入失败。</p>
-<h2 id="Remove"><a href="#Remove" class="headerlink" title="Remove"></a>Remove</h2><h3 id="使用remove方法"><a href="#使用remove方法" class="headerlink" title="使用remove方法"></a>使用remove方法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//删除foo集合的所有文档</span><br><span class="line">&gt;db.foo.remove()</span><br><span class="line"></span><br><span class="line">//删除指定查询文档作为可选参数</span><br><span class="line">&gt;db.mailing.list.remove( &#123; “opt-out” : <span class="literal">true</span> &#125; )</span><br></pre></td></tr></table></figure>
-<h3 id="使用drop-比直接删除集合会更快"><a href="#使用drop-比直接删除集合会更快" class="headerlink" title="使用drop()比直接删除集合会更快"></a>使用drop()比直接删除集合会更快</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.foo.drop()</span><br></pre></td></tr></table></figure>
-<h2 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h2><h3 id="文档替换"><a href="#文档替换" class="headerlink" title="文档替换"></a>文档替换</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>: ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"joe"</span>,</span><br><span class="line">  <span class="attr">"friends"</span>: <span class="number">32</span>,</span><br><span class="line">  <span class="attr">"enemies"</span>: <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>现在需要更新”friends”和”enemies”两个字段到”relationships”子文档中</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&gt;var joe = db.users.findOne(&#123;<span class="string">"name"</span>:joe&#125;);</span><br><span class="line">&gt;joe.relationships = &#123;<span class="string">"friends"</span>:joe.friends,<span class="string">"enemies"</span>:joe.enemies&#125;;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"friends"</span>:32,</span><br><span class="line">  <span class="string">"enemies"</span>:2</span><br><span class="line">&#125;</span><br><span class="line">&gt;joe.username = joe.name;</span><br><span class="line"><span class="string">"joe"</span></span><br><span class="line">&gt;delete joe.friends;</span><br><span class="line"><span class="literal">true</span></span><br><span class="line">&gt;delete joe.enemies;</span><br><span class="line"><span class="literal">true</span></span><br><span class="line">&gt;delete joe.name;</span><br><span class="line"><span class="literal">true</span></span><br><span class="line">&gt;db.users.update(&#123;<span class="string">"name"</span>:<span class="string">"joe"</span>&#125;,joe);</span><br></pre></td></tr></table></figure>
-<p>更新后的文档</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"username"</span>:<span class="string">"joe"</span>,</span><br><span class="line">  <span class="attr">"relationships"</span>:&#123;</span><br><span class="line">    <span class="attr">"friends"</span>:<span class="number">32</span>,</span><br><span class="line">    <span class="attr">"enemies"</span>:<span class="number">2</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>常见的错误是查询条件匹配到多个文档，然后更新的时候回由于第二个参数的存在就产生重复的”_id”值,对于这种情况要使用”_id”值来进行查询</p>
-<h3 id="使用修改器"><a href="#使用修改器" class="headerlink" title="使用修改器"></a>使用修改器</h3><ul>
-<li>“$inc”修改器使用</li>
-</ul>
-<p>当有人访问页面的时候，就通过url找到该页面，然后使用”$inc”修改器增加”pagerviews”的值</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"url"</span>:<span class="string">"www.lgybetter.com"</span>,</span><br><span class="line">  <span class="attr">"pagerviews"</span>:<span class="number">52</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.analytics.update(&#123;<span class="string">"url"</span>:<span class="string">"www.lgybetter.com"</span>&#125;,&#123;<span class="string">"<span class="variable">$inc</span>"</span> : &#123;<span class="string">"pagerviews"</span> : 1&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>注意，使用修改器时，”_id”并不会改变，而文档替换过则会</p>
-<ul>
-<li>“$set”修改器使用</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.update(&#123;<span class="string">"_id"</span>:ObjectId(...)&#125;,&#123;<span class="string">"<span class="variable">$set</span>"</span> : &#123;<span class="string">"favorite book"</span> : <span class="string">"War and Peace"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>于是更新后的文档就有了”favorite book”键，如果要继续修改则：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.update(&#123;<span class="string">"_id"</span>:ObjectId(...)&#125;,&#123;<span class="string">"<span class="variable">$set</span>"</span> : &#123;<span class="string">"favorite book"</span> : <span class="string">"Green Eggs and Ham"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>也可以变为数组的类型</p>
-<ul>
-<li>使用”$unset”可以将这个键完全删除：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.update(&#123;<span class="string">"name"</span>:joe&#125;,&#123;<span class="string">"<span class="variable">$unset</span>"</span> : &#123;<span class="string">"favorite book"</span> : 1&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>“$push”修改器使用</li>
-</ul>
-<p>如果数组存在，”$push”会向已有的数组的末尾加入一个元素，如果没有改数组就创建一个新的数组</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"title"</span>:<span class="string">"A blog post"</span>,</span><br><span class="line">  <span class="attr">"content"</span>:<span class="string">"..."</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.blogs.posts.update(&#123;<span class="string">"title"</span> : <span class="string">"A blog post"</span>&#125;,&#123;<span class="string">"<span class="variable">$push</span>"</span> : &#123;</span><br><span class="line">	<span class="string">"comments"</span> : &#123;<span class="string">"name"</span> : <span class="string">"joe"</span>,<span class="string">"email"</span> : <span class="string">"joe@example.com"</span>,<span class="string">"content"</span>:<span class="string">"nice post."</span>&#125;</span><br><span class="line">&#125;&#125;)</span><br><span class="line">&gt;db.blog.posts.findOne()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="string">"title"</span>:<span class="string">"A blog post"</span>,</span><br><span class="line">  <span class="string">"content"</span>:<span class="string">"..."</span>,</span><br><span class="line">  <span class="string">"comments"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>:<span class="string">"joe"</span>,</span><br><span class="line">      <span class="string">"email"</span>:<span class="string">"joe@example.com"</span>,</span><br><span class="line">      <span class="string">"content"</span>:<span class="string">"nice post"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意，”$push”会创建一个数组的类型，可用于动态添加数据</p>
-<ul>
-<li>用”$push”一次添加多个数据，配合使用”$each”</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.stock.ticker.update(&#123;<span class="string">"_id"</span>:<span class="string">"GOOG"</span>&#125;,&#123;</span><br><span class="line">  <span class="string">"<span class="variable">$push</span>"</span> : &#123;<span class="string">"hourly"</span> : &#123; <span class="string">"<span class="variable">$each</span>"</span> : [</span><br><span class="line">    562.776,562.790,559.123</span><br><span class="line">  ]&#125;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>使用”$slice”来固定数组的最大长度</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.movies.find(&#123;<span class="string">"genre"</span> : <span class="string">"horror"</span>&#125;,&#123;</span><br><span class="line">  <span class="string">"<span class="variable">$push</span>"</span> : &#123; <span class="string">"top10"</span> : &#123;</span><br><span class="line">      <span class="string">"<span class="variable">$each</span>"</span> : [<span class="string">"Nightmare on Elm Street"</span> , <span class="string">"Saw"</span>],</span><br><span class="line">      <span class="string">"<span class="variable">$slice</span>"</span> : -10,</span><br><span class="line">      <span class="string">"<span class="variable">$sort</span>"</span> : &#123;<span class="string">"rating"</span> : -1&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p>注意，”$slice”的值应该是负整数,”$sort”可以用来对数组中的所有对象进行排序，不能只将”$slice”或者”$sort”与”$push”配合使用，且必须使用”$each”。</p>
-<ul>
-<li>使用”$ne”,使得数组变为数据集合</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.paper.update(&#123;<span class="string">"authors cited"</span> : &#123;<span class="string">"<span class="variable">$ne</span>"</span> : <span class="string">"Richie"</span>&#125;,</span><br><span class="line">  &#123;<span class="string">"<span class="variable">$push</span>"</span> : &#123;<span class="string">"authors cited"</span> : <span class="string">"Richie"</span>&#125;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>“$addToSet”和”$each”组合使用，效果是与”$ne”一样，但是可以用来同时插入多条数据</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.update(&#123;<span class="string">"_id"</span> : ObjectId(<span class="string">"..."</span>)&#125;, &#123;<span class="string">"<span class="variable">$addToSet</span>"</span> :</span><br><span class="line">  &#123;<span class="string">"emails"</span> : &#123;<span class="string">"<span class="variable">$each</span>"</span> :</span><br><span class="line">    [<span class="string">"joe@php.net"</span>,<span class="string">"joe@example.com"</span>,<span class="string">"joe@python.org"</span>]</span><br><span class="line">  &#125;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p>使用”$pop”删除数组元素{“$pop” : {“key” : 1}}从数组末尾删除，{“$pop” : {“key” : -1}}从数组头部删除</p>
-</li>
-<li><p>使用”$pull”删除元素</p>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.lists.update(&#123;&#125;,&#123;<span class="string">"<span class="variable">$pull</span>"</span> : &#123;<span class="string">"todo"</span> : <span class="string">"laundry"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<h3 id="使用upsert"><a href="#使用upsert" class="headerlink" title="使用upsert"></a>使用upsert</h3><p>upsert是一种特殊的更新，要是没有找到符合更新条件的文档，就会以这个条件和更新<br>文档为基础创建一个新的文档。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.analytics.update(&#123;<span class="string">"url"</span> : <span class="string">"/blog"</span>&#125; , &#123;<span class="string">"<span class="variable">$inc</span>"</span> : &#123;<span class="string">"pageviews"</span> : 1&#125;&#125; ,<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>有时候，需要在创建文档的同时创建字段并为它赋值，但是在之后的所有更新操作中，该字段的值就不再改变。这时候就使用”$setOnInsert”</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.update(&#123;&#125; , &#123;<span class="string">"<span class="variable">$setOnInsert</span>"</span> : &#123;<span class="string">"createdAt"</span> new Date()&#125;&#125;,<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="更新多个文档"><a href="#更新多个文档" class="headerlink" title="更新多个文档"></a>更新多个文档</h3><p>具体的操作值通过:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.runCommand(&#123;getLastError:1&#125;)</span><br></pre></td></tr></table></figure>
-<p>返回结果</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"err"</span>:<span class="literal">null</span>,</span><br><span class="line">  <span class="attr">"updatedExisting"</span>:<span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"n"</span>:<span class="number">5</span>,</span><br><span class="line">  <span class="attr">"ok"</span>:<span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Find"><a href="#Find" class="headerlink" title="Find"></a>Find</h2><h3 id="find入门操作"><a href="#find入门操作" class="headerlink" title="find入门操作"></a>find入门操作</h3><ul>
-<li><p>查询该集合下的所有文档</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.c.find()</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查询特定值的文档,可以同时添加多个条件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.find(&#123;<span class="string">"age"</span> : 20&#125;)</span><br><span class="line">&gt;db.users.find(&#123;<span class="string">"age"</span> : 20 , <span class="string">"name"</span> : <span class="string">"lgy"</span>&#125;)</span><br><span class="line">//指定需要返回的键</span><br><span class="line">&gt;db.users.find(&#123;&#125; , &#123;<span class="string">"username"</span> : 1,<span class="string">"email"</span> : 1&#125;)</span><br><span class="line">//返回结果</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="string">"username"</span>:<span class="string">"lgy"</span>,</span><br><span class="line">  <span class="string">"email"</span>:<span class="string">"lgy@example.com"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>通过查询，默认情况下回返回”_id”这个键，如果希望不出现其他的键值，就使用如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.find(&#123;&#125;,&#123;<span class="string">"username"</span> : 1,<span class="string">"_id"</span> : 0&#125;)</span><br><span class="line">//返回结果</span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">"username"</span>:<span class="string">"lgy"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="查询条件"><a href="#查询条件" class="headerlink" title="查询条件"></a>查询条件</h3><ul>
-<li>查询条件：</li>
-</ul>
-<p>“$lt”,”$lte”,”$gt”,”$gte”就是全部的比较操作符，分别对应&lt;,&lt;=,&gt;,&gt;=</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//查询18 ~ 30岁的用户：</span><br><span class="line">&gt;db.users.find(&#123;<span class="string">"age"</span> : &#123;<span class="string">"<span class="variable">$gte</span>"</span> : 18 , <span class="string">"<span class="variable">$lte</span>"</span> : 30&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>“$ne”表示不等于某个特定的值<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//查询用户名不为<span class="string">"lgy"</span>的所有用户</span><br><span class="line">&gt;db.users.find(&#123;<span class="string">"username"</span> : &#123;<span class="string">"<span class="variable">$ne</span>"</span> : <span class="string">"lgy"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>OR查询：</li>
-</ul>
-<p>“$in” 和 “$or”两种方式进行OR查询</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.raffle.find(&#123;<span class="string">"ticket_no"</span> : &#123;<span class="string">"<span class="variable">$in</span>"</span> : [725,542,390]&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>“$nin”是与”$in”相反的</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.raffle.find(&#123;<span class="string">"<span class="variable">$or</span>"</span> : [&#123;<span class="string">"ticket_no"</span> : 725&#125;,&#123;<span class="string">"winner"</span> : <span class="literal">true</span>&#125;]&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>两者结合使用：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.raffle.find(&#123;<span class="string">"<span class="variable">$or</span>"</span> : [&#123;<span class="string">"ticket_no"</span> : &#123;<span class="string">"<span class="variable">$in</span>"</span> : [725,542,300]&#125;&#125;,&#123;<span class="string">"winner"</span> : <span class="literal">true</span>&#125;]&#125;)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>$not</p>
-<p>  “$not”是元条件句，即可以在任何其他条件之上。</p>
-<pre><code>&quot;$mod&quot;通过传入两个参数，第一个用来作为除数，第二个是用来判定余数是否为此数字
-</code></pre><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.find(&#123;<span class="string">"id_num"</span> : &#123;<span class="string">"<span class="variable">$not</span>"</span> : &#123;<span class="string">"<span class="variable">$mod</span>"</span> : [5,1]&#125;&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<h3 id="特定类型的查询"><a href="#特定类型的查询" class="headerlink" title="特定类型的查询"></a>特定类型的查询</h3><ul>
-<li>null</li>
-</ul>
-<p>null不仅会匹配某个键的值为null的文档，而且还匹配不包含这个键的文档</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.c.find(&#123;<span class="string">"z"</span> : null&#125;)</span><br></pre></td></tr></table></figure>
-<p>如果仅仅想匹配键值为null的文档，则可以加”$exists”条件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.c.find(&#123;<span class="string">"z"</span> : &#123;<span class="string">"<span class="variable">$in</span>"</span> : [null], <span class="string">"<span class="variable">$exists</span>"</span> : <span class="literal">true</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>正则表达式</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.find(&#123;<span class="string">"name"</span> : /joey?/i&#125;)</span><br></pre></td></tr></table></figure>
-<ul>
-<li>查询数组</li>
-</ul>
-<p>$all,可以用来进行多个元素匹配数组</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//这样查找就可以匹配到同时存在的两个元素的文档</span><br><span class="line">&gt;db.food.find(&#123;<span class="string">"fruit"</span> : &#123;<span class="string">"<span class="variable">$all</span>"</span> : [<span class="string">"people"</span>,<span class="string">"banana"</span>]&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>$size用来查询特定长度的数组</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.food.find(&#123;<span class="string">"furit"</span> : &#123;<span class="string">"<span class="variable">$size</span>"</span> : 3&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>$slice用来返回某个匹配数组元素的一个子集</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//返回前十条评论，如果把10换成-10就是返回后十条评论</span><br><span class="line">&gt;db.blog.posts.findOne(criteria,&#123;<span class="string">"comments"</span> : &#123;<span class="string">"<span class="variable">$slice</span>"</span> : 10&#125;&#125;)</span><br><span class="line"></span><br><span class="line">//这个操作会跳过前面23个元素，返回第24~33个元素</span><br><span class="line">&gt;db.blog.posts.findOne(criteria,&#123;<span class="string">"comments"</span> : &#123;<span class="string">"<span class="variable">$slice</span>"</span> : [23,10]&#125;&#125;)</span><br></pre></td></tr></table></figure>
-<p>返回一个匹配的数组元素</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.blog.find(&#123;<span class="string">"comments.name"</span> : <span class="string">"bob"</span>&#125;, &#123;<span class="string">"comments.$"</span> : 1&#125;)</span><br><span class="line">//返回结果</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"id"</span> :　ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="string">"comments"</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span> : <span class="string">"bob"</span>,</span><br><span class="line">      <span class="string">"email"</span> : <span class="string">"bob@example.com"</span>,</span><br><span class="line">      <span class="string">"content"</span> : <span class="string">"good post"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">//这样就只会返回第一条评论</span><br></pre></td></tr></table></figure>
-<ul>
-<li>查询内嵌文档</li>
-</ul>
-<p>现在有这样的数据</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: &#123;</span><br><span class="line">    <span class="attr">"first"</span>:<span class="string">"joe"</span>,</span><br><span class="line">    <span class="attr">"last"</span>:<span class="string">"Schmoe"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"age"</span>:<span class="number">45</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>对内嵌文档的查询</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//用点表示法表达<span class="string">"进入内嵌文档内部"</span>的意思</span><br><span class="line">&gt;db.people.find(&#123;<span class="string">"name.first"</span> : <span class="string">"joe"</span> ,<span class="string">"name.last"</span> : <span class="string">"Schmoe"</span>&#125;)</span><br></pre></td></tr></table></figure>
-<p>要正确指定一组条件，而不必指定每个键，就需要使用”$elematch”</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.blog.find(&#123;<span class="string">"comments"</span> : &#123;<span class="variable">$elematch</span><span class="string">" : &#123;"</span>author<span class="string">" : "</span>joe<span class="string">", "</span>score<span class="string">" : &#123;"</span><span class="variable">$gte</span><span class="string">" : 5&#125;&#125;&#125;&#125;)</span></span><br></pre></td></tr></table></figure>
-<h3 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h3><ul>
-<li>游标查询的具体操作：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="keyword">for</span>(i = 0; i &lt;100; i ++) &#123;</span><br><span class="line">  db.collection.insert(&#123;x : i&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="cjx4vcfus0005n4yv29cbhxfg" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
 
     </footer>
   </div>
@@ -1287,6 +1222,10 @@
       <ul>
         
           <li>
+            <a href="/2019/06/26/Vue源码浅析之nextTick/">Vue源码浅析之nextTick</a>
+          </li>
+        
+          <li>
             <a href="/2019/06/20/Vue源码浅析之更新派发/">Vue源码浅析之更新派发</a>
           </li>
         
@@ -1300,10 +1239,6 @@
         
           <li>
             <a href="/2019/06/13/Vue源码浅析之异步组件注册/">Vue源码浅析之异步组件注册</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/25/前端必备知识库之ES6篇/">前端必备知识库之ES6篇</a>
           </li>
         
       </ul>

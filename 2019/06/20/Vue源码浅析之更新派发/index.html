@@ -16,7 +16,7 @@
 <meta property="og:description" content="getter 就是为了追踪依赖, 对依赖进行收集。而 setter 则是通知变化, 让视图进行更新。 之前已经探索了 vue 在 触发响应式对象的 getter 时候, 通过把组件对应的渲染 watcher 进行依赖收集, 这些 watcher 最终会被收集到 dep.subs 的数组中。 回顾 defineReactive 源码那当数据发生变更，这时候会触发响应式对象的 setter, 重新看">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/images/vue-logo.png">
-<meta property="og:updated_time" content="2019-06-20T16:16:54.693Z">
+<meta property="og:updated_time" content="2019-06-26T15:15:48.881Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Vue源码浅析之更新派发">
 <meta name="twitter:description" content="getter 就是为了追踪依赖, 对依赖进行收集。而 setter 则是通知变化, 让视图进行更新。 之前已经探索了 vue 在 触发响应式对象的 getter 时候, 通过把组件对应的渲染 watcher 进行依赖收集, 这些 watcher 最终会被收集到 dep.subs 的数组中。 回顾 defineReactive 源码那当数据发生变更，这时候会触发响应式对象的 setter, 重新看">
@@ -141,7 +141,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjx4vcfvi000hn4yv6tyilhas" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjxdfyfur000p1oyvn45pcvai" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -151,6 +151,15 @@
   
     
 <nav id="article-nav">
+  
+    <a href="/2019/06/26/Vue源码浅析之nextTick/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue源码浅析之nextTick
+        
+      </div>
+    </a>
   
   
     <a href="/2019/06/18/Vue源码浅析之依赖收集/" id="article-nav-older" class="article-nav-link-wrap">
@@ -213,6 +222,10 @@
       <ul>
         
           <li>
+            <a href="/2019/06/26/Vue源码浅析之nextTick/">Vue源码浅析之nextTick</a>
+          </li>
+        
+          <li>
             <a href="/2019/06/20/Vue源码浅析之更新派发/">Vue源码浅析之更新派发</a>
           </li>
         
@@ -226,10 +239,6 @@
         
           <li>
             <a href="/2019/06/13/Vue源码浅析之异步组件注册/">Vue源码浅析之异步组件注册</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/25/前端必备知识库之ES6篇/">前端必备知识库之ES6篇</a>
           </li>
         
       </ul>

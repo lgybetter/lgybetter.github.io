@@ -73,6 +73,86 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Vue源码浅析之nextTick" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/06/26/Vue源码浅析之nextTick/" class="article-date">
+  <time datetime="2019-06-26T14:19:46.000Z" itemprop="datePublished">2019-06-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/26/Vue源码浅析之nextTick/">Vue源码浅析之nextTick</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/vue-logo.png" alt="Vue"></p>
+<h2 id="nextTicke-的作用"><a href="#nextTicke-的作用" class="headerlink" title="nextTicke 的作用"></a>nextTicke 的作用</h2><p>官方文档描述如下:</p>
+<blockquote>
+<p>在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM。</p>
+</blockquote>
+<p>从这个描述我们可以知道，nextTick 方法用于在视图渲染更新结束后进行回调方法执行, 目的是保证我们在回调方法中操作的 DOM 是已经完成视图更新渲染。</p>
+<h2 id="回顾响应式更新派发"><a href="#回顾响应式更新派发" class="headerlink" title="回顾响应式更新派发"></a>回顾响应式更新派发</h2><p>我们已经知道当数据发送变更, 会触发响应式数据对象的 setter 方法, 接着订阅该数据更新的渲染 watcher 执行 queueWatcher, queueWatcher 的实现就是使用 nextTick(flushSchedulerQueue) 来实现视图的异步更新。</p>
+<h2 id="nextTick-的实现"><a href="#nextTick-的实现" class="headerlink" title="nextTick 的实现"></a>nextTick 的实现</h2><p>nextTick 的源码定义在 core/util/next-tick.js 中</p>
+<p>我们先看一下这个模块定义的全局变量</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; noop &#125; <span class="keyword">from</span> <span class="string">'shared/util'</span></span><br><span class="line"><span class="keyword">import</span> &#123; handleError &#125; <span class="keyword">from</span> <span class="string">'./error'</span></span><br><span class="line"><span class="keyword">import</span> &#123; isIE, isIOS, isNative &#125; <span class="keyword">from</span> <span class="string">'./env'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 是否使用微任务标识</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">let</span> isUsingMicroTask = <span class="literal">false</span></span><br><span class="line"><span class="comment">// 收集回调函数</span></span><br><span class="line"><span class="keyword">const</span> callbacks = []</span><br><span class="line"><span class="comment">// Promise 的判断标识</span></span><br><span class="line"><span class="keyword">let</span> pending = <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<p>这里需要关注一下 callbacks 这个数组, 它的作用是为了收集每次调用 nextTick 方法对应的回调函数, 保证每个回调函数有序执行。 </p>
+<p>我们先看下 nextTick 的定义<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">nextTick</span> (<span class="params">cb?: Function, ctx?: Object</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> _resolve</span><br><span class="line">  callbacks.push(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (cb) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        cb.call(ctx)</span><br><span class="line">      &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">        handleError(e, ctx, <span class="string">'nextTick'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (_resolve) &#123;</span><br><span class="line">      _resolve(ctx)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">if</span> (!pending) &#123;</span><br><span class="line">    pending = <span class="literal">true</span></span><br><span class="line">    timerFunc()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// $flow-disable-line</span></span><br><span class="line">  <span class="keyword">if</span> (!cb &amp;&amp; <span class="keyword">typeof</span> <span class="built_in">Promise</span> !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">      _resolve = resolve</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>nextTick 实现很简单，如果是通过回调函数的形式来调用, 则把传入的回调函数 push 到 callbacks 这个数组中, 被 push 的回调函数会被封装为一个匿名函数, 这个匿名对每个回调函数进行 try/catch 的异常捕获, 目的是为了保证当某个回调函数发生异常时, 不影响 js 的进一步执行。如果是使用 Promise 的方式进行 nextTick 进行调用, 则会 new 一个 Promsie 对象并把 resolve 赋值给 _resolve 以便链式调用。</p>
+<p>一开始 pending 为 false, 所以会执行 timerFunc。</p>
+<p>这里我们看下 timerFunc 是怎么实现的</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> timerFunc</span><br><span class="line"></span><br><span class="line"><span class="comment">// The nextTick behavior leverages the microtask queue, which can be accessed</span></span><br><span class="line"><span class="comment">// via either native Promise.then or MutationObserver.</span></span><br><span class="line"><span class="comment">// MutationObserver has wider support, however it is seriously bugged in</span></span><br><span class="line"><span class="comment">// UIWebView in iOS &gt;= 9.3.3 when triggered in touch event handlers. It</span></span><br><span class="line"><span class="comment">// completely stops working after triggering a few times... so, if native</span></span><br><span class="line"><span class="comment">// Promise is available, we will use it:</span></span><br><span class="line"><span class="comment">/* istanbul ignore next, $flow-disable-line */</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="built_in">Promise</span> !== <span class="string">'undefined'</span> &amp;&amp; isNative(<span class="built_in">Promise</span>)) &#123;</span><br><span class="line">  <span class="keyword">const</span> p = <span class="built_in">Promise</span>.resolve()</span><br><span class="line">  timerFunc = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    p.then(flushCallbacks)</span><br><span class="line">    <span class="comment">// In problematic UIWebViews, Promise.then doesn't completely break, but</span></span><br><span class="line">    <span class="comment">// it can get stuck in a weird state where callbacks are pushed into the</span></span><br><span class="line">    <span class="comment">// microtask queue but the queue isn't being flushed, until the browser</span></span><br><span class="line">    <span class="comment">// needs to do some other work, e.g. handle a timer. Therefore we can</span></span><br><span class="line">    <span class="comment">// "force" the microtask queue to be flushed by adding an empty timer.</span></span><br><span class="line">    <span class="keyword">if</span> (isIOS) setTimeout(noop)</span><br><span class="line">  &#125;</span><br><span class="line">  isUsingMicroTask = <span class="literal">true</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (!isIE &amp;&amp; <span class="keyword">typeof</span> MutationObserver !== <span class="string">'undefined'</span> &amp;&amp; (</span><br><span class="line">  isNative(MutationObserver) ||</span><br><span class="line">  <span class="comment">// PhantomJS and iOS 7.x</span></span><br><span class="line">  MutationObserver.toString() === <span class="string">'[object MutationObserverConstructor]'</span></span><br><span class="line">)) &#123;</span><br><span class="line">  <span class="comment">// Use MutationObserver where native Promise is not available,</span></span><br><span class="line">  <span class="comment">// e.g. PhantomJS, iOS7, Android 4.4</span></span><br><span class="line">  <span class="comment">// (#6466 MutationObserver is unreliable in IE11)</span></span><br><span class="line">  <span class="keyword">let</span> counter = <span class="number">1</span></span><br><span class="line">  <span class="keyword">const</span> observer = <span class="keyword">new</span> MutationObserver(flushCallbacks)</span><br><span class="line">  <span class="keyword">const</span> textNode = <span class="built_in">document</span>.createTextNode(<span class="built_in">String</span>(counter))</span><br><span class="line">  observer.observe(textNode, &#123;</span><br><span class="line">    characterData: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  timerFunc = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    counter = (counter + <span class="number">1</span>) % <span class="number">2</span></span><br><span class="line">    textNode.data = <span class="built_in">String</span>(counter)</span><br><span class="line">  &#125;</span><br><span class="line">  isUsingMicroTask = <span class="literal">true</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> setImmediate !== <span class="string">'undefined'</span> &amp;&amp; isNative(setImmediate)) &#123;</span><br><span class="line">  <span class="comment">// Fallback to setImmediate.</span></span><br><span class="line">  <span class="comment">// Techinically it leverages the (macro) task queue,</span></span><br><span class="line">  <span class="comment">// but it is still a better choice than setTimeout.</span></span><br><span class="line">  timerFunc = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    setImmediate(flushCallbacks)</span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// Fallback to setTimeout.</span></span><br><span class="line">  timerFunc = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    setTimeout(flushCallbacks, <span class="number">0</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>timerFunc 会根据不同浏览器的原生异步任务支持情况来选择对应的异步任务创建类型, 这里简单列举这里的异步任务类型:</p>
+<ul>
+<li>Promise 微任务</li>
+<li>MutationObserver 微任务</li>
+<li>setImmediate 宏任务</li>
+<li>setTimeout 宏任务</li>
+</ul>
+<p>timerFunc 本质就是创建一个异步任务来执行 flushCallbacks 这个函数。目的是为了让传入 nextTick 的回调函数是异步执行的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flushCallbacks</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  pending = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">const</span> copies = callbacks.slice(<span class="number">0</span>)</span><br><span class="line">  callbacks.length = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; copies.length; i++) &#123;</span><br><span class="line">    copies[i]()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>flushCallbacks 其实就是遍历 callbacks 数组里面的回调函数并依次执行。</p>
+<p>对于用户调用 Vue.nextTick 暴露的 api 接口传入对应的回调函数, 其执行总会是在视图完成渲染更新后才进行, 因为当数据发生变更, 触发渲染 watcher 执行 queueWatcher, 这时候 vue 内部调用 nextTick 先保证 flushSchedulerQueue 这个方法是先被 push 到 callbacks 这个回调数组。</p>
+<p>举个例子</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div&gt;</span><br><span class="line">    &lt;p ref=<span class="string">"dom"</span>&gt;&#123;&#123;msg&#125;&#125;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">    &lt;button @click="handleChange"&gt;change&lt;/</span>button&gt;</span><br><span class="line">  &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  data () &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      msg: <span class="string">'vue'</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    handleChange () &#123;</span><br><span class="line">      <span class="keyword">this</span>.$nextTick(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>.refs.dom.msg, <span class="string">'pre'</span>)</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">this</span>.msg = <span class="string">'vue-nextTick'</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.refs.dom.msg, <span class="string">'common'</span>);</span><br><span class="line">      <span class="keyword">this</span>.$nextTick(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>.refs.dom.msg, <span class="string">'after'</span>)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这时候的输出结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vue common</span><br><span class="line">vue pre</span><br><span class="line">vue-nextTick after</span><br></pre></td></tr></table></figure></p>
+<p>这里我们简单来看下对应的函数执行顺序, 我们把第一个 nextTick 的回调函数取名 preTick, 第二个叫 afterTick</p>
+<p>同步代码执行: </p>
+<p>callbacks.push(preTick)<br>callbacks.push(flushSchedulerQueue) // 修改 msg 的值所触发<br>console.log(this.refs.dom.msg, ‘common’) // 输出 vue common<br>callbacks.push(afterTick)</p>
+<p>同步代码执行完成后, 执行 flushCallbacks 遍历执行回调函数:</p>
+<p>preTick // 输出 vue pre<br>flushSchedulerQueue // 视图进行数据更新渲染, this.refs.dom.msg 为 vue-nextTick<br>afterTick // 输出 vue-nextTick after</p>
+<p>到这里已经完成对 nextTick 的分析，其实 nextTick 的实现并不复杂, 如果已经深入了解浏览器 js 的执行机制可能会更容易理解。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="cjxdfyfuc000f1oyvvqjopqqw" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Vue源码浅析之更新派发" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2019/06/20/Vue源码浅析之更新派发/" class="article-date">
@@ -139,7 +219,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjx4vcfvi000hn4yv6tyilhas" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjxdfyfur000p1oyvn45pcvai" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -212,7 +292,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="cjx4vcfv6000bn4yv4d0zan6e" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="cjxdfyfuo000m1oyvxd1kb2jg" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -286,7 +366,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="cjx4vcfvd000fn4yvjy261i1x" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="cjxdfyfuv000t1oyvu2v24io8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -391,7 +471,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjx4vcfvw000sn4yvinoe34y8" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjxdfyfv0000y1oyv66dr8nkw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -432,7 +512,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjx4vcfwc0019n4yvkt85bj4n" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjxdfyfvf001b1oyvzl7awkvp" class="article-share-link">Share</a>
       
       
     </footer>
@@ -471,7 +551,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjx4vcfwe001cn4yvpd9mkxhl" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjxdfyfvo001i1oyv221n3hs3" class="article-share-link">Share</a>
       
       
     </footer>
@@ -514,7 +594,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjx4vcfw3000zn4yvf8ddxpl6" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjxdfyfv800141oyvum82mp5n" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Html/">Html</a></li></ul>
@@ -562,7 +642,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjx4vcfw60012n4yv91qake5c" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjxdfyfvb00181oyvk7cutzaq" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
@@ -646,132 +726,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/22/浏览器缓存中的HTTP缓存/" data-id="cjx4vcfwx001wn4yv3fh67hbx" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/22/浏览器缓存中的HTTP缓存/" data-id="cjxdfyfvu001p1oyvmtrbds4o" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Browser/">Browser</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Http/">Http</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-2019我和前端有一个约定" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2019/04/22/2019我和前端有一个约定/" class="article-date">
-  <time datetime="2019-04-21T16:59:33.000Z" itemprop="datePublished">2019-04-22</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/前端/">前端</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/22/2019我和前端有一个约定/">2019我和前端有一个约定</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="规范简介"><a href="#规范简介" class="headerlink" title="规范简介"></a>规范简介</h2><blockquote>
-<p>该规范目的是保证前端代码的整洁性和代码风格一致性，提高代码的可读性和可维护性。</p>
-</blockquote>
-<h2 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h2><h3 id="项目命名"><a href="#项目命名" class="headerlink" title="项目命名"></a>项目命名</h3><p>全部采用小写方式，使用中划线 - 进行分隔</p>
-<h3 id="目录结构规范"><a href="#目录结构规范" class="headerlink" title="目录结构规范"></a>目录结构规范</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line"> |-- src</span><br><span class="line"> |    |-- libs // 公用的库文件，例如：主题样式，鉴权插件，定制化的图表库</span><br><span class="line"> |    |-- assets // 资源目录，比如png，jpg，svg图片等</span><br><span class="line"> |    |    |-- images</span><br><span class="line"> |    |         |-- svg // svg的图片单独放一个目录</span><br><span class="line"> |    |-- components // 通用的自定义组件</span><br><span class="line"> |    |-- pages // 页面</span><br><span class="line"> |-- config // webpack等前端配置文件</span><br></pre></td></tr></table></figure>
-<h3 id="目录文件命名规范（推荐2种）"><a href="#目录文件命名规范（推荐2种）" class="headerlink" title="目录文件命名规范（推荐2种）"></a>目录文件命名规范（推荐2种）</h3><ul>
-<li>目录和文件都使用小写单词并使用中划线 - 进行分隔</li>
-<li>目录和文件使用小写单词并使用中划线 - 进行分隔，唯独.vue组件使用大驼峰进行命名<h3 id="package-json管理"><a href="#package-json管理" class="headerlink" title="package.json管理"></a>package.json管理</h3></li>
-<li><p>对于项目中代码需要依赖引入的使用</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm i vue -S</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对于项目中开发环境下进行运行调试压缩编译的使用</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm i wepack -D</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对于npm包的管理一定要规范，不需要引入的不要随便安装并写入package.json文件，当需要引入新的依赖需要告知所有的项目成员。</p>
-</li>
-<li>npm的依赖包的版本需要谨慎操作，不要随便进行任意升级。中间版本号和小版本号可以进行定期升级，并commit对应的修改以及通知项目成员。而大版本号需要确定其版本是否兼容目前使用的版本并进行仔细的测试才可以提交修改。<h2 id="HTML书写规范"><a href="#HTML书写规范" class="headerlink" title="HTML书写规范"></a>HTML书写规范</h2><h3 id="语法格式"><a href="#语法格式" class="headerlink" title="语法格式"></a>语法格式</h3></li>
-<li>使用2个空格进行缩进</li>
-<li>嵌套的节点应该使用缩进</li>
-<li>节点属性使用双引号，而不用单引号</li>
-<li><p>非自动闭合的HTML元素一定要使用斜线进行闭合！！！，自动闭合HTML元素则可选, 举例：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"images/logo.png"</span> <span class="attr">alt</span>=<span class="string">"logo"</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对于HTML 元素属性大于3个，推荐使用如下方式(适用于vue模板)，避免代码横向增长：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">i</span> <span class="attr">class</span>=<span class="string">"switch-btn"</span></span></span><br><span class="line"><span class="tag">   <span class="attr">:class</span>=<span class="string">"switchBtnIcon"</span></span></span><br><span class="line"><span class="tag">   <span class="attr">:style</span>=<span class="string">"switchBtnLeftDistance"</span></span></span><br><span class="line"><span class="tag">   @<span class="attr">click</span>=<span class="string">"changeVisible"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">i</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="语义化"><a href="#语义化" class="headerlink" title="语义化"></a>语义化</h3><ul>
-<li>根据使用场景选择正确的 HTML 元素。例如，使用 h1 元素创建标题，p 元素创建段落，a 元素创建链接，i 元素创建图标等等。正确的使用 HTML 元素对于可访问性、可重用性以及编码效率都很重要。<h3 id="资源引入"><a href="#资源引入" class="headerlink" title="资源引入"></a>资源引入</h3></li>
-<li>引入资源使用相对路径，不要指定资源所带的具体协议 ( http:,https: ) ，除非这两者协议都不可用。<br>示例：<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"//ticket1000-1253841380.file.myqcloud.com/assets/release/vue/vue.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="优化Dom结构"><a href="#优化Dom结构" class="headerlink" title="优化Dom结构"></a>优化Dom结构</h3><ul>
-<li>尽量避免多余的父节点，通过迭代和重构来使HTML元素变得更少。<h3 id="属性顺序"><a href="#属性顺序" class="headerlink" title="属性顺序"></a>属性顺序</h3></li>
-<li>class</li>
-<li>id</li>
-<li>name</li>
-<li>data-*</li>
-<li>src,for,type,href,value,max-length,max,min,pattern</li>
-<li>placeholder,title,alt</li>
-<li>aria-*,role</li>
-<li>required,readonly,disabled<h2 id="CSS书写规范"><a href="#CSS书写规范" class="headerlink" title="CSS书写规范"></a>CSS书写规范</h2><h3 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h3></li>
-<li>类名使用小写字母，以中划线分隔</li>
-<li>id采用驼峰式命名</li>
-<li>less, scss中的变量、函数、混合、placeholder采用驼峰式命名<h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3></li>
-<li>每个属性声明末尾都要加分号</li>
-<li>去掉小数点前面的0</li>
-<li>去掉数字中不必要的小数点和末尾的0</li>
-<li>属性值’0’后面不要加单位</li>
-<li>用border: 0;代替border: none;</li>
-<li>选择器不要超过4层</li>
-<li>尽量少用’*’选择器<h3 id="需要加空格"><a href="#需要加空格" class="headerlink" title="需要加空格"></a>需要加空格</h3></li>
-<li>属性值前</li>
-<li>选择器 ‘&gt;’, ‘+’, ‘~’前后</li>
-<li>‘{‘前</li>
-<li>!important’!’前</li>
-<li>@else前后</li>
-<li>属性值中的’,’后</li>
-<li>注释’/<em>‘后和’</em>/‘前<h3 id="需要换行"><a href="#需要换行" class="headerlink" title="需要换行"></a>需要换行</h3></li>
-<li>‘{‘后和’}’前</li>
-<li>每个属性独占一行</li>
-<li>多个规则的分隔符’,’后<h3 id="颜色"><a href="#颜色" class="headerlink" title="颜色"></a>颜色</h3></li>
-<li>尽量使用16进制的颜色，当不需要控制透明度，避免使用rgba的写法。</li>
-<li>16进制的颜色尽量使用简写代替<h3 id="属性顺序-1"><a href="#属性顺序-1" class="headerlink" title="属性顺序"></a>属性顺序</h3></li>
-<li><p>简单示例：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.order</span> &#123;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">float</span>: right;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">top</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#e5e5e5</span>;</span><br><span class="line">    <span class="attribute">border-radius</span>: <span class="number">3px</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">100px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100px</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">font</span>: normal <span class="number">13px</span> <span class="string">"Helvetica Neue"</span>, sans-serif;</span><br><span class="line">    <span class="attribute">line-height</span>: <span class="number">1.5</span>;</span><br><span class="line">    <span class="attribute">text-align</span>: center;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">color</span>: <span class="number">#333</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#f5f5f5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">opacity</span>: <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>完整顺序：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"display"</span>,</span><br><span class="line">        <span class="string">"visibility"</span>,</span><br><span class="line">        <span class="string">"float"</span>,</span><br><span class="line">        <span class="string">"clear"</span>,</span><br><span class="line">        <span class="string">"overflow"</span>,</span><br><span class="line">        <span class="string">"clip"</span>,</span><br><span class="line">        <span class="string">"zoom"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"position"</span>,</span><br><span class="line">        <span class="string">"top"</span>,</span><br><span class="line">        <span class="string">"right"</span>,</span><br><span class="line">        <span class="string">"bottom"</span>,</span><br><span class="line">        <span class="string">"left"</span>,</span><br><span class="line">        <span class="string">"z-index"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"margin"</span>,</span><br><span class="line">        <span class="string">"box-sizing"</span>,</span><br><span class="line">        <span class="string">"border"</span>,</span><br><span class="line">        <span class="string">"border-radius"</span>,</span><br><span class="line">        <span class="string">"padding"</span>,</span><br><span class="line">        <span class="string">"width"</span>,</span><br><span class="line">        <span class="string">"height"</span>,</span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"font"</span>,</span><br><span class="line">        <span class="string">"line-height"</span>,</span><br><span class="line">        <span class="string">"text-align"</span>,</span><br><span class="line">        <span class="string">"vertical-align"</span>,</span><br><span class="line">        <span class="string">"white-space"</span>,</span><br><span class="line">        <span class="string">"text-decoration"</span>,</span><br><span class="line">        <span class="string">"word-spacing"</span>,</span><br><span class="line">        <span class="string">"text-overflow"</span>,</span><br><span class="line">        <span class="string">"word-wrap"</span>,</span><br><span class="line">        <span class="string">"word-break"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"color"</span>,</span><br><span class="line">        <span class="string">"background"</span>,</span><br><span class="line">        <span class="string">"background-color"</span>,</span><br><span class="line">        <span class="string">"background-image"</span>,</span><br><span class="line">        <span class="string">"background-repeat"</span>,</span><br><span class="line">        <span class="string">"background-attachment"</span>,</span><br><span class="line">        <span class="string">"background-position"</span>,</span><br><span class="line">        <span class="string">"background-clip"</span>,</span><br><span class="line">        <span class="string">"background-origin"</span>,</span><br><span class="line">        <span class="string">"background-size"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"outline"</span>,</span><br><span class="line">        <span class="string">"opacity"</span>,</span><br><span class="line">        <span class="string">"box-shadow"</span>,</span><br><span class="line">        <span class="string">"text-shadow"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"transition"</span>,</span><br><span class="line">        <span class="string">"transition-delay"</span>,</span><br><span class="line">        <span class="string">"transition-timing-function"</span>,</span><br><span class="line">        <span class="string">"transition-duration"</span>,</span><br><span class="line">        <span class="string">"transition-property"</span>,</span><br><span class="line">        <span class="string">"transform"</span>,</span><br><span class="line">        <span class="string">"transform-origin"</span>,</span><br><span class="line">        <span class="string">"animation"</span>,</span><br><span class="line">        <span class="string">"animation-duration"</span>,</span><br><span class="line">        <span class="string">"animation-delay"</span>,</span><br><span class="line">        <span class="string">"animation-direction"</span></span><br><span class="line">    ],</span><br><span class="line">    [</span><br><span class="line">        <span class="string">"content"</span>,</span><br><span class="line">        <span class="string">"resize"</span>,</span><br><span class="line">        <span class="string">"cursor"</span>,</span><br><span class="line">        <span class="string">"user-select"</span>,</span><br><span class="line">        <span class="string">"tab-size"</span>,</span><br><span class="line">    ]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="JavaScript规范"><a href="#JavaScript规范" class="headerlink" title="JavaScript规范"></a>JavaScript规范</h2><ul>
-<li>遵循<a href="https://standardjs.com/" target="_blank" rel="noopener">standardjs</a>规范<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// http://eslint.org/docs/user-guide/configuring</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    root: <span class="literal">true</span>,</span><br><span class="line">    parser: <span class="string">'babel-eslint'</span>,</span><br><span class="line">    parserOptions: &#123;</span><br><span class="line">        sourceType: <span class="string">'module'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    env: &#123;</span><br><span class="line">        browser: <span class="literal">true</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style</span></span><br><span class="line">    extends: <span class="string">'standard'</span>,</span><br><span class="line">    <span class="comment">// required to lint *.vue files</span></span><br><span class="line">    plugins: [</span><br><span class="line">        <span class="string">'html'</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="comment">// add your custom rules here</span></span><br><span class="line">    <span class="string">'rules'</span>: &#123;</span><br><span class="line">        <span class="comment">// allow paren-less arrow functions</span></span><br><span class="line">        <span class="string">'arrow-parens'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="comment">// allow async-await</span></span><br><span class="line">        <span class="string">'generator-star-spacing'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="comment">// allow semi</span></span><br><span class="line">        <span class="string">'semi'</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="comment">// allow debugger during development</span></span><br><span class="line">        <span class="string">'no-debugger'</span>: process.env.NODE_ENV === <span class="string">'production'</span> ? <span class="number">2</span> : <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="Vue规范"><a href="#Vue规范" class="headerlink" title="Vue规范"></a>Vue规范</h2><ul>
-<li>请仔细阅读<a href="https://cn.vuejs.org/v2/style-guide/" target="_blank" rel="noopener">vue风格指南</a>!!!</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/22/2019我和前端有一个约定/" data-id="cjx4vcfuj0002n4yvpocv18sh" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li></ul>
 
     </footer>
   </div>
@@ -837,6 +795,10 @@
       <ul>
         
           <li>
+            <a href="/2019/06/26/Vue源码浅析之nextTick/">Vue源码浅析之nextTick</a>
+          </li>
+        
+          <li>
             <a href="/2019/06/20/Vue源码浅析之更新派发/">Vue源码浅析之更新派发</a>
           </li>
         
@@ -850,10 +812,6 @@
         
           <li>
             <a href="/2019/06/13/Vue源码浅析之异步组件注册/">Vue源码浅析之异步组件注册</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/25/前端必备知识库之ES6篇/">前端必备知识库之ES6篇</a>
           </li>
         
       </ul>
