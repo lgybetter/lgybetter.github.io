@@ -136,20 +136,34 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">get () &#123;</span><br><span class="line">  <span class="comment">// 把当前的watcher, 渲染watcher 或者 computed watcher 赋值给Dep.target</span></span><br><span class="line">  pushTarget(<span class="keyword">this</span>)</span><br><span class="line">  <span class="keyword">let</span> value</span><br><span class="line">  <span class="keyword">const</span> vm = <span class="keyword">this</span>.vm</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 执行在mountComponet中传入的updateComponent</span></span><br><span class="line">    value = <span class="keyword">this</span>.getter.call(vm, vm)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.user) &#123;</span><br><span class="line">      handleError(e, vm, <span class="string">`getter for watcher "<span class="subst">$&#123;<span class="keyword">this</span>.expression&#125;</span>"`</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> e</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="comment">// "touch" every property so they are all tracked as</span></span><br><span class="line">    <span class="comment">// dependencies for deep watching</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.deep) &#123;</span><br><span class="line">      traverse(value)</span><br><span class="line">    &#125;</span><br><span class="line">    popTarget()</span><br><span class="line">    <span class="keyword">this</span>.cleanupDeps()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们之前已经了解，pushTarget(this) 其实就是把当前的 computed watcher 赋值给 Dep.target, 接着执行 this.getter 计算 computed 属性对应的数值。</p>
 <p>这里需要特别注意一点, this.getter 为用户给 computed 属性定义的 getter 方法, 此方法执行会触发这个方法所依赖的响应式数据的 getter 的执行。</p>
-<p>这时候需要特别关注，当前的 Dep.target 为此时 computed 属性对应的 computed watcher, 而触发响应式数据的 getter 的执行则会使得响应式数据对象对应的 dep 收集 Dep.target, 也就是此时的 computed watcher。这里其实就是当前的 computed watcher 订阅了所依赖的响应式数据的变化。</p>
+<p>这时候需要特别关注，当前的 Dep.target 为此时 computed 属性对应的 computed watcher, 而触发响应式数据的 getter 的执行则会使得响应式数据对象对应的 dep 收集 Dep.target, 也就是此时的 computed watcher。当前的 computed watcher 会被 push 到响应式对象的 dep.subs 的数组中, 这里其实就是当前的 computed watcher 订阅了所依赖的响应式数据的变化。</p>
 <p>最后执行完成后调用 popTarget 把原始的 watcher, 比如渲染 watcher 恢复重新赋值给 Dep.target。</p>
 <p>this.get() 执行完成后则把 this.dirty 置为 false。</p>
-<p>回到 computedGetter, 如果处于渲染过程中, 也就是 Dep.target 不为空, 则继续执行了 watcher.depend, 则该 computed watcher 会把当前的渲染 watcher 收集 push 到它的 this.dep.subs 中, 也就是 computed watcher 对当前的渲染 watcher 进行依赖收集。完成后, 然后返回通过 evaluate 计算得到的值。</p>
+<p>回到 computedGetter, 如果处于渲染过程中, 也就是 Dep.target 不为空, 则继续执行了 watcher.depend </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">depend () &#123;</span><br><span class="line">  <span class="keyword">let</span> i = <span class="keyword">this</span>.deps.length</span><br><span class="line">  <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">    <span class="keyword">this</span>.deps[i].depend()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当前的 computed watcher 已经订阅了所依赖的响应式数据的变化, 于是 computed watcher 的 deps 为所有依赖的响应式数据对应的 Dep。于是执行 dep.depend, 把当前的 Dep.target 也就是当前的渲染 watcher, push 到每个响应式数据对象所对应的 dep.subs 中。当前的渲染 watcher 订阅了 computed watcher 所依赖的数据的变化, 用于依赖数据更新触发视图 update 渲染。完成后, 然后返回通过 evaluate 计算得到的值。</p>
 <p>这里整个 computed 的 get 求值就已经完成了。</p>
 <h2 id="Computed-变更-Set-过程"><a href="#Computed-变更-Set-过程" class="headerlink" title="Computed 变更 Set 过程"></a>Computed 变更 Set 过程</h2><p>当 computed 属性所依赖的响应式数据发生变更后, 则响应式数据会触发其对应的 setter 执行</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">set: <span class="function"><span class="keyword">function</span> <span class="title">reactiveSetter</span> (<span class="params">newVal</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> value = getter ? getter.call(obj) : val</span><br><span class="line">  <span class="comment">/* eslint-disable no-self-compare */</span></span><br><span class="line">  <span class="keyword">if</span> (newVal === value || (newVal !== newVal &amp;&amp; value !== value)) &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* eslint-enable no-self-compare */</span></span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; customSetter) &#123;</span><br><span class="line">    customSetter()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// #7981: for accessor properties without setter</span></span><br><span class="line">  <span class="keyword">if</span> (getter &amp;&amp; !setter) <span class="keyword">return</span></span><br><span class="line">  <span class="keyword">if</span> (setter) &#123;</span><br><span class="line">    setter.call(obj, newVal)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    val = newVal</span><br><span class="line">  &#125;</span><br><span class="line">  childOb = !shallow &amp;&amp; observe(newVal)</span><br><span class="line">  dep.notify()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>set 的执行我们之前有了解过, 这里主要看 dep.notify(), 因为在 get 过程中, 计算属性对应的 computed watcher 订阅了响应式数据的 dep, 这时候会通知 computed watcher 进行 update, 然后 computed watcher 执行 this.dirty = true 的逻辑。</p>
-<p>未完待续…</p>
+<p>set 的执行我们之前有了解过, 这里主要看两个点</p>
+<ul>
+<li>newVal === value || (newVal !== newVal &amp;&amp; value !== value)</li>
+<li>dep.notify()</li>
+</ul>
+<p>第一个是 set 的触发会对比当前更新的值是否发生变更, 如果没有变更则直接 return 不往下执行触发视图更新。</p>
+<p>第二个则是执行了当前响应式数据对象对应的 dep 的 notify 方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">notify () &#123;</span><br><span class="line">  <span class="comment">// stabilize the subscriber list first</span></span><br><span class="line">  <span class="keyword">const</span> subs = <span class="keyword">this</span>.subs.slice()</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; !config.async) &#123;</span><br><span class="line">    <span class="comment">// subs aren't sorted in scheduler if not running async</span></span><br><span class="line">    <span class="comment">// we need to sort them now to make sure they fire in correct</span></span><br><span class="line">    <span class="comment">// order</span></span><br><span class="line">    subs.sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a.id - b.id)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = subs.length; i &lt; l; i++) &#123;</span><br><span class="line">    subs[i].update()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为在 get 过程中, 计算属性对应的 computed watcher 订阅了响应式数据的 dep, 这时候会通知 computed watcher 进行 update, 对应的渲染 watcher 也订阅了响应式数据的 dep, 也会执行 update。</p>
+<p>computed watcher 的 update 会先执行, 然后执行渲染 watcher 的 update</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">update () &#123;</span><br><span class="line">  <span class="comment">/* istanbul ignore else */</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.lazy) &#123;</span><br><span class="line">    <span class="keyword">this</span>.dirty = <span class="literal">true</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.sync) &#123;</span><br><span class="line">    <span class="keyword">this</span>.run()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    queueWatcher(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>computed watcher 执行 update 把其对应的 dirty 属性置为 true, 接着执行渲染 watcher 的update, 渲染 watcher 的 update 执行了 queueWatcher 让视图在下一个 tick 进行更新。</p>
+<p>于是视图进行 flushSchedulerQueue 更新, 渲染 watcher 的更新会触发 computed 属性的 getter, 所以就再次执行 computedGetter 的执行, computed watcher 的 evaluate 和 depend 再次执行, 重新依赖收集所依赖的响应式数据, 接着返回数据更新后的新的 computed 值, 接着视图触发渲染更新。</p>
+<p>这里已经完成了整个 computed 属性的初始化的解析以及当 computed 属性所依赖的数据发生变更后的重新计算依赖和数值的过程。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="cjxoy0tvw000as8yvh7x2qk39" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="cjxskb9kz002agwyvsxen3j6p" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -229,7 +243,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="cjxoy0tw4000gs8yvdhqdn4bs" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="cjxskb9j0000igwyvzxq3a91y" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -307,7 +321,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjxoy0twk000us8yvkf8sk38t" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjxskb9jn000zgwyvv7k6xba5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -380,7 +394,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="cjxoy0twe000os8yv2x7zwdew" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="cjxskb9j8000ngwyvergknfks" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -454,7 +468,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="cjxoy0twn000ys8yvkx4zi4gi" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="cjxskb9jd000qgwyv62j0n8wj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -559,7 +573,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjxoy0twq0011s8yvca1m19wu" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjxskb9jh000ugwyvcokxt1j9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -600,7 +614,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjxoy0twz001es8yvorymoj3w" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjxskb9k2001cgwyvy5bsrnre" class="article-share-link">Share</a>
       
       
     </footer>
@@ -639,7 +653,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjxoy0txa001ps8yvrvb6eg2e" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjxskb9k9001jgwyvwgu89ezg" class="article-share-link">Share</a>
       
       
     </footer>
@@ -682,7 +696,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjxoy0tws0015s8yvpnnuuy61" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjxskb9jv0015gwyvaumcksce" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Html/">Html</a></li></ul>
@@ -730,7 +744,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjxoy0twx001as8yvttykcszt" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjxskb9jr0012gwyv6fblf2k1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
