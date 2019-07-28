@@ -73,6 +73,90 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Vue源码解析之Watcher原理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/07/28/Vue源码解析之Watcher原理/" class="article-date">
+  <time datetime="2019-07-28T13:11:31.000Z" itemprop="datePublished">2019-07-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/vue-logo.png" alt="Vue"></p>
+<p>对于用户定义的 Watche 属性官方描述如下:</p>
+<blockquote>
+<p>一个对象，键是需要观察的表达式，值是对应回调函数。值也可以是方法名，或者包含选项的对象。Vue 实例将会在实例化时调用 $watch()，遍历 watch 对象的每一个属性。</p>
+</blockquote>
+<p>接着看下文档对 $watch 的用法描述:</p>
+<blockquote>
+<p>观察 Vue 实例变化的一个表达式或计算属性函数。回调函数得到的参数为新值和旧值。表达式只接受监督的键路径。对于更复杂的表达式，用一个函数取代。</p>
+</blockquote>
+<h2 id="初始化过程"><a href="#初始化过程" class="headerlink" title="初始化过程"></a>初始化过程</h2><p>挺久没更新文章了, 回顾一下 Vue 的 initState 函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">initState</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._watchers = []</span><br><span class="line">  <span class="keyword">const</span> opts = vm.$options</span><br><span class="line">  <span class="keyword">if</span> (opts.props) initProps(vm, opts.props)</span><br><span class="line">  <span class="keyword">if</span> (opts.methods) initMethods(vm, opts.methods)</span><br><span class="line">  <span class="keyword">if</span> (opts.data) &#123;</span><br><span class="line">    initData(vm)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 响应式处理</span></span><br><span class="line">    observe(vm._data = &#123;&#125;, <span class="literal">true</span> <span class="comment">/* asRootData */</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (opts.computed) initComputed(vm, opts.computed)</span><br><span class="line">  <span class="keyword">if</span> (opts.watch &amp;&amp; opts.watch !== nativeWatch) &#123;</span><br><span class="line">    initWatch(vm, opts.watch)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 Vue 实例化执行 _init 的时候执行 initState, 这时候 initState 执行 initWatch 把 vm 实例和 opts 选项参数中的 watch 属性传递给 initWatch 方法。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initWatch</span> (<span class="params">vm: Component, watch: Object</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> watch) &#123;</span><br><span class="line">    <span class="keyword">const</span> handler = watch[key]</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(handler)) &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; handler.length; i++) &#123;</span><br><span class="line">        createWatcher(vm, key, handler[i])</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      createWatcher(vm, key, handler)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>initWatch 方法其实就是遍历用户定义的 watch 属性, 接着调用 createWatcher 进行 User Watcher 的创建</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createWatcher</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  vm: Component,</span></span></span><br><span class="line"><span class="function"><span class="params">  expOrFn: string | Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  handler: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  options?: Object</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isPlainObject(handler)) &#123;</span><br><span class="line">    options = handler</span><br><span class="line">    handler = handler.handler</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> handler === <span class="string">'string'</span>) &#123;</span><br><span class="line">    handler = vm[handler]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> vm.$watch(expOrFn, handler, options)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>createWatcher 其实就是调用 vm 实例的 $watch 方法, $watch 方法我们刚才从官方文档的描述中可以知道, 就是观察 Vue 实例变化的一个表达式或计算属性函数。</p>
+<p>$watch 是在执行 stateMixin 的时候定义在 Vue 的原型方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype.$watch = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  expOrFn: string | Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  cb: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  options?: Object</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Function</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">if</span> (isPlainObject(cb)) &#123;</span><br><span class="line">    <span class="keyword">return</span> createWatcher(vm, expOrFn, cb, options)</span><br><span class="line">  &#125;</span><br><span class="line">  options = options || &#123;&#125;</span><br><span class="line">  options.user = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">const</span> watcher = <span class="keyword">new</span> Watcher(vm, expOrFn, cb, options)</span><br><span class="line">  <span class="keyword">if</span> (options.immediate) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      cb.call(vm, watcher.value)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">      handleError(error, vm, <span class="string">`callback for immediate watcher "<span class="subst">$&#123;watcher.expression&#125;</span>"`</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">unwatchFn</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    watcher.teardown()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从 $watch 的实现可以看出 </p>
+<ul>
+<li><p>options.user = true, 表明这是一个 user watcher, 本质上也是通过 new Watcher 来实例化得到一个 user watcher. </p>
+</li>
+<li><p>当 options.immediate 为 true, 则会在实例化当前的 user watcher 后立即调用执行 cb 函数, 也就是用户定义的数据变化响应执行函数. 最后会返回一个取消观察函数，用来停止触发回调。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var unwatch = vm.$watch(&apos;a&apos;, cb)</span><br><span class="line">// 之后取消观察</span><br><span class="line">unwatch()</span><br></pre></td></tr></table></figure>
+<h2 id="创建-User-Watcher"><a href="#创建-User-Watcher" class="headerlink" title="创建 User Watcher"></a>创建 User Watcher</h2><p>new Watcher 的时候执行 Watcher 的构造函数:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constructor</span> (</span><br><span class="line">   vm: Component,</span><br><span class="line">   expOrFn: string | Function,</span><br><span class="line">   cb: Function,</span><br><span class="line">   options?: ?Object,</span><br><span class="line">   isRenderWatcher?: boolean</span><br><span class="line"> ) &#123;</span><br><span class="line">   <span class="keyword">this</span>.vm = vm</span><br><span class="line">   <span class="keyword">if</span> (isRenderWatcher) &#123;</span><br><span class="line">     vm._watcher = <span class="keyword">this</span></span><br><span class="line">   &#125;</span><br><span class="line">   vm._watchers.push(<span class="keyword">this</span>)</span><br><span class="line">   <span class="comment">// options</span></span><br><span class="line">   <span class="keyword">if</span> (options) &#123;</span><br><span class="line">     <span class="keyword">this</span>.deep = !!options.deep</span><br><span class="line">     <span class="keyword">this</span>.user = !!options.user</span><br><span class="line">     <span class="keyword">this</span>.lazy = !!options.lazy</span><br><span class="line">     <span class="keyword">this</span>.sync = !!options.sync</span><br><span class="line">     <span class="keyword">this</span>.before = options.before</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="keyword">this</span>.deep = <span class="keyword">this</span>.user = <span class="keyword">this</span>.lazy = <span class="keyword">this</span>.sync = <span class="literal">false</span></span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">this</span>.cb = cb</span><br><span class="line">   <span class="keyword">this</span>.id = ++uid <span class="comment">// uid for batching</span></span><br><span class="line">   <span class="keyword">this</span>.active = <span class="literal">true</span></span><br><span class="line">   <span class="keyword">this</span>.dirty = <span class="keyword">this</span>.lazy <span class="comment">// for lazy watchers</span></span><br><span class="line">   <span class="keyword">this</span>.deps = []</span><br><span class="line">   <span class="keyword">this</span>.newDeps = []</span><br><span class="line">   <span class="keyword">this</span>.depIds = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">   <span class="keyword">this</span>.newDepIds = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">   <span class="keyword">this</span>.expression = process.env.NODE_ENV !== <span class="string">'production'</span></span><br><span class="line">     ? expOrFn.toString()</span><br><span class="line">     : <span class="string">''</span></span><br><span class="line">   <span class="comment">// parse expression for getter</span></span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">typeof</span> expOrFn === <span class="string">'function'</span>) &#123;</span><br><span class="line">     <span class="keyword">this</span>.getter = expOrFn</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="keyword">this</span>.getter = parsePath(expOrFn)</span><br><span class="line">     <span class="keyword">if</span> (!<span class="keyword">this</span>.getter) &#123;</span><br><span class="line">       <span class="keyword">this</span>.getter = noop</span><br><span class="line">       process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; warn(</span><br><span class="line">         <span class="string">`Failed watching path: "<span class="subst">$&#123;expOrFn&#125;</span>" `</span> +</span><br><span class="line">         <span class="string">'Watcher only accepts simple dot-delimited paths. '</span> +</span><br><span class="line">         <span class="string">'For full control, use a function instead.'</span>,</span><br><span class="line">         vm</span><br><span class="line">       )</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">this</span>.value = <span class="keyword">this</span>.lazy</span><br><span class="line">     ? <span class="literal">undefined</span></span><br><span class="line">     : <span class="keyword">this</span>.get()</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>这里 this.getter 为 parsePath 函数执行后返回的函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">parsePath</span> (<span class="params">path: string</span>): <span class="title">any</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (bailRE.test(path)) &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> segments = path.split(<span class="string">'.'</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; segments.length; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!obj) <span class="keyword">return</span></span><br><span class="line">      obj = obj[segments[i]]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> obj</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>返回的函数主要是用于对当前的 vm 上的数据属性进行获取, 从而触发对应监听数据响应式对象的 getter.</p>
+<p>由于当前的 watcher 不是 computed watcher, 所以不需要延后计算, 于是 user watcher 主要调用 this.get 方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">get () &#123;</span><br><span class="line">  <span class="keyword">debugger</span></span><br><span class="line">  <span class="comment">// 把当前的渲染watcher赋值给Dep.target</span></span><br><span class="line">  pushTarget(<span class="keyword">this</span>)</span><br><span class="line">  <span class="keyword">let</span> value</span><br><span class="line">  <span class="keyword">const</span> vm = <span class="keyword">this</span>.vm</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 执行在mountComponet中传入的updateComponent</span></span><br><span class="line">    value = <span class="keyword">this</span>.getter.call(vm, vm)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.user) &#123;</span><br><span class="line">      handleError(e, vm, <span class="string">`getter for watcher "<span class="subst">$&#123;<span class="keyword">this</span>.expression&#125;</span>"`</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> e</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="comment">// "touch" every property so they are all tracked as</span></span><br><span class="line">    <span class="comment">// dependencies for deep watching</span></span><br><span class="line">    <span class="keyword">debugger</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.deep) &#123;</span><br><span class="line">      traverse(value)</span><br><span class="line">    &#125;</span><br><span class="line">    popTarget()</span><br><span class="line">    <span class="keyword">this</span>.cleanupDeps()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>把当前的 user watcher 赋值给 Dep.target, 然后执行 this.getter, 触发定义监听的响应式数据依赖收集当前的 user watcher, 当 deep 为 true, 则会调用 traverse 对响应式数据进行深度遍历并触发对应的响应式数据的 getter, 从而达到深度监听子属性的功能. </p>
+<h2 id="数据变化触发响应"><a href="#数据变化触发响应" class="headerlink" title="数据变化触发响应"></a>数据变化触发响应</h2><p>当监听的响应式数据发生变化时, 对应的 setter 方法执行, 接着触发 被收集的 user watcher 的 update 方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">update () &#123;</span><br><span class="line">  <span class="comment">/* istanbul ignore else */</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.lazy) &#123;</span><br><span class="line">    <span class="keyword">this</span>.dirty = <span class="literal">true</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.sync) &#123;</span><br><span class="line">    <span class="keyword">this</span>.run()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    queueWatcher(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>update 方法这里执行 queueWatcher 方法在下一个 tick 后对视图进行更新, 而在对视图进行更新过程中, flushSchedulerQueue 会触发 user watcher 的 run 方法, </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">run () &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.active) &#123;</span><br><span class="line">    <span class="keyword">const</span> value = <span class="keyword">this</span>.get()</span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      value !== <span class="keyword">this</span>.value ||</span><br><span class="line">      <span class="comment">// Deep watchers and watchers on Object/Arrays should fire even</span></span><br><span class="line">      <span class="comment">// when the value is the same, because the value may</span></span><br><span class="line">      <span class="comment">// have mutated.</span></span><br><span class="line">      isObject(value) ||</span><br><span class="line">      <span class="keyword">this</span>.deep</span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="comment">// set new value</span></span><br><span class="line">      <span class="keyword">const</span> oldValue = <span class="keyword">this</span>.value</span><br><span class="line">      <span class="keyword">this</span>.value = value</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.user) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.cb.call(<span class="keyword">this</span>.vm, value, oldValue)</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">          handleError(e, <span class="keyword">this</span>.vm, <span class="string">`callback for watcher "<span class="subst">$&#123;<span class="keyword">this</span>.expression&#125;</span>"`</span>)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.cb.call(<span class="keyword">this</span>.vm, value, oldValue)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后执行了用户定义 watch 属性传入的 handler 函数, 这里为: this.cb.call(this.vm, value, oldValue).</p>
+<p>到这里已经大概了解了整个 user watcher, 从定义, 初始化, 数据监听依赖收集, 更新触发响应函数执行的过程。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/28/Vue源码解析之Watcher原理/" data-id="cjyn2fvsb000qjoyvplh4nokf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Vue源码浅析之Computed初始化" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta" style="height: 28px;">
     <a href="/2019/07/03/Vue源码浅析之Computed初始化/" class="article-date">
@@ -163,7 +247,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="cjxskb9kz002agwyvsxen3j6p" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="cjyn2fvro000bjoyvem7bmwt6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -243,7 +327,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="cjxskb9j0000igwyvzxq3a91y" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="cjyn2fvsl000yjoyviyqe2m98" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -321,7 +405,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjxskb9jn000zgwyvv7k6xba5" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="cjyn2fvs7000njoyvbv5wpv98" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -394,7 +478,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="cjxskb9j8000ngwyvergknfks" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="cjyn2fvsg000vjoyv6qynucca" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -468,7 +552,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="cjxskb9jd000qgwyv62j0n8wj" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="cjyn2fvse000tjoyvbyq8xlny" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -573,7 +657,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjxskb9jh000ugwyvcokxt1j9" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="cjyn2fvt0001bjoyv1ljgrgm6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -614,7 +698,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjxskb9k2001cgwyvy5bsrnre" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之ES6篇/" data-id="cjyn2fvt8001ijoyvkffjjn6s" class="article-share-link">Share</a>
       
       
     </footer>
@@ -653,7 +737,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjxskb9k9001jgwyvwgu89ezg" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="cjyn2fvtf001ojoyvz3485yc7" class="article-share-link">Share</a>
       
       
     </footer>
@@ -696,58 +780,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjxskb9jv0015gwyvaumcksce" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Html篇/" data-id="cjyn2fvt3001fjoyv0885i5dh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Html/">Html</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-前端必备知识库之CSS篇" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta" style="height: 28px;">
-    <a href="/2019/04/25/前端必备知识库之CSS篇/" class="article-date">
-  <time datetime="2019-04-24T17:13:52.000Z" itemprop="datePublished">2019-04-25</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/前端/">前端</a>
-  </div>
-
-    <div style="display: inline-block; margin-left: 16px;" class="bdsharebuttonbox"><a href="#" style="margin-top: 0;" class="bds_more" data-cmd="more"></a><a href="#" style="margin-top: 0;" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" style="margin-top: 0;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" style="margin-top: 0;" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" style="margin-top: 0;" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" style="margin-top: 0;" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
-    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{},"image":{"viewList":["qzone","tsina","tqq","renren","weixin"],"viewText":"分享到：","viewSize":"16"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/25/前端必备知识库之CSS篇/">前端必备知识库之CSS篇</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="盒模型"><a href="#盒模型" class="headerlink" title="盒模型"></a>盒模型</h2><p>盒子模型有两种，标准模型和IE盒模型</p>
-<p><img src="/images/标准模型.png" alt="标准模型"><br><img src="/images/IE模型.png" alt="IE模型"></p>
-<p>标准模型：宽高部分只包含content部分<br>IE模型： 宽高包含content + padding + border</p>
-<h2 id="flex"><a href="#flex" class="headerlink" title="flex"></a>flex</h2><h2 id="css单位"><a href="#css单位" class="headerlink" title="css单位"></a>css单位</h2><h2 id="css选择器"><a href="#css选择器" class="headerlink" title="css选择器"></a>css选择器</h2><h2 id="bfc-清除浮动"><a href="#bfc-清除浮动" class="headerlink" title="bfc 清除浮动"></a>bfc 清除浮动</h2><h2 id="层叠上下文"><a href="#层叠上下文" class="headerlink" title="层叠上下文"></a>层叠上下文</h2><h2 id="常见页面布局"><a href="#常见页面布局" class="headerlink" title="常见页面布局"></a>常见页面布局</h2><h2 id="响应式布局"><a href="#响应式布局" class="headerlink" title="响应式布局"></a>响应式布局</h2><h2 id="css预处理，后处理"><a href="#css预处理，后处理" class="headerlink" title="css预处理，后处理"></a>css预处理，后处理</h2><h2 id="css3新特性"><a href="#css3新特性" class="headerlink" title="css3新特性"></a>css3新特性</h2><h2 id="animation和transiton的相关属性"><a href="#animation和transiton的相关属性" class="headerlink" title="animation和transiton的相关属性"></a>animation和transiton的相关属性</h2><h2 id="animate和translate"><a href="#animate和translate" class="headerlink" title="animate和translate"></a>animate和translate</h2><h2 id="display哪些取值"><a href="#display哪些取值" class="headerlink" title="display哪些取值"></a>display哪些取值</h2><h2 id="相邻的两个inline-block节点为什么会出现间隔，该如何解决"><a href="#相邻的两个inline-block节点为什么会出现间隔，该如何解决" class="headerlink" title="相邻的两个inline-block节点为什么会出现间隔，该如何解决"></a>相邻的两个inline-block节点为什么会出现间隔，该如何解决</h2><h2 id="meta-viewport-移动端适配"><a href="#meta-viewport-移动端适配" class="headerlink" title="meta viewport 移动端适配"></a>meta viewport 移动端适配</h2><h2 id="CSS实现宽度自适应100-，宽高16-9的比例的矩形"><a href="#CSS实现宽度自适应100-，宽高16-9的比例的矩形" class="headerlink" title="CSS实现宽度自适应100%，宽高16:9的比例的矩形"></a>CSS实现宽度自适应100%，宽高16:9的比例的矩形</h2><h2 id="rem布局的优缺点"><a href="#rem布局的优缺点" class="headerlink" title="rem布局的优缺点"></a>rem布局的优缺点</h2><h2 id="画三角形"><a href="#画三角形" class="headerlink" title="画三角形"></a>画三角形</h2><h2 id="1像素边框问题"><a href="#1像素边框问题" class="headerlink" title="1像素边框问题"></a>1像素边框问题</h2><p>缓慢补充中~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之CSS篇/" data-id="cjxskb9jr0012gwyv6fblf2k1" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
 
     </footer>
   </div>
@@ -813,6 +849,10 @@
       <ul>
         
           <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
             <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
           </li>
         
@@ -826,10 +866,6 @@
         
           <li>
             <a href="/2019/06/18/Vue源码浅析之依赖收集/">Vue源码浅析之依赖收集</a>
-          </li>
-        
-          <li>
-            <a href="/2019/06/17/Vue源码浅析之响应式对象初始化/">Vue源码浅析之响应式对象初始化</a>
           </li>
         
       </ul>
