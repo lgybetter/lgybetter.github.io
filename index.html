@@ -99,7 +99,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/react.png" alt="banner"></p>
+        <p><img src="/images/react.jpg" alt="banner"></p>
 <h2 id="ReactDOM-render-用法"><a href="#ReactDOM-render-用法" class="headerlink" title="ReactDOM.render 用法"></a>ReactDOM.render 用法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.render(&lt;Root /&gt;, document.getElementById(&apos;root&apos;))</span><br></pre></td></tr></table></figure>
 <h2 id="ReactDOM-定义"><a href="#ReactDOM-定义" class="headerlink" title="ReactDOM 定义"></a>ReactDOM 定义</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ReactDOM: <span class="built_in">Object</span> = &#123;</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">  hydrate(element: React$Node, <span class="attr">container</span>: DOMContainer, <span class="attr">callback</span>: ?<span class="built_in">Function</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> legacyRenderSubtreeIntoContainer(</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      <span class="literal">true</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">  render(</span><br><span class="line">    element: React$Element&lt;any&gt;,</span><br><span class="line">    container: DOMContainer,</span><br><span class="line">    callback: ?<span class="built_in">Function</span>,</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">return</span> legacyRenderSubtreeIntoContainer(</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      <span class="literal">false</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>hydrate 和 render 本质都是调用 legacyRenderSubtreeIntoContainer 方法，只是第四个参数 forceHydrate 传入有区别，render 我们很清楚知道就是进行渲染调用，那 hydrate 是用来做什么？</p>
@@ -139,7 +139,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2021/07/19/ReactDOM-render实现浅析/" data-id="ckrbiagse00056h1t8up222dy" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2021/07/19/ReactDOM-render实现浅析/" data-id="ckrbic2y30005u41t24cc6se5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li></ul>
@@ -227,7 +227,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/02/16/React下Hooks使用姿势/" data-id="ckrbiagu4002m6h1thd7ft4wq" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2020/02/16/React下Hooks使用姿势/" data-id="ckrbic2zm002eu41t6osrq11s" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li></ul>
@@ -416,7 +416,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/12/30/从零开始打造属于自己的UI库/" data-id="ckrbiaguv003m6h1t743b2z84" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/12/30/从零开始打造属于自己的UI库/" data-id="ckrbic30h003mu41t8y7ew2tr" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -498,7 +498,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/07/28/Vue源码解析之Watcher原理/" data-id="ckrbiagsk000b6h1tbah25x9m" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/07/28/Vue源码解析之Watcher原理/" data-id="ckrbic2ya000bu41tq91oaxx7" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -598,7 +598,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="ckrbiagu2002k6h1tko037969" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="ckrbic2zr002mu41tb75d4f9c" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -676,7 +676,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="ckrbiagsi00076h1tmxbk593v" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/26/Vue源码浅析之nextTick/" data-id="ckrbic2y80007u41tzsbnfylb" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -752,7 +752,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="ckrbiagub002x6h1tuk82iokv" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="ckrbic2zy002xu41twl65g8ua" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -823,7 +823,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="ckrbiagu6002q6h1tlrkhuwig" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/18/Vue源码浅析之依赖收集/" data-id="ckrbic2zt002qu41tekk1tbjx" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -895,7 +895,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="ckrbiagu9002t6h1tace8o72a" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/17/Vue源码浅析之响应式对象初始化/" data-id="ckrbic2zw002tu41twgzvlcve" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
@@ -998,7 +998,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="ckrbiaguu003l6h1taksmx2ai" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="ckrbic30g003lu41tohruza2r" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>

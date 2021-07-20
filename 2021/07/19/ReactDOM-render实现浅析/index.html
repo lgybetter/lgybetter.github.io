@@ -15,12 +15,12 @@
 <meta property="og:site_name" content="Betterlin ’s Blog">
 <meta property="og:description" content="ReactDOM.render 用法1ReactDOM.render(&amp;lt;Root /&amp;gt;, document.getElementById(&amp;apos;root&amp;apos;)) ReactDOM 定义1234567891011121314151617181920212223242526const ReactDOM: Object = &amp;#123;  // 省略...  hydrate(">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://yoursite.com/images/react.png">
-<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta property="og:image" content="http://yoursite.com/images/react.jpg">
+<meta property="og:updated_time" content="2021-07-20T03:38:42.296Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ReactDOM.render 初始化过程浅析">
 <meta name="twitter:description" content="ReactDOM.render 用法1ReactDOM.render(&amp;lt;Root /&amp;gt;, document.getElementById(&amp;apos;root&amp;apos;)) ReactDOM 定义1234567891011121314151617181920212223242526const ReactDOM: Object = &amp;#123;  // 省略...  hydrate(">
-<meta name="twitter:image" content="http://yoursite.com/images/react.png">
+<meta name="twitter:image" content="http://yoursite.com/images/react.jpg">
   
     <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
   
@@ -101,7 +101,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/react.png" alt="banner"></p>
+        <p><img src="/images/react.jpg" alt="banner"></p>
 <h2 id="ReactDOM-render-用法"><a href="#ReactDOM-render-用法" class="headerlink" title="ReactDOM.render 用法"></a>ReactDOM.render 用法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.render(&lt;Root /&gt;, document.getElementById(&apos;root&apos;))</span><br></pre></td></tr></table></figure>
 <h2 id="ReactDOM-定义"><a href="#ReactDOM-定义" class="headerlink" title="ReactDOM 定义"></a>ReactDOM 定义</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ReactDOM: <span class="built_in">Object</span> = &#123;</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">  hydrate(element: React$Node, <span class="attr">container</span>: DOMContainer, <span class="attr">callback</span>: ?<span class="built_in">Function</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> legacyRenderSubtreeIntoContainer(</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      <span class="literal">true</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">  render(</span><br><span class="line">    element: React$Element&lt;any&gt;,</span><br><span class="line">    container: DOMContainer,</span><br><span class="line">    callback: ?<span class="built_in">Function</span>,</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">return</span> legacyRenderSubtreeIntoContainer(</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      <span class="literal">false</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>hydrate 和 render 本质都是调用 legacyRenderSubtreeIntoContainer 方法，只是第四个参数 forceHydrate 传入有区别，render 我们很清楚知道就是进行渲染调用，那 hydrate 是用来做什么？</p>
@@ -141,7 +141,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2021/07/19/ReactDOM-render实现浅析/" data-id="ckrbiagse00056h1t8up222dy" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2021/07/19/ReactDOM-render实现浅析/" data-id="ckrbic2y30005u41t24cc6se5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li></ul>
