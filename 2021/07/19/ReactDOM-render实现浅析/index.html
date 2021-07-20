@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>ReactDOM.render 初始化过程浅析 | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="ReactDOM.render 用法1ReactDOM.render(&amp;lt;Root /&amp;gt;, document.getElementById(&amp;apos;root&amp;apos;)) ReactDOM 定义1234567891011121314151617181920212223242526const ReactDOM: Object = &amp;#123;  // 省略...  hydrate(">
+<meta name="keywords" content="React">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ReactDOM.render 初始化过程浅析">
+<meta property="og:url" content="http://yoursite.com/2021/07/19/ReactDOM-render实现浅析/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="ReactDOM.render 用法1ReactDOM.render(&amp;lt;Root /&amp;gt;, document.getElementById(&amp;apos;root&amp;apos;)) ReactDOM 定义1234567891011121314151617181920212223242526const ReactDOM: Object = &amp;#123;  // 省略...  hydrate(">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/react.png">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ReactDOM.render 初始化过程浅析">
+<meta name="twitter:description" content="ReactDOM.render 用法1ReactDOM.render(&amp;lt;Root /&amp;gt;, document.getElementById(&amp;apos;root&amp;apos;)) ReactDOM 定义1234567891011121314151617181920212223242526const ReactDOM: Object = &amp;#123;  // 省略...  hydrate(">
+<meta name="twitter:image" content="http://yoursite.com/images/react.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ReactDOM-render实现浅析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2021/07/19/ReactDOM-render实现浅析/" class="article-date">
+  <time datetime="2021-07-19T15:16:24.000Z" itemprop="datePublished">2021-07-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ReactDOM.render 初始化过程浅析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/react.png" alt="banner"></p>
+<h2 id="ReactDOM-render-用法"><a href="#ReactDOM-render-用法" class="headerlink" title="ReactDOM.render 用法"></a>ReactDOM.render 用法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.render(&lt;Root /&gt;, document.getElementById(&apos;root&apos;))</span><br></pre></td></tr></table></figure>
+<h2 id="ReactDOM-定义"><a href="#ReactDOM-定义" class="headerlink" title="ReactDOM 定义"></a>ReactDOM 定义</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ReactDOM: <span class="built_in">Object</span> = &#123;</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">  hydrate(element: React$Node, <span class="attr">container</span>: DOMContainer, <span class="attr">callback</span>: ?<span class="built_in">Function</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> legacyRenderSubtreeIntoContainer(</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      <span class="literal">true</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">  render(</span><br><span class="line">    element: React$Element&lt;any&gt;,</span><br><span class="line">    container: DOMContainer,</span><br><span class="line">    callback: ?<span class="built_in">Function</span>,</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">return</span> legacyRenderSubtreeIntoContainer(</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      <span class="literal">false</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>hydrate 和 render 本质都是调用 legacyRenderSubtreeIntoContainer 方法，只是第四个参数 forceHydrate 传入有区别，render 我们很清楚知道就是进行渲染调用，那 hydrate 是用来做什么？</p>
+<blockquote>
+<p>hydrate 描述的是 ReactDOM 复用 ReactDOMServer 服务端渲染的内容时尽可能保留结构，并补充事件绑定等 Client 特有内容的过程。</p>
+</blockquote>
+<h2 id="ReactDOM-render-过程"><a href="#ReactDOM-render-过程" class="headerlink" title="ReactDOM render 过程"></a>ReactDOM render 过程</h2><ol>
+<li>render 调用 legacyRenderSubtreeIntoContainer</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">legacyRenderSubtreeIntoContainer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parentComponent: ?React$Component&lt;any, any&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  children: ReactNodeList,</span></span></span><br><span class="line"><span class="function"><span class="params">  container: DOMContainer,</span></span></span><br><span class="line"><span class="function"><span class="params">  forceHydrate: boolean,</span></span></span><br><span class="line"><span class="function"><span class="params">  callback: ?Function,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 省略...</span></span><br><span class="line">  <span class="keyword">let</span> root: Root = (container._reactRootContainer: any);</span><br><span class="line">  <span class="keyword">if</span> (!root) &#123;</span><br><span class="line">    <span class="comment">// 创建 ReactRoot</span></span><br><span class="line">    root = container._reactRootContainer = legacyCreateRootFromDOMContainer(</span><br><span class="line">      container,</span><br><span class="line">      forceHydrate,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> callback === <span class="string">'function'</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> originalCallback = callback;</span><br><span class="line">      <span class="comment">// 封装回调函数</span></span><br><span class="line">      callback = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">const</span> instance = DOMRenderer.getPublicRootInstance(root._internalRoot);</span><br><span class="line">        originalCallback.call(instance);</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 执行渲染</span></span><br><span class="line">    DOMRenderer.unbatchedUpdates(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (parentComponent != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 忽略</span></span><br><span class="line">        root.legacy_renderSubtreeIntoContainer(</span><br><span class="line">          parentComponent,</span><br><span class="line">          children,</span><br><span class="line">          callback,</span><br><span class="line">        );</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 调用 ReactRoot 的 render 方法</span></span><br><span class="line">        root.render(children, callback);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 省略...</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> DOMRenderer.getPublicRootInstance(root._internalRoot);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>legacyRenderSubtreeIntoContainer 通过 legacyCreateRootFromDOMContainer 这个方法创建了一个 ReactRoot 实例，然后赋值给 root 和 container._reactRootContainer，完成后执行回调函数的封装，接着执行<br>unbatchedUpdates 的回调函数，会执行 root 的 render 方法，也就是 ReactRoot 的原型方法 render，最后传入 root._internalRoot，执行后返回 DOMRenderer.getPublicRootInstance 的结果;</p>
+<ol start="2">
+<li>legacyCreateRootFromDOMContainer 实现过程</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">legacyCreateRootFromDOMContainer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  container: DOMContainer,</span></span></span><br><span class="line"><span class="function"><span class="params">  forceHydrate: boolean,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Root</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> shouldHydrate =</span><br><span class="line">    forceHydrate || shouldHydrateDueToLegacyHeuristic(container);</span><br><span class="line">  <span class="keyword">if</span> (!shouldHydrate) &#123;</span><br><span class="line">    <span class="keyword">let</span> warned = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">let</span> rootSibling;</span><br><span class="line">    <span class="keyword">while</span> ((rootSibling = container.lastChild)) &#123;</span><br><span class="line">      container.removeChild(rootSibling);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> isConcurrent = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> ReactRoot(container, isConcurrent, shouldHydrate);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>判断当前的 container 是否需要进行 forceHydrate，forceHydrate 为 false，则移除 container 下的所有子节点，然后标记 isConcurrent 为 false，实例化 ReactRoot；</p>
+<ol start="3">
+<li>ReactRoot 的构造函数</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ReactRoot</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  container: Container,</span></span></span><br><span class="line"><span class="function"><span class="params">  isConcurrent: boolean,</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrate: boolean,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> root = DOMRenderer.createContainer(container, isConcurrent, hydrate);</span><br><span class="line">  <span class="keyword">this</span>._internalRoot = root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createContainer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  containerInfo: Container,</span></span></span><br><span class="line"><span class="function"><span class="params">  isConcurrent: boolean,</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrate: boolean,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">OpaqueRoot</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> createFiberRoot(containerInfo, isConcurrent, hydrate);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用 DOMRenderer.createContainer 创建一个 FiberRoot，并把当前的 FiberRoot 实例化对象记录到 root._internalRoot 中。</p>
+<ol start="4">
+<li>ReactRoot 实例化对象 render 调用触发更新</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ReactRoot.prototype.render = <span class="function"><span class="keyword">function</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  children: ReactNodeList,</span></span></span><br><span class="line"><span class="function"><span class="params">  callback: ?(</span>) =&gt; <span class="title">mixed</span>,</span></span><br><span class="line"><span class="function">): <span class="title">Work</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> root = <span class="keyword">this</span>._internalRoot;</span><br><span class="line">  <span class="comment">// 创建一个 work</span></span><br><span class="line">  <span class="keyword">const</span> work = <span class="keyword">new</span> ReactWork();</span><br><span class="line">  callback = callback === <span class="literal">undefined</span> ? <span class="literal">null</span> : callback;</span><br><span class="line">  <span class="keyword">if</span> (callback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// 等待当前的 work 执行完成后执行回调函数</span></span><br><span class="line">    work.then(callback);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 触发更新</span></span><br><span class="line">  DOMRenderer.updateContainer(children, root, <span class="literal">null</span>, work._onCommit);</span><br><span class="line">  <span class="keyword">return</span> work;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">updateContainer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  element: ReactNodeList,</span></span></span><br><span class="line"><span class="function"><span class="params">  container: OpaqueRoot,</span></span></span><br><span class="line"><span class="function"><span class="params">  parentComponent: ?React$Component&lt;any, any&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  callback: ?Function,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">ExpirationTime</span> </span>&#123;</span><br><span class="line">  <span class="comment">// container 为当前的 FiberRoot 实例化对象</span></span><br><span class="line">  <span class="keyword">const</span> current = container.current;</span><br><span class="line">  <span class="comment">// 用于计算任务调度优先级</span></span><br><span class="line">  <span class="keyword">const</span> currentTime = requestCurrentTime();</span><br><span class="line">  <span class="keyword">const</span> expirationTime = computeExpirationForFiber(currentTime, current);</span><br><span class="line">  <span class="comment">// 推送和触发更新调度任务</span></span><br><span class="line">  <span class="keyword">return</span> updateContainerAtExpirationTime(</span><br><span class="line">    element,</span><br><span class="line">    container,</span><br><span class="line">    parentComponent,</span><br><span class="line">    expirationTime,</span><br><span class="line">    callback,</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ReactRoot 的原型方法 render 创建了一个 work，等待 work 执行完成后会执行 callback 的回调，而 work 的回调执行在于 wor._onCommit 的触发，render 方法最后调用了 DOMRenderer.updateContainer, updateContainer 这个方法一开进行 currentTime 和 expirationTime 来进行任务优先级的计算，然后执行 updateContainerAtExpirationTime 来进行渲染更新任务的触发。</p>
+<ol start="5">
+<li>updateContainerAtExpirationTime 实现</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">updateContainerAtExpirationTime</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  element: ReactNodeList,</span></span></span><br><span class="line"><span class="function"><span class="params">  container: OpaqueRoot,</span></span></span><br><span class="line"><span class="function"><span class="params">  parentComponent: ?React$Component&lt;any, any&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  expirationTime: ExpirationTime,</span></span></span><br><span class="line"><span class="function"><span class="params">  callback: ?Function,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> current = container.current;</span><br><span class="line">  <span class="keyword">const</span> context = getContextForSubtree(parentComponent);</span><br><span class="line">  <span class="keyword">if</span> (container.context === <span class="literal">null</span>) &#123;</span><br><span class="line">    container.context = context;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    container.pendingContext = context;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> scheduleRootUpdate(current, element, expirationTime, callback);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">scheduleRootUpdate</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  element: ReactNodeList,</span></span></span><br><span class="line"><span class="function"><span class="params">  expirationTime: ExpirationTime,</span></span></span><br><span class="line"><span class="function"><span class="params">  callback: ?Function,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 创建一个 update 更新任务</span></span><br><span class="line">  <span class="keyword">const</span> update = createUpdate(expirationTime);</span><br><span class="line">  update.payload = &#123;element&#125;;</span><br><span class="line"></span><br><span class="line">  callback = callback === <span class="literal">undefined</span> ? <span class="literal">null</span> : callback;</span><br><span class="line">  <span class="keyword">if</span> (callback !== <span class="literal">null</span>) &#123;</span><br><span class="line">    warningWithoutStack(</span><br><span class="line">      <span class="keyword">typeof</span> callback === <span class="string">'function'</span>,</span><br><span class="line">      <span class="string">'render(...): Expected the last optional `callback` argument to be a '</span> +</span><br><span class="line">        <span class="string">'function. Instead received: %s.'</span>,</span><br><span class="line">      callback,</span><br><span class="line">    );</span><br><span class="line">    update.callback = callback;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 把当前的更新任务和当前的 FiberRoot 压入任务队列</span></span><br><span class="line">  enqueueUpdate(current, update);</span><br><span class="line">  <span class="comment">// 触发任务队列进行任务执行</span></span><br><span class="line">  scheduleWork(current, expirationTime);</span><br><span class="line">  <span class="keyword">return</span> expirationTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>updateContainerAtExpirationTime 主要是执行 scheduleRootUpdate，scheduleRootUpdate 方法生成一个 update 更新任务，然后把当前的更新任务和当前的 FiberRoot 压入任务队列，接着触发任务队列进行任务执行。</p>
+<p>到这里就完成了 ReactDOM render 的初始化，后续界面视图的更新渲染就依赖于 React 的 Fiber Schedule 进行更新调度。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2021/07/19/ReactDOM-render实现浅析/" data-id="ckrbhuabw00053l1txr2dihrx" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/02/16/React下Hooks使用姿势/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">React下Hooks使用姿势</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

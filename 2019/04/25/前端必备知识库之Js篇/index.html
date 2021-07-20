@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>前端必备知识库之Js篇 | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="原型/原型链/构造函数/实例/继承有几种方式可以实现继承用原型实现继承有什么缺点，怎么解决arguments数据类型判断作用域链、闭包、作用域Ajax的原生写法对象深拷贝、浅拷贝图片懒加载、预加载实现页面加载进度条this关键字函数式编程手动实现parseInt为什么会有同源策略怎么判断两个对象是否相等事件模型事件委托、代理如何让事件先冒泡后捕获window的onload事件和domcontent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端必备知识库之Js篇">
+<meta property="og:url" content="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="原型/原型链/构造函数/实例/继承有几种方式可以实现继承用原型实现继承有什么缺点，怎么解决arguments数据类型判断作用域链、闭包、作用域Ajax的原生写法对象深拷贝、浅拷贝图片懒加载、预加载实现页面加载进度条this关键字函数式编程手动实现parseInt为什么会有同源策略怎么判断两个对象是否相等事件模型事件委托、代理如何让事件先冒泡后捕获window的onload事件和domcontent">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端必备知识库之Js篇">
+<meta name="twitter:description" content="原型/原型链/构造函数/实例/继承有几种方式可以实现继承用原型实现继承有什么缺点，怎么解决arguments数据类型判断作用域链、闭包、作用域Ajax的原生写法对象深拷贝、浅拷贝图片懒加载、预加载实现页面加载进度条this关键字函数式编程手动实现parseInt为什么会有同源策略怎么判断两个对象是否相等事件模型事件委托、代理如何让事件先冒泡后捕获window的onload事件和domcontent">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-前端必备知识库之Js篇" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/04/25/前端必备知识库之Js篇/" class="article-date">
+  <time datetime="2019-04-24T17:17:18.000Z" itemprop="datePublished">2019-04-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      前端必备知识库之Js篇
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="原型-原型链-构造函数-实例-继承"><a href="#原型-原型链-构造函数-实例-继承" class="headerlink" title="原型/原型链/构造函数/实例/继承"></a>原型/原型链/构造函数/实例/继承</h2><h2 id="有几种方式可以实现继承"><a href="#有几种方式可以实现继承" class="headerlink" title="有几种方式可以实现继承"></a>有几种方式可以实现继承</h2><h2 id="用原型实现继承有什么缺点，怎么解决"><a href="#用原型实现继承有什么缺点，怎么解决" class="headerlink" title="用原型实现继承有什么缺点，怎么解决"></a>用原型实现继承有什么缺点，怎么解决</h2><h2 id="arguments"><a href="#arguments" class="headerlink" title="arguments"></a>arguments</h2><h2 id="数据类型判断"><a href="#数据类型判断" class="headerlink" title="数据类型判断"></a>数据类型判断</h2><h2 id="作用域链、闭包、作用域"><a href="#作用域链、闭包、作用域" class="headerlink" title="作用域链、闭包、作用域"></a>作用域链、闭包、作用域</h2><h2 id="Ajax的原生写法"><a href="#Ajax的原生写法" class="headerlink" title="Ajax的原生写法"></a>Ajax的原生写法</h2><h2 id="对象深拷贝、浅拷贝"><a href="#对象深拷贝、浅拷贝" class="headerlink" title="对象深拷贝、浅拷贝"></a>对象深拷贝、浅拷贝</h2><h2 id="图片懒加载、预加载"><a href="#图片懒加载、预加载" class="headerlink" title="图片懒加载、预加载"></a>图片懒加载、预加载</h2><h2 id="实现页面加载进度条"><a href="#实现页面加载进度条" class="headerlink" title="实现页面加载进度条"></a>实现页面加载进度条</h2><h2 id="this关键字"><a href="#this关键字" class="headerlink" title="this关键字"></a>this关键字</h2><h2 id="函数式编程"><a href="#函数式编程" class="headerlink" title="函数式编程"></a>函数式编程</h2><h2 id="手动实现parseInt"><a href="#手动实现parseInt" class="headerlink" title="手动实现parseInt"></a>手动实现parseInt</h2><h2 id="为什么会有同源策略"><a href="#为什么会有同源策略" class="headerlink" title="为什么会有同源策略"></a>为什么会有同源策略</h2><h2 id="怎么判断两个对象是否相等"><a href="#怎么判断两个对象是否相等" class="headerlink" title="怎么判断两个对象是否相等"></a>怎么判断两个对象是否相等</h2><h2 id="事件模型"><a href="#事件模型" class="headerlink" title="事件模型"></a>事件模型</h2><h3 id="事件委托、代理"><a href="#事件委托、代理" class="headerlink" title="事件委托、代理"></a>事件委托、代理</h3><h3 id="如何让事件先冒泡后捕获"><a href="#如何让事件先冒泡后捕获" class="headerlink" title="如何让事件先冒泡后捕获"></a>如何让事件先冒泡后捕获</h3><h2 id="window的onload事件和domcontentloaded"><a href="#window的onload事件和domcontentloaded" class="headerlink" title="window的onload事件和domcontentloaded"></a>window的onload事件和domcontentloaded</h2><h2 id="for…in迭代和for…of有什么区别"><a href="#for…in迭代和for…of有什么区别" class="headerlink" title="for…in迭代和for…of有什么区别"></a>for…in迭代和for…of有什么区别</h2><h2 id="函数柯里化"><a href="#函数柯里化" class="headerlink" title="函数柯里化"></a>函数柯里化</h2><h2 id="call-apply区别，原生实现bind"><a href="#call-apply区别，原生实现bind" class="headerlink" title="call apply区别，原生实现bind"></a>call apply区别，原生实现bind</h2><h3 id="call，apply，bind-三者用法和区别：角度可为参数、绑定规则（显示绑定和强绑定），运行效率、运行情况。"><a href="#call，apply，bind-三者用法和区别：角度可为参数、绑定规则（显示绑定和强绑定），运行效率、运行情况。" class="headerlink" title="call，apply，bind 三者用法和区别：角度可为参数、绑定规则（显示绑定和强绑定），运行效率、运行情况。"></a>call，apply，bind 三者用法和区别：角度可为参数、绑定规则（显示绑定和强绑定），运行效率、运行情况。</h3><h2 id="async-await"><a href="#async-await" class="headerlink" title="async/await"></a>async/await</h2><h2 id="立即执行函数和使用场景"><a href="#立即执行函数和使用场景" class="headerlink" title="立即执行函数和使用场景"></a>立即执行函数和使用场景</h2><h2 id="设计模式-要求说出如何实现-应用-优缺点-单例模式实现"><a href="#设计模式-要求说出如何实现-应用-优缺点-单例模式实现" class="headerlink" title="设计模式(要求说出如何实现,应用,优缺点)/单例模式实现"></a>设计模式(要求说出如何实现,应用,优缺点)/单例模式实现</h2><h2 id="iframe的缺点有哪些"><a href="#iframe的缺点有哪些" class="headerlink" title="iframe的缺点有哪些"></a>iframe的缺点有哪些</h2><h2 id="数组问题"><a href="#数组问题" class="headerlink" title="数组问题"></a>数组问题</h2><h3 id="数组去重"><a href="#数组去重" class="headerlink" title="数组去重"></a>数组去重</h3><h3 id="数组常用方法"><a href="#数组常用方法" class="headerlink" title="数组常用方法"></a>数组常用方法</h3><h3 id="查找数组重复项"><a href="#查找数组重复项" class="headerlink" title="查找数组重复项"></a>查找数组重复项</h3><h3 id="扁平化数组"><a href="#扁平化数组" class="headerlink" title="扁平化数组"></a>扁平化数组</h3><h3 id="按数组中各项和特定值差值排序"><a href="#按数组中各项和特定值差值排序" class="headerlink" title="按数组中各项和特定值差值排序"></a>按数组中各项和特定值差值排序</h3><h2 id="BOM属性对象方法"><a href="#BOM属性对象方法" class="headerlink" title="BOM属性对象方法"></a>BOM属性对象方法</h2><h2 id="服务端渲染"><a href="#服务端渲染" class="headerlink" title="服务端渲染"></a>服务端渲染</h2><h2 id="垃圾回收机制"><a href="#垃圾回收机制" class="headerlink" title="垃圾回收机制"></a>垃圾回收机制</h2><h2 id="eventloop"><a href="#eventloop" class="headerlink" title="eventloop"></a>eventloop</h2><h3 id="进程和线程"><a href="#进程和线程" class="headerlink" title="进程和线程"></a>进程和线程</h3><h3 id="任务队列"><a href="#任务队列" class="headerlink" title="任务队列"></a>任务队列</h3><h2 id="如何快速让字符串变成已千为精度的数字"><a href="#如何快速让字符串变成已千为精度的数字" class="headerlink" title="如何快速让字符串变成已千为精度的数字"></a>如何快速让字符串变成已千为精度的数字</h2><p>缓慢补充中~</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/04/25/前端必备知识库之Js篇/" data-id="ckrbhuach000n3l1t9xambm2n" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/04/25/前端必备知识库之ES6篇/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          前端必备知识库之ES6篇
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/25/前端必备知识库之Html篇/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">前端必备知识库之Html篇</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

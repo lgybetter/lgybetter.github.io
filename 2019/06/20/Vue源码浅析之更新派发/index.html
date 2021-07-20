@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Vue源码浅析之更新派发 | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="getter 就是为了追踪依赖, 对依赖进行收集。而 setter 则是通知变化, 让视图进行更新。 之前已经探索了 vue 在 触发响应式对象的 getter 时候, 通过把组件对应的渲染 watcher 进行依赖收集, 这些 watcher 最终会被收集到 dep.subs 的数组中。 回顾 defineReactive 源码那当数据发生变更，这时候会触发响应式对象的 setter, 重新看">
+<meta name="keywords" content="Vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue源码浅析之更新派发">
+<meta property="og:url" content="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="getter 就是为了追踪依赖, 对依赖进行收集。而 setter 则是通知变化, 让视图进行更新。 之前已经探索了 vue 在 触发响应式对象的 getter 时候, 通过把组件对应的渲染 watcher 进行依赖收集, 这些 watcher 最终会被收集到 dep.subs 的数组中。 回顾 defineReactive 源码那当数据发生变更，这时候会触发响应式对象的 setter, 重新看">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/vue-logo.png">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue源码浅析之更新派发">
+<meta name="twitter:description" content="getter 就是为了追踪依赖, 对依赖进行收集。而 setter 则是通知变化, 让视图进行更新。 之前已经探索了 vue 在 触发响应式对象的 getter 时候, 通过把组件对应的渲染 watcher 进行依赖收集, 这些 watcher 最终会被收集到 dep.subs 的数组中。 回顾 defineReactive 源码那当数据发生变更，这时候会触发响应式对象的 setter, 重新看">
+<meta name="twitter:image" content="http://yoursite.com/images/vue-logo.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Vue源码浅析之更新派发" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/06/20/Vue源码浅析之更新派发/" class="article-date">
+  <time datetime="2019-06-20T14:39:45.000Z" itemprop="datePublished">2019-06-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Vue源码浅析之更新派发
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/vue-logo.png" alt="Vue"></p>
+<p>getter 就是为了追踪依赖, 对依赖进行收集。而 setter 则是通知变化, 让视图进行更新。</p>
+<p>之前已经探索了 vue 在 触发响应式对象的 getter 时候, 通过把组件对应的渲染 watcher 进行依赖收集, 这些 watcher 最终会被收集到 dep.subs 的数组中。</p>
+<h2 id="回顾-defineReactive-源码"><a href="#回顾-defineReactive-源码" class="headerlink" title="回顾 defineReactive 源码"></a>回顾 defineReactive 源码</h2><p>那当数据发生变更，这时候会触发响应式对象的 setter, 重新看下 defineReactive 的源码实现:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">defineReactive</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  obj: Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  key: string,</span></span></span><br><span class="line"><span class="function"><span class="params">  val: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  customSetter?: ?Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  shallow?: boolean</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> dep = <span class="keyword">new</span> Dep()</span><br><span class="line">  </span><br><span class="line">  ...省略</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> childOb = !shallow &amp;&amp; observe(val)</span><br><span class="line">  <span class="built_in">Object</span>.defineProperty(obj, key, &#123;</span><br><span class="line">    enumerable: <span class="literal">true</span>,</span><br><span class="line">    configurable: <span class="literal">true</span>,</span><br><span class="line">    <span class="keyword">get</span>: function reactiveGetter () &#123; ...省略 &#125;,</span><br><span class="line">    <span class="keyword">set</span>: function reactiveSetter (newVal) &#123;</span><br><span class="line">      <span class="keyword">const</span> value = getter ? getter.call(obj) : val</span><br><span class="line">      <span class="comment">/* eslint-disable no-self-compare */</span></span><br><span class="line">      <span class="keyword">if</span> (newVal === value || (newVal !== newVal &amp;&amp; value !== value)) &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/* eslint-enable no-self-compare */</span></span><br><span class="line">      <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; customSetter) &#123;</span><br><span class="line">        customSetter()</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// #7981: for accessor properties without setter</span></span><br><span class="line">      <span class="keyword">if</span> (getter &amp;&amp; !setter) <span class="keyword">return</span></span><br><span class="line">      <span class="keyword">if</span> (setter) &#123;</span><br><span class="line">        setter.call(obj, newVal)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        val = newVal</span><br><span class="line">      &#125;</span><br><span class="line">      childOb = !shallow &amp;&amp; observe(newVal)</span><br><span class="line">      dep.notify()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到, 响应式对象的 setter 其实先获取当前的数据变更, 判断数据是否发生变更, 然后会对变更的数据进行 observe 响应式对象初始化, 当然前提是 newVal 是一个非 Vnode 类型的对象。接着这里调用当前响应式对象初始化过程中已经实例化的 dep 的 notify 方法。</p>
+<p>而这时候 dep 的 subs 数组其实已经把当前订阅这个数据对象变更的渲染 watcher 收集起来了。</p>
+<p>那我们看下 notify 的实现</p>
+<h2 id="更新派发过程"><a href="#更新派发过程" class="headerlink" title="更新派发过程"></a>更新派发过程</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">notify () &#123;</span><br><span class="line">  <span class="comment">// stabilize the subscriber list first</span></span><br><span class="line">  <span class="keyword">const</span> subs = <span class="keyword">this</span>.subs.slice()</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; !config.async) &#123;</span><br><span class="line">    <span class="comment">// subs aren't sorted in scheduler if not running async</span></span><br><span class="line">    <span class="comment">// we need to sort them now to make sure they fire in correct</span></span><br><span class="line">    <span class="comment">// order</span></span><br><span class="line">    subs.sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a.id - b.id)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = subs.length; i &lt; l; i++) &#123;</span><br><span class="line">    subs[i].update()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里其实就是对 subs 的订阅者 watcher 进行遍历, 并调用 watcher 的 update 方法。 通俗一点来说, 就是通知 subs 里面的 watcher 去执行 update 方法, 从而进行视图更新。</p>
+<p>我们看下 Watcher 实现的 update 方法:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Subscriber interface.</span></span><br><span class="line"><span class="comment">  * Will be called when a dependency changes.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">update () &#123;</span><br><span class="line">  <span class="comment">/* istanbul ignore else */</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.lazy) &#123;</span><br><span class="line">    <span class="keyword">this</span>.dirty = <span class="literal">true</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.sync) &#123;</span><br><span class="line">    <span class="keyword">this</span>.run()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    queueWatcher(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>run 方法下面会详细分析。</p>
+<p>这里比较关键的是先关注 queueWatcher 这个函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> queue: <span class="built_in">Array</span>&lt;Watcher&gt; = []</span><br><span class="line"><span class="keyword">const</span> activatedChildren: <span class="built_in">Array</span>&lt;Component&gt; = []</span><br><span class="line"><span class="keyword">let</span> has: &#123; [key: number]: ?<span class="literal">true</span> &#125; = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> circular: &#123; [key: number]: number &#125; = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> waiting = <span class="literal">false</span></span><br><span class="line"><span class="keyword">let</span> flushing = <span class="literal">false</span></span><br><span class="line"><span class="keyword">let</span> index = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Push a watcher into the watcher queue.</span></span><br><span class="line"><span class="comment"> * Jobs with duplicate IDs will be skipped unless it's</span></span><br><span class="line"><span class="comment"> * pushed when the queue is being flushed.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">queueWatcher</span> (<span class="params">watcher: Watcher</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> id = watcher.id</span><br><span class="line">  <span class="keyword">if</span> (has[id] == <span class="literal">null</span>) &#123;</span><br><span class="line">    has[id] = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">if</span> (!flushing) &#123;</span><br><span class="line">      queue.push(watcher)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// if already flushing, splice the watcher based on its id</span></span><br><span class="line">      <span class="comment">// if already past its id, it will be run next immediately.</span></span><br><span class="line">      <span class="keyword">let</span> i = queue.length - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> (i &gt; index &amp;&amp; queue[i].id &gt; watcher.id) &#123;</span><br><span class="line">        i--</span><br><span class="line">      &#125;</span><br><span class="line">      queue.splice(i + <span class="number">1</span>, <span class="number">0</span>, watcher)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// queue the flush</span></span><br><span class="line">    <span class="keyword">if</span> (!waiting) &#123;</span><br><span class="line">      waiting = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; !config.async) &#123;</span><br><span class="line">        flushSchedulerQueue()</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      nextTick(flushSchedulerQueue)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里通过全局的 has 对象来保证每次同一个 Watcher 只能被添加一次到 queue 这个队列。全局的 index 用于记录当前队列遍历的下标。一开始 flushing 和 waiting 都为 false, 所以执行 queue.push(watcher), 接着通过 nextTick 来异步执行 flushSchedulerQueue。至于 nextTick 怎么实现以后再单独探索, 反正就先认为是用来实现异步更新的机制。</p>
+<p>当同步的代码执行完成了, 就会执行 nextTicke 的回调方法 flushSchedulerQueue</p>
+<h2 id="flushSchedulerQueue-分析"><a href="#flushSchedulerQueue-分析" class="headerlink" title="flushSchedulerQueue 分析"></a>flushSchedulerQueue 分析</h2><p>这里我们重点分析一下这个 flushSchedulerQueue 方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Flush both queues and run the watchers.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flushSchedulerQueue</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  currentFlushTimestamp = getNow()</span><br><span class="line">  flushing = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">let</span> watcher, id</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Sort queue before flush.</span></span><br><span class="line">  <span class="comment">// This ensures that:</span></span><br><span class="line">  <span class="comment">// 1. Components are updated from parent to child. (because parent is always</span></span><br><span class="line">  <span class="comment">//    created before the child)</span></span><br><span class="line">  <span class="comment">// 2. A component's user watchers are run before its render watcher (because</span></span><br><span class="line">  <span class="comment">//    user watchers are created before the render watcher)</span></span><br><span class="line">  <span class="comment">// 3. If a component is destroyed during a parent component's watcher run,</span></span><br><span class="line">  <span class="comment">//    its watchers can be skipped.</span></span><br><span class="line">  queue.sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a.id - b.id)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// do not cache length because more watchers might be pushed</span></span><br><span class="line">  <span class="comment">// as we run existing watchers</span></span><br><span class="line">  <span class="keyword">for</span> (index = <span class="number">0</span>; index &lt; queue.length; index++) &#123;</span><br><span class="line">    watcher = queue[index]</span><br><span class="line">    <span class="keyword">if</span> (watcher.before) &#123;</span><br><span class="line">      watcher.before()</span><br><span class="line">    &#125;</span><br><span class="line">    id = watcher.id</span><br><span class="line">    has[id] = <span class="literal">null</span></span><br><span class="line">    watcher.run()</span><br><span class="line">    <span class="comment">// in dev build, check and stop circular updates.</span></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; has[id] != <span class="literal">null</span>) &#123;</span><br><span class="line">      circular[id] = (circular[id] || <span class="number">0</span>) + <span class="number">1</span></span><br><span class="line">      <span class="keyword">if</span> (circular[id] &gt; MAX_UPDATE_COUNT) &#123;</span><br><span class="line">        warn(</span><br><span class="line">          <span class="string">'You may have an infinite update loop '</span> + (</span><br><span class="line">            watcher.user</span><br><span class="line">              ? <span class="string">`in watcher with expression "<span class="subst">$&#123;watcher.expression&#125;</span>"`</span></span><br><span class="line">              : <span class="string">`in a component render function.`</span></span><br><span class="line">          ),</span><br><span class="line">          watcher.vm</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// keep copies of post queues before resetting state</span></span><br><span class="line">  <span class="keyword">const</span> activatedQueue = activatedChildren.slice()</span><br><span class="line">  <span class="keyword">const</span> updatedQueue = queue.slice()</span><br><span class="line"></span><br><span class="line">  resetSchedulerState()</span><br><span class="line"></span><br><span class="line">  <span class="comment">// call component updated and activated hooks</span></span><br><span class="line">  callActivatedHooks(activatedQueue)</span><br><span class="line">  callUpdatedHooks(updatedQueue)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// devtool hook</span></span><br><span class="line">  <span class="comment">/* istanbul ignore if */</span></span><br><span class="line">  <span class="keyword">if</span> (devtools &amp;&amp; config.devtools) &#123;</span><br><span class="line">    devtools.emit(<span class="string">'flush'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="flashing-的标记为被置为-true"><a href="#flashing-的标记为被置为-true" class="headerlink" title="flashing 的标记为被置为 true"></a>flashing 的标记为被置为 true</h3><h3 id="对全局保存-watcher-的这个-queue-队列进行排序"><a href="#对全局保存-watcher-的这个-queue-队列进行排序" class="headerlink" title="对全局保存 watcher 的这个 queue 队列进行排序"></a>对全局保存 watcher 的这个 queue 队列进行排序</h3><p>排序的注释翻译如下:</p>
+<ul>
+<li>组件的创建从父到子进行, 所以组件的 watcher 也是先进行父级的创建, 再到子级的创建, 对应 watcher 的执行也需要保证从父到子</li>
+<li>用户自定义的 watcher 优先于组件渲染 watcher 的创建</li>
+<li>如果一个组件在父组件的 watcher 执行期间被 destroyed, 则这个子级对应的 watcher 会被跳过执行</li>
+</ul>
+<h3 id="执行在-new-Watcher-时候传入的-before-函数进行-hook-的执行"><a href="#执行在-new-Watcher-时候传入的-before-函数进行-hook-的执行" class="headerlink" title="执行在 new Watcher 时候传入的 before 函数进行 hook 的执行"></a>执行在 new Watcher 时候传入的 before 函数进行 hook 的执行</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Watcher(vm, updateComponent, noop, &#123;</span><br><span class="line">  before () &#123;</span><br><span class="line">    <span class="keyword">if</span> (vm._isMounted &amp;&amp; !vm._isDestroyed) &#123;</span><br><span class="line">      callHook(vm, <span class="string">'beforeUpdate'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;, <span class="literal">true</span> <span class="comment">/* isRenderWatcher */</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="watcher-run-进行视图更新"><a href="#watcher-run-进行视图更新" class="headerlink" title="watcher.run 进行视图更新"></a>watcher.run 进行视图更新</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Scheduler job interface.</span></span><br><span class="line"><span class="comment">  * Will be called by the scheduler.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">run () &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.active) &#123;</span><br><span class="line">    <span class="keyword">const</span> value = <span class="keyword">this</span>.get()</span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      value !== <span class="keyword">this</span>.value ||</span><br><span class="line">      <span class="comment">// Deep watchers and watchers on Object/Arrays should fire even</span></span><br><span class="line">      <span class="comment">// when the value is the same, because the value may</span></span><br><span class="line">      <span class="comment">// have mutated.</span></span><br><span class="line">      isObject(value) ||</span><br><span class="line">      <span class="keyword">this</span>.deep</span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="comment">// set new value</span></span><br><span class="line">      <span class="keyword">const</span> oldValue = <span class="keyword">this</span>.value</span><br><span class="line">      <span class="keyword">this</span>.value = value</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.user) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.cb.call(<span class="keyword">this</span>.vm, value, oldValue)</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">          handleError(e, <span class="keyword">this</span>.vm, <span class="string">`callback for watcher "<span class="subst">$&#123;<span class="keyword">this</span>.expression&#125;</span>"`</span>)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.cb.call(<span class="keyword">this</span>.vm, value, oldValue)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Evaluate the getter, and re-collect dependencies.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="keyword">get</span> () &#123;</span><br><span class="line">  <span class="comment">// 把当前的渲染watcher赋值给Dep.target</span></span><br><span class="line">  pushTarget(<span class="keyword">this</span>)</span><br><span class="line">  <span class="keyword">let</span> value</span><br><span class="line">  <span class="keyword">const</span> vm = <span class="keyword">this</span>.vm</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 执行在mountComponet中传入的updateComponent</span></span><br><span class="line">    value = <span class="keyword">this</span>.getter.call(vm, vm)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.user) &#123;</span><br><span class="line">      handleError(e, vm, <span class="string">`getter for watcher "<span class="subst">$&#123;<span class="keyword">this</span>.expression&#125;</span>"`</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> e</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="comment">// "touch" every property so they are all tracked as</span></span><br><span class="line">    <span class="comment">// dependencies for deep watching</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.deep) &#123;</span><br><span class="line">      traverse(value)</span><br><span class="line">    &#125;</span><br><span class="line">    popTarget()</span><br><span class="line">    <span class="keyword">this</span>.cleanupDeps()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>run 方法其实调用 this.get, 而 get 这里有个 pushTarget 会导致 Dep.target 变更为当前的 watcher, 然后执行 this.getter =&gt; updateComponet =&gt; _update =&gt; render 触发组件重新渲染。</p>
+<h3 id="用户自定义-watcher"><a href="#用户自定义-watcher" class="headerlink" title="用户自定义 watcher"></a>用户自定义 watcher</h3><p>run 方法执行同时会判断如果当前的 watcher 是属于用户自定义的 watcher, 则这时候会执行用户定义的回调方法, 而这个用户定义的回调方法很可能会再次进行数据更新修改, 从而再次触发 queueWatcher 的执行。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">queueWatcher</span> (<span class="params">watcher: Watcher</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> id = watcher.id</span><br><span class="line">  <span class="keyword">if</span> (has[id] == <span class="literal">null</span>) &#123;</span><br><span class="line">    has[id] = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">if</span> (!flushing) &#123;</span><br><span class="line">      queue.push(watcher)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// if already flushing, splice the watcher based on its id</span></span><br><span class="line">      <span class="comment">// if already past its id, it will be run next immediately.</span></span><br><span class="line">      <span class="keyword">let</span> i = queue.length - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> (i &gt; index &amp;&amp; queue[i].id &gt; watcher.id) &#123;</span><br><span class="line">        i--</span><br><span class="line">      &#125;</span><br><span class="line">      queue.splice(i + <span class="number">1</span>, <span class="number">0</span>, watcher)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// queue the flush</span></span><br><span class="line">    <span class="keyword">if</span> (!waiting) &#123;</span><br><span class="line">      waiting = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; !config.async) &#123;</span><br><span class="line">        flushSchedulerQueue()</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">      nextTick(flushSchedulerQueue)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而这时候由于 flashing 为true, 所以 queueWatcher 会进入 else 的逻辑, 然后从后往前找，找到第一个待插入 watcher 的 id 比当前队列中 watcher 的 id 大的位置。把 watcher 按照 id的插入到队列中，因此 queue 的长度发送了变化。</p>
+<h3 id="恢复状态"><a href="#恢复状态" class="headerlink" title="恢复状态"></a>恢复状态</h3><p>resetSchedulerState 方法是用于把一些逻辑流程执行的变量进行重置为初始值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resetSchedulerState</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  index = queue.length = activatedChildren.length = <span class="number">0</span></span><br><span class="line">  has = &#123;&#125;</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    circular = &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  waiting = flushing = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="小结一下"><a href="#小结一下" class="headerlink" title="小结一下"></a>小结一下</h2><p>组件的数据更新触发视图更新，通过 getter 把订阅当前响应式对象数据的渲染 watcher 进行收集, 并保存到 dep 的 subs 中, 当数据进行更新触发 setter 的时候先是遍历 subs 执行每个 watcher 的 update 方法, 把当前的所有 watcher 保存到一个队列的结构中,  在同步的代码执行完成后, 通过 nextTick 来异步执行 flushSchedulerQueue 进行队列的遍历, 然后执行对应的 watcher 的 run 方法进行组件 patch 更新以及对应的响应对象的依赖重新收集。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/06/20/Vue源码浅析之更新派发/" data-id="ckrbhuae0002q3l1tn4xtkx23" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/06/26/Vue源码浅析之nextTick/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue源码浅析之nextTick
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/18/Vue源码浅析之依赖收集/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Vue源码浅析之依赖收集</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

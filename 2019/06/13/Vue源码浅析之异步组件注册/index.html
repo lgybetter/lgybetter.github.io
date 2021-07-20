@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Vue源码浅析之异步组件注册 | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Vue的异步组件注册Vue官方文档提供注册异步组件的方式有三种:  工厂函数执行 resolve 回调 工厂函数中返回Promise 工厂函数返回一个配置化组件对象  工厂函数执行 resolve 回调我们看下 Vue 官方文档提供的示例: 123456Vue.component(&apos;async-webpack-example&apos;, function (resolve) &amp;#123;  // 这个特">
+<meta name="keywords" content="Vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue源码浅析之异步组件注册">
+<meta property="og:url" content="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="Vue的异步组件注册Vue官方文档提供注册异步组件的方式有三种:  工厂函数执行 resolve 回调 工厂函数中返回Promise 工厂函数返回一个配置化组件对象  工厂函数执行 resolve 回调我们看下 Vue 官方文档提供的示例: 123456Vue.component(&apos;async-webpack-example&apos;, function (resolve) &amp;#123;  // 这个特">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/vue-logo.png">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue源码浅析之异步组件注册">
+<meta name="twitter:description" content="Vue的异步组件注册Vue官方文档提供注册异步组件的方式有三种:  工厂函数执行 resolve 回调 工厂函数中返回Promise 工厂函数返回一个配置化组件对象  工厂函数执行 resolve 回调我们看下 Vue 官方文档提供的示例: 123456Vue.component(&apos;async-webpack-example&apos;, function (resolve) &amp;#123;  // 这个特">
+<meta name="twitter:image" content="http://yoursite.com/images/vue-logo.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Vue源码浅析之异步组件注册" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/06/13/Vue源码浅析之异步组件注册/" class="article-date">
+  <time datetime="2019-06-13T14:44:09.000Z" itemprop="datePublished">2019-06-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Vue源码浅析之异步组件注册
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/vue-logo.png" alt="Vue"></p>
+<h2 id="Vue的异步组件注册"><a href="#Vue的异步组件注册" class="headerlink" title="Vue的异步组件注册"></a>Vue的异步组件注册</h2><p>Vue官方文档提供注册异步组件的方式有三种:</p>
+<ol>
+<li>工厂函数执行 resolve 回调</li>
+<li>工厂函数中返回Promise</li>
+<li>工厂函数返回一个配置化组件对象</li>
+</ol>
+<h2 id="工厂函数执行-resolve-回调"><a href="#工厂函数执行-resolve-回调" class="headerlink" title="工厂函数执行 resolve 回调"></a>工厂函数执行 resolve 回调</h2><p>我们看下 Vue 官方文档提供的示例:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(<span class="string">'async-webpack-example'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 这个特殊的 `require` 语法将会告诉 webpack</span></span><br><span class="line">  <span class="comment">// 自动将你的构建代码切割成多个包, 这些包</span></span><br><span class="line">  <span class="comment">// 会通过 Ajax 请求加载</span></span><br><span class="line">  <span class="built_in">require</span>([<span class="string">'./my-async-component'</span>], resolve)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>简单说明一下, 这个示例调用 Vue 的静态方法 component 实现组件注册, 需要了解下 Vue.component 的大致实现</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此时type为component</span></span><br><span class="line">Vue[type] = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  id: string,</span></span></span><br><span class="line"><span class="function"><span class="params">  definition: Function | Object</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Function</span> | <span class="title">Object</span> | <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!definition) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id]</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/* istanbul ignore if */</span></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; type === <span class="string">'component'</span>) &#123;</span><br><span class="line">      validateComponentName(id)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 是否为对象</span></span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">'component'</span> &amp;&amp; isPlainObject(definition)) &#123;</span><br><span class="line">      definition.name = definition.name || id</span><br><span class="line">      definition = <span class="keyword">this</span>.options._base.extend(definition)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">'directive'</span> &amp;&amp; <span class="keyword">typeof</span> definition === <span class="string">'function'</span>) &#123;</span><br><span class="line">      definition = &#123; <span class="attr">bind</span>: definition, <span class="attr">update</span>: definition &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 记录当前Vue的全局components, filters, directives对应的声明映射</span></span><br><span class="line">    <span class="keyword">this</span>.options[type + <span class="string">'s'</span>][id] = definition</span><br><span class="line">    <span class="keyword">return</span> definition</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先判断传入的 definition 也就是我们的工厂函数, 是否为对象, 都说是工厂函数了, 那肯定不为对象, 于是这里不调用 this.options._base.extend(definition) 来获取组件的构造函数, 而是直接把当前的 definition(工厂函数) 保存到 this.options.components 的 ‘async-webpack-example’ 属性值中, 并返回definition。</p>
+<p>接下来发生什么事情呢？<br>其实刚才我们只是调用了 Vue.component 注册一个异步组件, 但是我们最终是通过 new Vue 实例来实现页面的渲染。这里大致浏览一下渲染的过程：</p>
+<p>Run:</p>
+<ul>
+<li>new Vue执行构造函数 </li>
+<li>构造函数 执行 this._init, 在 initMixin 执行的时候定义 Vue.prototype._init</li>
+<li>$mount执行, 在 web/runtime/index.js 中已经进行定义 Vue.prototype.$mount</li>
+<li>执行 core/instance/lifecycle.js 中的 mountComponent</li>
+<li>实例化渲染Watcher, 并传入 updateComponent(通过 Watcher 实例对象的 getter 触发vm._update, 而至于怎么触发先忽略, 会另外讲解)</li>
+<li>vm._update 触发 vm._render(renderMixin 时定义在 Vue.prototype._render) 执行</li>
+<li>在 vm.$options 中获取 render 函数并执行, 使得传入的 vm.$createElement(在 initRender 中定义在vm中)执行, vm.$createElement也就是平时书写的 h =&gt; h(App)这个h函数。</li>
+<li>vm.$createElement = createElement</li>
+<li>createComponent 通过 resolveAsset 查询当前组件是否正常注册</li>
+</ul>
+<p>所以我们现在以及进入到 createComponent 这个函数了, 看下这里异步组件具体的实现逻辑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  Ctor: Class&lt;Component&gt; | Function | Object | void,</span></span></span><br><span class="line"><span class="function"><span class="params">  data: ?VNodeData,</span></span></span><br><span class="line"><span class="function"><span class="params">  context: Component, <span class="regexp">//</span> vm实例</span></span></span><br><span class="line"><span class="function"><span class="params">  children: ?Array&lt;VNode&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  tag?: string</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">VNode</span> | <span class="title">Array</span>&lt;<span class="title">VNode</span>&gt; | <span class="title">void</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在init初始化的时候赋值Vue</span></span><br><span class="line">  <span class="keyword">const</span> baseCtor = context.$options._base</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Ctor当前为异步组件的工厂函数, 所以此步骤不执行</span></span><br><span class="line">  <span class="keyword">if</span> (isObject(Ctor)) &#123;</span><br><span class="line">    <span class="comment">// 获取构造器, 对于非全局注册的组件使用</span></span><br><span class="line">    Ctor = baseCtor.extend(Ctor)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// async component</span></span><br><span class="line">  <span class="keyword">let</span> asyncFactory</span><br><span class="line">  <span class="comment">// 如果Ctro.cid为undefined, 则说明h会是异步组件注册</span></span><br><span class="line">  <span class="comment">// 原因是没有调用过 Vue.extend 进行组件构造函数转换获取</span></span><br><span class="line">  <span class="keyword">if</span> (isUndef(Ctor.cid)) &#123;</span><br><span class="line">    asyncFactory = Ctor</span><br><span class="line">    <span class="comment">// 解析异步组件</span></span><br><span class="line">    Ctor = resolveAsyncComponent(asyncFactory, baseCtor)</span><br><span class="line">    <span class="comment">// Ctor为undefined则直接创建并返回异步组件的占位符组件Vnode</span></span><br><span class="line">    <span class="keyword">if</span> (Ctor === <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> createAsyncPlaceholder(</span><br><span class="line">        asyncFactory,</span><br><span class="line">        data,</span><br><span class="line">        context,</span><br><span class="line">        children,</span><br><span class="line">        tag</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...此处省略不分析的代码</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 安装组件的钩子</span></span><br><span class="line">  installComponentHooks(data)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// return a placeholder vnode</span></span><br><span class="line">  <span class="keyword">const</span> name = Ctor.options.name || tag</span><br><span class="line">  <span class="keyword">const</span> vnode = <span class="keyword">new</span> VNode(</span><br><span class="line">    <span class="string">`vue-component-<span class="subst">$&#123;Ctor.cid&#125;</span><span class="subst">$&#123;name ? <span class="string">`-<span class="subst">$&#123;name&#125;</span>`</span> : <span class="string">''</span>&#125;</span>`</span>,</span><br><span class="line">    data, <span class="literal">undefined</span>, <span class="literal">undefined</span>, <span class="literal">undefined</span>, context,</span><br><span class="line">    &#123; Ctor, propsData, listeners, tag, children &#125;, <span class="comment">// 组件对象componentOptions</span></span><br><span class="line">    asyncFactory</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> vnode</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从源码我们可以看出, 异步组件不执行组件构造器的转换获取, 而是执行 resolveAsyncComponent 来获取返回的组件构造器。由于该过程是异步请求组件, 所以我们看下 resolveAsyncComponent 的实现  </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义在render.js中的全局变量, 用于记录当前正在渲染的vm实例</span></span><br><span class="line"><span class="keyword">import</span> &#123; currentRenderingInstance &#125; <span class="keyword">from</span> <span class="string">'core/instance/render'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveAsyncComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  factory: Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  baseCtor: Class&lt;Component&gt;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Class</span>&lt;<span class="title">Component</span>&gt; | <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 高级异步组件使用</span></span><br><span class="line">  <span class="keyword">if</span> (isTrue(factory.error) &amp;&amp; isDef(factory.errorComp)) &#123;...先省略&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isDef(factory.resolved)) &#123;</span><br><span class="line">    <span class="keyword">return</span> factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 获取当前正在渲染的vm实例</span></span><br><span class="line">  <span class="keyword">const</span> owner = currentRenderingInstance</span><br><span class="line">  <span class="keyword">if</span> (owner &amp;&amp; isDef(factory.owners) &amp;&amp; factory.owners.indexOf(owner) === <span class="number">-1</span>) &#123;</span><br><span class="line">    <span class="comment">// already pending</span></span><br><span class="line">    factory.owners.push(owner)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isTrue(factory.loading) &amp;&amp; isDef(factory.loadingComp)) &#123;...省略&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 执行该逻辑</span></span><br><span class="line">  <span class="keyword">if</span> (owner &amp;&amp; !isDef(factory.owners)) &#123;</span><br><span class="line">    <span class="keyword">const</span> owners = factory.owners = [owner]</span><br><span class="line">    <span class="comment">// 用于标记是否</span></span><br><span class="line">    <span class="keyword">let</span> sync = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    ...省略</span><br><span class="line">    <span class="keyword">const</span> forceRender = <span class="function">(<span class="params">renderCompleted: boolean</span>) =&gt;</span> &#123; ...省略 &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// once让被once包装的任何函数的其中一个只执行一次</span></span><br><span class="line">    <span class="keyword">const</span> resolve = once(<span class="function">(<span class="params">res: <span class="built_in">Object</span> | Class&lt;Component&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// cache resolved</span></span><br><span class="line">      factory.resolved = ensureCtor(res, baseCtor)</span><br><span class="line">      <span class="comment">// invoke callbacks only if this is not a synchronous resolve</span></span><br><span class="line">      <span class="comment">// (async resolves are shimmed as synchronous during SSR)</span></span><br><span class="line">      <span class="keyword">if</span> (!sync) &#123;</span><br><span class="line">        forceRender(<span class="literal">true</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        owners.length = <span class="number">0</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> reject = once(<span class="function"><span class="params">reason</span> =&gt;</span> &#123; ...省略 &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行工厂函数, 比如webpack获取异步组件资源</span></span><br><span class="line">    <span class="keyword">const</span> res = factory(resolve, reject)</span><br><span class="line">    </span><br><span class="line">    ...省略</span><br><span class="line">    </span><br><span class="line">    sync = <span class="literal">false</span></span><br><span class="line">    <span class="comment">// return in case resolved synchronously</span></span><br><span class="line">    <span class="keyword">return</span> factory.loading</span><br><span class="line">      ? factory.loadingComp</span><br><span class="line">      : factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>resolveAsyncComponent 传入异步组件工厂函数和 baseCtor(也就是Vue.extend), 先获取当前渲染的vm实例接着标记sync为true, 表示当前为执行同步代码阶段, 定义 resolve 和 reject 函数(忽略不分析), 此时我们可以发现 resolve 和 reject 都被 once 函数所封装, 目的是让被 once 包装的任何函数的其中一个只执行一次, 保证 resolve 和 reject 两者只能择一并只执行一次。OK, 接着来到 factory 的执行, 其实就是执行官方示例中传入的工厂函数, 这时候发起异步组件的请求。同步代码继续执行, sync置位false, 表示当前的同步代码执行完毕, 然后返回undefined</p>
+<p>这里可能会问怎么会返回undefined, 因为我们传入的工厂函数没有loading属性, 然后当前的 factory 也没有 resolved 属性。</p>
+<p>接着回到 createComponent 的代码中:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isUndef(Ctor.cid)) &#123;</span><br><span class="line">    asyncFactory = Ctor</span><br><span class="line">    <span class="comment">// 解析异步组件</span></span><br><span class="line">    Ctor = resolveAsyncComponent(asyncFactory, baseCtor)</span><br><span class="line">    <span class="comment">// Ctor为undefined则直接创建并返回异步组件的占位符组件Vnode</span></span><br><span class="line">    <span class="keyword">if</span> (Ctor === <span class="literal">undefined</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> createAsyncPlaceholder(</span><br><span class="line">        asyncFactory,</span><br><span class="line">        data,</span><br><span class="line">        context,</span><br><span class="line">        children,</span><br><span class="line">        tag</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>因为刚才说 resolveAsyncComponent 执行返回了undefined, 所以执行 createAsyncPlaceholder 创建注释vnode</p>
+<p>这里可能还会问为什么要创建一个注释vnode, 提前揭晓答案: </p>
+<p>因为先要返回一个占位的 vnode, 等待异步请求加载后执行 forceUpdate 重新渲染, 然后这个节点会被更新渲染成组件的节点。</p>
+<p>那继续,  刚才答案说了, 当异步组件请求完成后, 则执行 resolve 并传入对应的异步组件, 这时候 factory.resolved 被赋值为 ensureCtor 执行的返回结果, 就是一个组件构造器, 然后这时候 sync 为 false, 所以执行 forceRender, 而 forceRender 其实就是调用 vm.$forceUpdate 实现如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype.$forceUpdate = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">  <span class="keyword">if</span> (vm._watcher) &#123;</span><br><span class="line">    vm._watcher.update()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>$forceUpdate 执行渲染 watcher 的 update 方法, 于是我们又会执行 createComponent 的方法, 执行 resolveAsyncComponent, 这时候 factory.resolved 已经定义过了, 于是直接返回 factory.resolved 的组件构造器。 于是就执行 createComponent 的后续组件的渲染和 patch 逻辑了。组件渲染和 patch 这里先不展开。</p>
+<p>于是整个异步组件的流程就结束了。</p>
+<h2 id="工厂函数中返回Promise"><a href="#工厂函数中返回Promise" class="headerlink" title="工厂函数中返回Promise"></a>工厂函数中返回Promise</h2><p>先看下官网文档提供的示例:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(</span><br><span class="line">  <span class="string">'async-webpack-example'</span>,</span><br><span class="line">  <span class="comment">// 这个 `import` 函数会返回一个 `Promise` 对象。</span></span><br><span class="line">  () =&gt; <span class="keyword">import</span>(<span class="string">'./my-async-component'</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>由上面的示例, 可以看到当调用Vue.component的时候, definition为一个会返回 Promise 的函数, 与工厂函数执行 resolve 回调不同的地方在于:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveAsyncComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  factory: Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  baseCtor: Class&lt;Component&gt;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Class</span>&lt;<span class="title">Component</span>&gt; | <span class="title">void</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...省略</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行工厂函数, 比如webpack获取异步组件资源</span></span><br><span class="line">    <span class="keyword">const</span> res = factory(resolve, reject)</span><br><span class="line">    <span class="keyword">if</span> (isObject(res)) &#123;</span><br><span class="line">      <span class="comment">// 为Promise对象,  import('./async-component')</span></span><br><span class="line">      <span class="keyword">if</span> (isPromise(res)) &#123;</span><br><span class="line">        <span class="comment">// () =&gt; Promise</span></span><br><span class="line">        <span class="keyword">if</span> (isUndef(factory.resolved)) &#123;</span><br><span class="line">          res.then(resolve, reject)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isPromise(res.component)) &#123;</span><br><span class="line">        res.component.then(resolve, reject)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDef(res.error)) &#123;</span><br><span class="line">          factory.errorComp = ensureCtor(res.error, baseCtor)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDef(res.loading)) &#123;</span><br><span class="line">          factory.loadingComp = ensureCtor(res.loading, baseCtor)</span><br><span class="line">          <span class="keyword">if</span> (res.delay === <span class="number">0</span>) &#123;</span><br><span class="line">            factory.loading = <span class="literal">true</span></span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            timerLoading = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">              timerLoading = <span class="literal">null</span></span><br><span class="line">              <span class="keyword">if</span> (isUndef(factory.resolved) &amp;&amp; isUndef(factory.error)) &#123;</span><br><span class="line">                factory.loading = <span class="literal">true</span></span><br><span class="line">                forceRender(<span class="literal">false</span>)</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;, res.delay || <span class="number">200</span>)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDef(res.timeout)) &#123;</span><br><span class="line">          timerTimeout = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            timerTimeout = <span class="literal">null</span></span><br><span class="line">            <span class="keyword">if</span> (isUndef(factory.resolved)) &#123;</span><br><span class="line">              reject(</span><br><span class="line">                process.env.NODE_ENV !== <span class="string">'production'</span></span><br><span class="line">                  ? <span class="string">`timeout (<span class="subst">$&#123;res.timeout&#125;</span>ms)`</span></span><br><span class="line">                  : <span class="literal">null</span></span><br><span class="line">              )</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;, res.timeout)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sync = <span class="literal">false</span></span><br><span class="line">    <span class="comment">// return in case resolved synchronously</span></span><br><span class="line">    <span class="keyword">return</span> factory.loading</span><br><span class="line">      ? factory.loadingComp</span><br><span class="line">      : factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主要不同点在于执行完 factory 工厂函数, 这时候我们的工厂函数会返回一个 Promise, 所以 res.then(resolve, reject) 会执行,  接下来的过程也是等待异步组件请求完成, 然后执行 resolve 函数, 接着执行 forceRender 然后返回组件构造器。</p>
+<p>这里 Promise 写法的异步组件注册过程和执行回调函数没有太大的区别。</p>
+<h2 id="工厂函数返回一个配置化组件对象"><a href="#工厂函数返回一个配置化组件对象" class="headerlink" title="工厂函数返回一个配置化组件对象"></a>工厂函数返回一个配置化组件对象</h2><p>同样, 看下官网示例:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> AsyncComponent = <span class="function"><span class="params">()</span> =&gt;</span> (&#123;</span><br><span class="line">  <span class="comment">// 需要加载的组件 (应该是一个 `Promise` 对象)</span></span><br><span class="line">  component: <span class="keyword">import</span>(<span class="string">'./MyComponent.vue'</span>),</span><br><span class="line">  <span class="comment">// 异步组件加载时使用的组件</span></span><br><span class="line">  loading: LoadingComponent,</span><br><span class="line">  <span class="comment">// 加载失败时使用的组件</span></span><br><span class="line">  error: ErrorComponent,</span><br><span class="line">  <span class="comment">// 展示加载时组件的延时时间。默认值是 200 (毫秒)</span></span><br><span class="line">  delay: <span class="number">200</span>,</span><br><span class="line">  <span class="comment">// 如果提供了超时时间且组件加载也超时了，</span></span><br><span class="line">  <span class="comment">// 则使用加载失败时使用的组件。默认值是：`Infinity`</span></span><br><span class="line">  timeout: <span class="number">3000</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>从上面的示例可以看到, 工厂函数在执行成功后会返回一个配置对象, 这个对象的5个属性我们都可以从官方文档的注释了解到各自的作用。那我们看一下这种方式和前面提到的两种方式的区别在哪里.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">resolveAsyncComponent</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  factory: Function,</span></span></span><br><span class="line"><span class="function"><span class="params">  baseCtor: Class&lt;Component&gt;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Class</span>&lt;<span class="title">Component</span>&gt; | <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 高级异步组件使用</span></span><br><span class="line">  <span class="keyword">if</span> (isTrue(factory.error) &amp;&amp; isDef(factory.errorComp)) &#123;</span><br><span class="line">    <span class="keyword">return</span> factory.errorComp</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isDef(factory.resolved)) &#123;</span><br><span class="line">    <span class="keyword">return</span> factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...已了解过，省略</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isTrue(factory.loading) &amp;&amp; isDef(factory.loadingComp)) &#123;</span><br><span class="line">    <span class="keyword">return</span> factory.loadingComp</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (owner &amp;&amp; !isDef(factory.owners)) &#123;</span><br><span class="line">    <span class="keyword">const</span> owners = factory.owners = [owner]</span><br><span class="line">    <span class="keyword">let</span> sync = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">let</span> timerLoading = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">let</span> timerTimeout = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    ;<span class="function">(<span class="params">owner: any</span>).<span class="params">$on</span>(<span class="params"><span class="string">'hook:destroyed'</span>, (</span>) =&gt;</span> remove(owners, owner))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> forceRender = <span class="function">(<span class="params">renderCompleted: boolean</span>) =&gt;</span> &#123;...省略&#125;</span><br><span class="line">    <span class="comment">// once让被once包装的任何函数的其中一个只执行一次</span></span><br><span class="line">    <span class="keyword">const</span> resolve = once(<span class="function">(<span class="params">res: <span class="built_in">Object</span> | Class&lt;Component&gt;</span>) =&gt;</span> &#123;</span><br><span class="line">      factory.resolved = ensureCtor(res, baseCtor)</span><br><span class="line">      <span class="keyword">if</span> (!sync) &#123;</span><br><span class="line">        forceRender(<span class="literal">true</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        owners.length = <span class="number">0</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> reject = once(<span class="function"><span class="params">reason</span> =&gt;</span> &#123;</span><br><span class="line">      process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; warn(</span><br><span class="line">        <span class="string">`Failed to resolve async component: <span class="subst">$&#123;<span class="built_in">String</span>(factory)&#125;</span>`</span> +</span><br><span class="line">        (reason ? <span class="string">`\nReason: <span class="subst">$&#123;reason&#125;</span>`</span> : <span class="string">''</span>)</span><br><span class="line">      )</span><br><span class="line">      <span class="keyword">if</span> (isDef(factory.errorComp)) &#123;</span><br><span class="line">        factory.error = <span class="literal">true</span></span><br><span class="line">        forceRender(<span class="literal">true</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行工厂函数，比如webpack获取异步组件资源</span></span><br><span class="line">    <span class="keyword">const</span> res = factory(resolve, reject)</span><br><span class="line">    <span class="keyword">if</span> (isObject(res)) &#123;</span><br><span class="line">      <span class="comment">// 为Promise对象， import('./async-component')</span></span><br><span class="line">      <span class="keyword">if</span> (isPromise(res)) &#123;</span><br><span class="line">        ...省略</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isPromise(res.component)) &#123;</span><br><span class="line">        res.component.then(resolve, reject)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDef(res.error)) &#123;</span><br><span class="line">          factory.errorComp = ensureCtor(res.error, baseCtor)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDef(res.loading)) &#123;</span><br><span class="line">          factory.loadingComp = ensureCtor(res.loading, baseCtor)</span><br><span class="line">          <span class="keyword">if</span> (res.delay === <span class="number">0</span>) &#123;</span><br><span class="line">            factory.loading = <span class="literal">true</span></span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            timerLoading = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">              timerLoading = <span class="literal">null</span></span><br><span class="line">              <span class="keyword">if</span> (isUndef(factory.resolved) &amp;&amp; isUndef(factory.error)) &#123;</span><br><span class="line">                factory.loading = <span class="literal">true</span></span><br><span class="line">                forceRender(<span class="literal">false</span>)</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;, res.delay || <span class="number">200</span>)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDef(res.timeout)) &#123;</span><br><span class="line">          timerTimeout = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            timerTimeout = <span class="literal">null</span></span><br><span class="line">            <span class="keyword">if</span> (isUndef(factory.resolved)) &#123;</span><br><span class="line">              reject(</span><br><span class="line">                process.env.NODE_ENV !== <span class="string">'production'</span></span><br><span class="line">                  ? <span class="string">`timeout (<span class="subst">$&#123;res.timeout&#125;</span>ms)`</span></span><br><span class="line">                  : <span class="literal">null</span></span><br><span class="line">              )</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;, res.timeout)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sync = <span class="literal">false</span></span><br><span class="line">    <span class="comment">// return in case resolved synchronously</span></span><br><span class="line">    <span class="keyword">return</span> factory.loading</span><br><span class="line">      ? factory.loadingComp</span><br><span class="line">      : factory.resolved</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>渲染过程同样来到 resolveAsyncComponent, 一开始判断 factory.error 是否为 true, 当然一开始肯定是 false 的, 不进入该逻辑, 接着同样执行到 const res = factory(resolve, reject) 的执行, 因为我们刚才说了我们的工厂函数返回了一个异步组件配置对象, 于是 res 就是我们定义该工厂函数返回的对象, 这时候 isObject(res) 为 true, isPromise(res) 为 false, isPromise(res.component) 为 true, 接着判断 res.error 是否有定义, 于是在 factory 定义扩展了 errorComp, errorComp是通过 ensureCtor 来对 res.error 的定义组件转化为组件的构造器, loading 也是一样的逻辑, 在 factory 扩展 loadingComp 组件构造器。</p>
+<p>接着, 这时候需要特别注意, 当我们定义的 res.delay 为 0, 则直接把 factory.loading 置为 true, 因为这里影响到 resolveAsyncComponent 的返回值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> factory.loading</span><br><span class="line">      ? factory.loadingComp</span><br><span class="line">      : factory.resolved</span><br></pre></td></tr></table></figure>
+<p>当 factory.loading 为 true, 会返回 loadingComp, 使得 createComponet 的时候不是创建一个注释vnode, 而是直接执行 loadingComp 的渲染。</p>
+<p>如果我们的 res.delay 不为0, 则会启用一个计时器, 先同步返回 undefined 触发注释节点创建, 在一定的时间后执行 factory.loading = true 和 forceRender(false), 条件是组件没有加载完成以及没有出错 reject, 接着执行把注释vnode 替换为加载过程组件 loadingComp 的渲染。</p>
+<p>而 res.timeout 主要用来计时, 当在 res.timeout 的时间内, 如果当前的 factory.resolved 为 undefined, 则说明异步组件加载已经超时了, 于是会调用 reject 方法, reject 其实就是调用 forceRender 来执行 errorComp 的渲染。</p>
+<p>OK, 当我们的组件加载完成了, 执行了 resolve 方法, factory.resloved 置为 true, 调用 forceRender 来把注释节点或者是 loadingComp 的节点替换渲染为加载完成的组件。</p>
+<p>到此, 我们已经了解三种异步组件的注册过程了。</p>
+<h2 id="小结一下"><a href="#小结一下" class="headerlink" title="小结一下"></a>小结一下</h2><p>异步组件的渲染本质上其实就是执行2次或者2次以上的渲染, 先把当前组件渲染为注释节点, 当组件加载成功后, 通过 forceRender 执行重新渲染。或者是渲染为注释节点, 然后再渲染为loading节点, 在渲染为请求完成的组件。</p>
+<p>这里需要注意的是 forceRender 的执行, forceRender 用于强制执行当前的节点重新渲染, 至于整个渲染过程是怎么样的后续文章有机会的话。。。再讲解吧。</p>
+<p>本人语文表达能力有限, 只是突发奇想为了把自己了解到的过程用自己的话语表达出来, 如果有什么错误的地方望多多包涵。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/06/13/Vue源码浅析之异步组件注册/" data-id="ckrbhuaem003l3l1txxgo98v1" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/06/17/Vue源码浅析之响应式对象初始化/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue源码浅析之响应式对象初始化
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/25/前端必备知识库之ES6篇/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">前端必备知识库之ES6篇</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

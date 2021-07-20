@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>微信H5开发历程记录 | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="登录授权 微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到  1https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&amp;#123;config.appId&amp;#125;&amp;amp;redire">
+<meta name="keywords" content="Wechat,Node">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微信H5开发历程记录">
+<meta property="og:url" content="http://yoursite.com/2017/10/28/微信H5开发历程记录/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="登录授权 微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到  1https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&amp;#123;config.appId&amp;#125;&amp;amp;redire">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/wechat.png">
+<meta property="og:image" content="http://yoursite.com/images/save-domain.png">
+<meta property="og:image" content="http://yoursite.com/images/save-domain2.png">
+<meta property="og:image" content="http://yoursite.com/images/server.png">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="微信H5开发历程记录">
+<meta name="twitter:description" content="登录授权 微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到  1https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&amp;#123;config.appId&amp;#125;&amp;amp;redire">
+<meta name="twitter:image" content="http://yoursite.com/images/wechat.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-微信H5开发历程记录" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/10/28/微信H5开发历程记录/" class="article-date">
+  <time datetime="2017-10-28T14:14:17.000Z" itemprop="datePublished">2017-10-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      微信H5开发历程记录
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/wechat.png" alt="wechat"></p>
+<h2 id="登录授权"><a href="#登录授权" class="headerlink" title="登录授权"></a>登录授权</h2><ul>
+<li>微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&#123;config.appId&#125;&amp;redirect_uri=$&#123;encodeURIComponent(config.redirectUrl)&#125;&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect</span><br></pre></td></tr></table></figure>
+<p>redirectUrl是表示授权后的回调路由跳转，然后回调路由微信会在url里面注入code和state，凭借code和state后端可以向微信获取用户的access_token，要获取用户信息，要使用access_token</p>
+<ul>
+<li>向微信请求用户信息</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> nconf <span class="keyword">from</span> <span class="string">'nconf'</span></span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Promise</span> <span class="keyword">from</span> <span class="string">'bluebird'</span></span><br><span class="line"><span class="keyword">const</span> request = <span class="built_in">Promise</span>.promisifyAll(<span class="built_in">require</span>(<span class="string">'request'</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> getToken = <span class="keyword">async</span> (code) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="string">`<span class="subst">$&#123;nconf.get(<span class="string">'wechat:baseUrl'</span>)&#125;</span>/sns/oauth2/access_token?appid=<span class="subst">$&#123;nconf.get(<span class="string">'wechat:appId'</span>)&#125;</span>&amp;secret=<span class="subst">$&#123;nconf.get(<span class="string">'wechat:appSecret'</span>)&#125;</span>&amp;code=<span class="subst">$&#123;code&#125;</span>&amp;grant_type=authorization_code`</span>;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> request.getAsync(&#123;</span><br><span class="line">    url,</span><br><span class="line">    json: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">const</span> body = res.body</span><br><span class="line">  <span class="keyword">if</span> (!body.access_token) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(<span class="keyword">new</span> <span class="built_in">Error</span>(body.errcode +<span class="string">'/'</span>+ body.errmsg))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> body</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> getUserInfo =<span class="keyword">async</span> (token, openid) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="string">`<span class="subst">$&#123;nconf.get(<span class="string">'wechat:baseUrl'</span>)&#125;</span>/sns/userinfo?access_token=<span class="subst">$&#123;token&#125;</span>&amp;openid=<span class="subst">$&#123;openid&#125;</span>&amp;lang=zh_CN`</span></span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> request.getAsync(&#123;</span><br><span class="line">    url,</span><br><span class="line">    json: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">const</span> body = res.body</span><br><span class="line">  <span class="keyword">if</span>(!body.openid) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(<span class="keyword">new</span> <span class="built_in">Error</span>(body.errcode +<span class="string">'/'</span>+ body.errmsg))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> body</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123;</span><br><span class="line">  getToken,</span><br><span class="line">  getUserInfo</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li>JS-SDK设置：微信的js-sdk调用比较简单，但是配置需要注意安全域名</li>
+</ul>
+<p><img src="/images/save-domain.png" alt="安全域名"><br>切记：只能填写域名或者ip，不要多加其他字段</p>
+<p><img src="/images/save-domain2.png" alt="安全域名"><br>切记：这个地方还要设置安全域名，坑爹！一开始不知道</p>
+<ul>
+<li>微信的js-sdk需要config，这时候需要服务器提供签名认证，使用wechat-api自动获取access_token(注意保存，不能多次频繁获取)</li>
+</ul>
+<h2 id="服务器认证"><a href="#服务器认证" class="headerlink" title="服务器认证"></a>服务器认证</h2><p><img src="/images/server.png" alt="服务器"></p>
+<p>微信需要对你的服务器进行认证，你的服务器需要进行http或者https的响应</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; exchangeToken, getJSConfig &#125; <span class="keyword">from</span> <span class="string">'../controllers/wechat'</span>;</span><br><span class="line"><span class="keyword">import</span> nconf <span class="keyword">from</span> <span class="string">'nconf'</span></span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">"crypto"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function">(<span class="params">router, commonRouter, authRouter, wechatRouter</span>) =&gt;</span> &#123;</span><br><span class="line">  wechatRouter.post(<span class="string">'/exchangeToken'</span>, exchangeToken);</span><br><span class="line">  wechatRouter.get(<span class="string">'/getJSConfig'</span>, getJSConfig);</span><br><span class="line">  wechatRouter.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> signature = req.query.signature,</span><br><span class="line">      timestamp = req.query.timestamp,</span><br><span class="line">      nonce = req.query.nonce,</span><br><span class="line">      echostr = req.query.echostr;</span><br><span class="line">    <span class="keyword">let</span> array = [nconf.get(<span class="string">'wechat:token'</span>), timestamp, nonce];</span><br><span class="line">    array.sort();</span><br><span class="line">    <span class="keyword">let</span> tempStr = array.join(<span class="string">""</span>);</span><br><span class="line">    <span class="keyword">const</span> hashCode = crypto.createHash(<span class="string">"sha1"</span>);</span><br><span class="line">    <span class="keyword">let</span> resultCode = hashCode.update(tempStr, <span class="string">"utf8"</span>).digest(<span class="string">"hex"</span>);</span><br><span class="line">    <span class="keyword">if</span> (resultCode === signature) &#123;</span><br><span class="line">      res.send(echostr);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      res.send(<span class="string">"mismatch"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="要点注意"><a href="#要点注意" class="headerlink" title="要点注意"></a>要点注意</h3><ul>
+<li><p>vue.js History路由和后台接口冲突问题：vue前端路由push一个路由可以正常跳转，但是如果路由直接复制到浏览器或者刷新就会和后端的服务接口发生冲突，解决方法是对nginx进行url强制转化</p>
+</li>
+<li><p>vue.js Hash路由在微信授权跳转回来的时候由于带有#的原因，导致注入code和state会在#前面，无法用this.$route.query来获取，需要使用window.location.href自行正则匹配获取</p>
+</li>
+<li><p>Nuxt服务端渲染由于是第一次加使用后端直出的模版，但是当前端路由跳转后，就不是又后端直出了，而是使用前端的bundle文件进行渲染，在ios不会出现js-sdk invalid url的错误，但是在安卓下就会出错，而且js-sdk不能配置多次，一个页面进去只能配置一次，而且需要在wx.ready的回调方法里面对微信的js-sdk接口进行配置和使用。解决方法是不使用nuxt的vue-router，而是使用window的location.href来路由跳转，不过这样性能不好，最好是不要在router-view的外层进行配置，而是单独对里面的子页面进行配置</p>
+</li>
+<li><p>H5下，音频播放问题，在ios下面，播放音频视频都需要用户去触发事件才能执行</p>
+</li>
+<li><p>正式配置微信的服务号，设置安全域名需要上传一个文件，类似证书吧，这个路径微信写着要放置到web的根目录下面，原来所谓的web根目录就是静态服务器下面的public文件夹，一开始配置nginx root路径好久，发现没卵用。</p>
+</li>
+<li><p>原来微信下每个公众号的对应用户的openid都是不一样的，在发送消息推送，以为和测试号的id一样，最后查了数据库发现不一致</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="ckrbhuacr00153l1tqa2cev66" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/11/14/This浅析/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          This浅析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/10/09/写作建议和性能优化小结/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">CSS写作建议和性能优化小结</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

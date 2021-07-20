@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Node环境开发Opencv | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Opencv 安装使用 下载Opencv安装包: http://opencv.org/releases.html  解压进入Opencv目录  编译Opencv(需要cmake)   1234mkdir releasecd releasecmake -G &quot;Unix Makefiles&quot; .. (为Unix 系统生成Makefile，Mac OSX是基于Unix的。未安装cmake 可以通过Hom">
+<meta name="keywords" content="Node,OpenCV">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node环境开发Opencv">
+<meta property="og:url" content="http://yoursite.com/2017/04/24/Node环境开发Opencv/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="Opencv 安装使用 下载Opencv安装包: http://opencv.org/releases.html  解压进入Opencv目录  编译Opencv(需要cmake)   1234mkdir releasecd releasecmake -G &quot;Unix Makefiles&quot; .. (为Unix 系统生成Makefile，Mac OSX是基于Unix的。未安装cmake 可以通过Hom">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node环境开发Opencv">
+<meta name="twitter:description" content="Opencv 安装使用 下载Opencv安装包: http://opencv.org/releases.html  解压进入Opencv目录  编译Opencv(需要cmake)   1234mkdir releasecd releasecmake -G &quot;Unix Makefiles&quot; .. (为Unix 系统生成Makefile，Mac OSX是基于Unix的。未安装cmake 可以通过Hom">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Node环境开发Opencv" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/04/24/Node环境开发Opencv/" class="article-date">
+  <time datetime="2017-04-24T06:31:51.000Z" itemprop="datePublished">2017-04-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/后端/">后端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Node环境开发Opencv
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Opencv-安装使用"><a href="#Opencv-安装使用" class="headerlink" title="Opencv 安装使用"></a>Opencv 安装使用</h3><ul>
+<li><p>下载Opencv安装包: <a href="http://opencv.org/releases.html" target="_blank" rel="noopener">http://opencv.org/releases.html</a></p>
+</li>
+<li><p>解压进入Opencv目录</p>
+</li>
+<li><p>编译Opencv(需要cmake)</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir release</span><br><span class="line"><span class="built_in">cd</span> release</span><br><span class="line">cmake -G <span class="string">"Unix Makefiles"</span> .. (为Unix 系统生成Makefile，Mac OSX是基于Unix的。未安装cmake 可以通过Homebrew安装，未安装Homebrew需安装Homebrew）</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装Opencv</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装完成的目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/lib (Opencv库文件)</span><br><span class="line">/usr/<span class="built_in">local</span>/include (Opencv头文件）</span><br><span class="line">/usr/<span class="built_in">local</span>/share/ (Opencv xml配置文件)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用Opencv(C++ Version)</li>
+</ul>
+<p>编写CMakeLists.txt文件<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">project( ORBFeatureAndCompare ) <span class="comment">// 项目的名称</span></span><br><span class="line">cmake_minimum_required(VERSION <span class="number">2.8</span>) <span class="comment">// cmake的版本要求</span></span><br><span class="line">find_package( OpenCV REQUIRED ) <span class="comment">// 查找对应的Opencv依赖库</span></span><br><span class="line">find_package(Boost COMPONENTS <span class="built_in">log</span> log_setup thread filesystem system) <span class="comment">// 查找对应的Boost依赖库(下文出现Boost的安装方法)</span></span><br><span class="line">add_executable( ORBFeatureAndCompare ORBFeatureAndCompare )  <span class="comment">// 指定可运行的文件</span></span><br><span class="line"><span class="comment">// 引入对应的依赖库文件的位置</span></span><br><span class="line">target_link_libraries(ORBFeatureAndCompare</span><br><span class="line">    $&#123;OpenCV_LIBS&#125;</span><br><span class="line">    $&#123;Boost_LOG_SETUP_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_LOG_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_FILESYSTEM_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_THREAD_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_SYSTEM_LIBRARY&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>编写Opencv的cpp文件<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//必要的头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/imgproc/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem/fstream.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;  </span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">  ....</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>创建一个images(其他命名都可以)的资源文件夹<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> images</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line">./ORBFeatureAndCompare //编译出的可执行程序</span><br></pre></td></tr></table></figure></p>
+<h3 id="安装使用Boost进行数据序列化"><a href="#安装使用Boost进行数据序列化" class="headerlink" title="安装使用Boost进行数据序列化"></a>安装使用Boost进行数据序列化</h3><ul>
+<li><p>下载Boost安装包: <a href="https://dl.bintray.com/boostorg/release/1.64.0/source/" target="_blank" rel="noopener">https://dl.bintray.com/boostorg/release/1.64.0/source/</a></p>
+</li>
+<li><p>解压进入Boost目录</p>
+</li>
+<li><p>编译安装Boost</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap.sh</span><br><span class="line">./b2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>引入Boost库进行数据序列化,同样是在CmakeList中引入文件路径, 在cpp文件中使用</li>
+</ul>
+<h3 id="封装cpp程序为Node-Addon"><a href="#封装cpp程序为Node-Addon" class="headerlink" title="封装cpp程序为Node Addon"></a>封装cpp程序为Node Addon</h3><ul>
+<li><p>依赖安装</p>
+<ul>
+<li>全局安装node-gyp</li>
+<li>本地安装nan</li>
+</ul>
+</li>
+<li><p>编写binding.gyp</p>
+</li>
+</ul>
+<figure class="highlight gyp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"targets"</span>: [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">"target_name"</span>: <span class="string">"feature"</span>,</span><br><span class="line">    <span class="string">"sources"</span>: [ <span class="string">"./src/feature.cc"</span> ],</span><br><span class="line">    <span class="string">"include_dirs"</span>: [</span><br><span class="line">      <span class="string">"&lt;!(node -e \"require('nan')\")"</span>,</span><br><span class="line">      <span class="string">"/usr/local/include/boost"</span>,</span><br><span class="line">      <span class="string">"/usr/local/include/opencv2"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">"conditions"</span>: [</span><br><span class="line">      [ <span class="string">"OS==\"linux\" or OS==\"freebsd\" or OS==\"openbsd\" or OS==\"solaris\" or OS==\"aix\""</span>, &#123;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      [<span class="string">"OS==\"mac\""</span>, &#123;</span><br><span class="line">          <span class="string">"libraries"</span>: [</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_log_setup-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_log-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_filesystem-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_thread-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_system-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_core.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_highgui.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_imgproc.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_features2d.3.2.0.dylib"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写node c++ 插件</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;node.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;nan.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/imgproc/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem/fstream.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;</span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> v8;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;uchar&gt; <span class="title">matToString</span><span class="params">(cv::Mat descriptorMat)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">vector</span>&lt;uchar&gt; buf;</span><br><span class="line">  imencode(<span class="string">".png"</span>, descriptorMat, buf);</span><br><span class="line">  <span class="keyword">return</span> buf;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;uchar&gt; <span class="title">descriptorMat</span><span class="params">(cv::Mat image)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">vector</span>&lt;cv::KeyPoint&gt; keyPoint;</span><br><span class="line">  cv::Ptr&lt;cv::ORB&gt; orb = cv::ORB::create(<span class="number">4000</span>, <span class="number">1.2f</span>, <span class="number">8</span>, <span class="number">31</span>, <span class="number">0</span>, <span class="number">2</span>,             cv::ORB::HARRIS_SCORE, <span class="number">31</span>, <span class="number">20</span>);</span><br><span class="line">  orb-&gt;detect(image, keyPoint);</span><br><span class="line">  cv::Mat descriptorMat;</span><br><span class="line">  orb-&gt;compute(image, keyPoint, descriptorMat);</span><br><span class="line">  <span class="keyword">return</span> matToString(descriptorMat);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">imageFeature</span><span class="params">(<span class="keyword">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  <span class="keyword">if</span> (args.Length() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong number of arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!args[<span class="number">0</span>]-&gt;IsString()) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function">String::Utf8Value <span class="title">pathValue</span><span class="params">(Local&lt;String&gt;::Cast(args[<span class="number">0</span>]))</span></span>;</span><br><span class="line">  <span class="built_in">string</span> path = <span class="built_in">string</span>(*pathValue);</span><br><span class="line">  cv::Mat image = cv::imread(path, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (image.empty()) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Input image error"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">vector</span>&lt;uchar&gt; descriptorString = descriptorMat(image);</span><br><span class="line">  Local&lt;Object&gt; buf = Nan::NewBuffer(descriptorString.size()).ToLocalChecked();</span><br><span class="line">  uchar* data = (uchar*) node::Buffer::Data(buf);</span><br><span class="line">  <span class="built_in">memcpy</span>(data, &amp;descriptorString[<span class="number">0</span>], descriptorString.size());</span><br><span class="line">  v8::Local&lt;v8::Object&gt; globalObj = Nan::GetCurrentContext()-&gt;Global();</span><br><span class="line">  v8::Local&lt;v8::Function&gt; bufferConstructor = v8::Local&lt;v8::Function&gt;::Cast(globalObj-&gt;Get(Nan::New&lt;String&gt;(<span class="string">"Buffer"</span>).ToLocalChecked()));</span><br><span class="line">  v8::Local&lt;v8::Value&gt; constructorArgs[<span class="number">3</span>] = &#123;buf, Nan::New&lt;v8::Integer&gt;((<span class="keyword">unsigned</span>)descriptorString.size()), Nan::New&lt;v8::Integer&gt;(<span class="number">0</span>)&#125;;</span><br><span class="line">  v8::Local&lt;v8::Object&gt; actualBuffer = bufferConstructor-&gt;NewInstance(<span class="number">3</span>, constructorArgs);</span><br><span class="line">  args.GetReturnValue().Set(actualBuffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bfMatcherCompare</span> <span class="params">(cv::Mat &amp;descriptors1, cv::Mat &amp;descriptors2)</span> </span>&#123;</span><br><span class="line">  <span class="function">cv::BFMatcher <span class="title">matcher</span><span class="params">(cv::NORM_HAMMING)</span></span>;</span><br><span class="line">  <span class="built_in">vector</span>&lt;cv::DMatch&gt; matches;</span><br><span class="line">  matcher.match(descriptors1, descriptors2, matches);</span><br><span class="line">  <span class="keyword">double</span> max_dist = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">double</span> min_dist = <span class="number">100</span>;</span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">  for (int i = 0; i &lt; descriptors1.rows; i++)</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    double dist = matches[i].distance;</span></span><br><span class="line"><span class="comment">    if (dist &lt; min_dist)</span></span><br><span class="line"><span class="comment">      min_dist = dist;</span></span><br><span class="line"><span class="comment">    if (dist &gt; max_dist)</span></span><br><span class="line"><span class="comment">      max_dist = dist;</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  vector&lt;cv::DMatch&gt; good_matches;</span></span><br><span class="line"><span class="comment">  for (int i = 0; i &lt; descriptors1.rows; i++)</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    if (matches[i].distance &lt; 3 * min_dist)</span></span><br><span class="line"><span class="comment">      good_matches.push_back(matches[i]);</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  return good_matches.size();</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; descriptors1.rows; i++) &#123;</span><br><span class="line">    <span class="keyword">double</span> dist = matches[i].distance;</span><br><span class="line">    <span class="keyword">if</span> (dist &lt; min_dist) &#123;</span><br><span class="line">      min_dist = dist;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (dist &gt; max_dist) &#123;</span><br><span class="line">      max_dist = dist;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; good_matches;</span><br><span class="line">  <span class="keyword">double</span> good_matches_sum = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; descriptors1.rows; i++) &#123;</span><br><span class="line">    <span class="keyword">double</span> distance = matches[i].distance;</span><br><span class="line">    <span class="keyword">if</span> (distance &lt;= <span class="built_in">std</span>::max(<span class="number">2</span> * min_dist, <span class="number">0.02</span>)) &#123;</span><br><span class="line">      good_matches.push_back(matches[i]);</span><br><span class="line">      good_matches_sum += distance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">double</span>) good_matches_sum / (<span class="keyword">double</span>) good_matches.size();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">similarity</span><span class="params">(<span class="keyword">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  Local&lt;Object&gt; arg1 = args[<span class="number">0</span>]-&gt;ToObject();</span><br><span class="line">  <span class="keyword">int</span> size1 = args[<span class="number">1</span>]-&gt;NumberValue();</span><br><span class="line">  Local&lt;Object&gt; arg2 = args[<span class="number">2</span>]-&gt;ToObject();</span><br><span class="line">  <span class="keyword">int</span> size2 = args[<span class="number">3</span>]-&gt;NumberValue();</span><br><span class="line">  <span class="keyword">if</span> (args.Length() &lt; <span class="number">4</span>) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong number of arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  uchar*buffer1 = (uchar*) node::Buffer::Data(arg1);</span><br><span class="line">  <span class="function"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;uchar&gt; <span class="title">vec1</span><span class="params">(buffer1, buffer1 +  (<span class="keyword">unsigned</span> <span class="keyword">int</span>) size1)</span></span>;</span><br><span class="line">  cv::Mat img_decode1;</span><br><span class="line">  img_decode1 = cv::imdecode(vec1, CV_8U);</span><br><span class="line">  uchar*buffer2 = (uchar*) node::Buffer::Data(arg2);</span><br><span class="line">  <span class="function"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;uchar&gt; <span class="title">vec2</span><span class="params">(buffer2, buffer2 +  (<span class="keyword">unsigned</span> <span class="keyword">int</span>) size2)</span></span>;</span><br><span class="line">  cv::Mat img_decode2;</span><br><span class="line">  img_decode2 = cv::imdecode(vec2, CV_8U);</span><br><span class="line">  <span class="keyword">int</span> similarity = bfMatcherCompare(img_decode1, img_decode2);</span><br><span class="line">  args.GetReturnValue().Set(similarity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">(Local&lt;Object&gt; exports, Local&lt;Object&gt; <span class="keyword">module</span>)</span> </span>&#123;</span><br><span class="line">  NODE_SET_METHOD(exports, <span class="string">"imageFeature"</span>, imageFeature);</span><br><span class="line">  NODE_SET_METHOD(exports, <span class="string">"similarity"</span>, similarity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">NODE_MODULE(addon, init)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写Js文件</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> feature = <span class="built_in">require</span>(<span class="string">'./build/Release/feature'</span>);</span><br><span class="line"></span><br><span class="line">exports.getImageFeature = <span class="function">(<span class="params">filePath</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> feature.imageFeature(filePath).toString(<span class="string">'utf8'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">exports.getImageSimilarity = <span class="function">(<span class="params">descriptor1, descriptor2</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> matBuffer1 = Buffer.from(descriptor1);</span><br><span class="line">  <span class="keyword">let</span> matBuffer2 = Buffer.from(descriptor2);</span><br><span class="line">  <span class="keyword">return</span> feature.similarity(matBuffer1, matBuffer1.length, matBuffer2, matBuffer2.length);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node-gyp configure build</span><br><span class="line">node test.js</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="ckrbhuadp002c3l1tqse54ndf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/08/11/初音未来也会跳极乐净土/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          初音未来也会跳极乐净土
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/03/26/Cpp语法解析器/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C++语法解析器</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

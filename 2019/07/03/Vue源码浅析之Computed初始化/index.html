@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Vue源码浅析之Computed初始化 | Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="什么是计算属性官方文档描述如下: 模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护。例如： 123&amp;lt;div id=&quot;example&quot;&amp;gt;  &amp;#123;&amp;#123; message.split(&apos;&apos;).reverse().join(&apos;&apos;) &amp;#125;&amp;#125;&amp;lt;/div&amp;gt; 在这个地方，模板不再是简单的声明式逻辑。你">
+<meta name="keywords" content="Vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue源码浅析之Computed初始化">
+<meta property="og:url" content="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="什么是计算属性官方文档描述如下: 模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护。例如： 123&amp;lt;div id=&quot;example&quot;&amp;gt;  &amp;#123;&amp;#123; message.split(&apos;&apos;).reverse().join(&apos;&apos;) &amp;#125;&amp;#125;&amp;lt;/div&amp;gt; 在这个地方，模板不再是简单的声明式逻辑。你">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/vue-logo.png">
+<meta property="og:updated_time" content="2021-07-20T03:24:10.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue源码浅析之Computed初始化">
+<meta name="twitter:description" content="什么是计算属性官方文档描述如下: 模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护。例如： 123&amp;lt;div id=&quot;example&quot;&amp;gt;  &amp;#123;&amp;#123; message.split(&apos;&apos;).reverse().join(&apos;&apos;) &amp;#125;&amp;#125;&amp;lt;/div&amp;gt; 在这个地方，模板不再是简单的声明式逻辑。你">
+<meta name="twitter:image" content="http://yoursite.com/images/vue-logo.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Vue源码浅析之Computed初始化" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2019/07/03/Vue源码浅析之Computed初始化/" class="article-date">
+  <time datetime="2019-07-03T15:48:36.000Z" itemprop="datePublished">2019-07-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Vue源码浅析之Computed初始化
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/vue-logo.png" alt="Vue"></p>
+<h2 id="什么是计算属性"><a href="#什么是计算属性" class="headerlink" title="什么是计算属性"></a>什么是计算属性</h2><p>官方文档描述如下:</p>
+<p>模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护。例如：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"example"</span>&gt;</span></span><br><span class="line">  &#123;&#123; message.split('').reverse().join('') &#125;&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在这个地方，模板不再是简单的声明式逻辑。你必须看一段时间才能意识到，这里是想要显示变量 message 的翻转字符串。当你想要在模板中多次引用此处的翻转字符串时，就会更加难以处理。</p>
+<p>所以，对于任何复杂逻辑，你都应当使用计算属性。</p>
+<p>个人理解如下:</p>
+<p>computed 主要的用途是把一个或多个变量进行计算处理, 得到计算后的结果, 其能够监听当前所依赖的变量的变更, 并重新计算变更的结果, 进而触发视图进行渲染更新。</p>
+<p>这次就来探索一下 computed 的原理实现。</p>
+<h2 id="Computed-初始化-Get-过程"><a href="#Computed-初始化-Get-过程" class="headerlink" title="Computed 初始化 Get 过程"></a>Computed 初始化 Get 过程</h2><p>在实例化 Vue 的过程中, initState 函数实现如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">initState</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  vm._watchers = []</span><br><span class="line">  <span class="keyword">const</span> opts = vm.$options</span><br><span class="line">  <span class="keyword">if</span> (opts.props) initProps(vm, opts.props)</span><br><span class="line">  <span class="keyword">if</span> (opts.methods) initMethods(vm, opts.methods)</span><br><span class="line">  <span class="keyword">if</span> (opts.data) &#123;</span><br><span class="line">    initData(vm)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 响应式处理</span></span><br><span class="line">    observe(vm._data = &#123;&#125;, <span class="literal">true</span> <span class="comment">/* asRootData */</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (opts.computed) initComputed(vm, opts.computed)</span><br><span class="line">  <span class="keyword">if</span> (opts.watch &amp;&amp; opts.watch !== nativeWatch) &#123;</span><br><span class="line">    initWatch(vm, opts.watch)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里判断我们的 opts 可选参数是否传入 computed 属性, 若有则执行 initComputed 进行初始化。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> computedWatcherOptions = &#123; <span class="attr">lazy</span>: <span class="literal">true</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initComputed</span> (<span class="params">vm: Component, computed: Object</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> watchers = vm._computedWatchers = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">  <span class="comment">// computed properties are just getters during SSR</span></span><br><span class="line">  <span class="keyword">const</span> isSSR = isServerRendering()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> computed) &#123;</span><br><span class="line">    <span class="keyword">const</span> userDef = computed[key]</span><br><span class="line">    <span class="keyword">const</span> getter = <span class="keyword">typeof</span> userDef === <span class="string">'function'</span> ? userDef : userDef.get</span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; getter == <span class="literal">null</span>) &#123;</span><br><span class="line">      warn(</span><br><span class="line">        <span class="string">`Getter is missing for computed property "<span class="subst">$&#123;key&#125;</span>".`</span>,</span><br><span class="line">        vm</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!isSSR) &#123;</span><br><span class="line">      <span class="comment">// create internal watcher for the computed property.</span></span><br><span class="line">      watchers[key] = <span class="keyword">new</span> Watcher(</span><br><span class="line">        vm,</span><br><span class="line">        getter || noop,</span><br><span class="line">        noop,</span><br><span class="line">        computedWatcherOptions</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// component-defined computed properties are already defined on the</span></span><br><span class="line">    <span class="comment">// component prototype. We only need to define computed properties defined</span></span><br><span class="line">    <span class="comment">// at instantiation here.</span></span><br><span class="line">    <span class="keyword">if</span> (!(key <span class="keyword">in</span> vm)) &#123;</span><br><span class="line">      defineComputed(vm, key, userDef)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (key <span class="keyword">in</span> vm.$data) &#123;</span><br><span class="line">        warn(<span class="string">`The computed property "<span class="subst">$&#123;key&#125;</span>" is already defined in data.`</span>, vm)</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (vm.$options.props &amp;&amp; key <span class="keyword">in</span> vm.$options.props) &#123;</span><br><span class="line">        warn(<span class="string">`The computed property "<span class="subst">$&#123;key&#125;</span>" is already defined as a prop.`</span>, vm)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>initComputed 先定义了一个 watchers 用于保存当前 computed 对象各个计算属性所以对应的 computed watcher。这个 computed watcher 用途我们后续会介绍。把用户定义的 computed 属性对应的 getter 函数进行获取。</p>
+<p>接着, 就根据计算属性的 key 值实例化一个相对应的 computed watcher, 这个 watcher 为啥叫 computed watcher, 因为我们看到 Watcher 的构造函数传参有 computedWatcherOptions = { lazy: true }。表示这是一个 computed watcher, 用于计算属性监听所使用, 和之前说过的渲染 watcher 有所区别。computed watcher 的构造函数还会传入当前的 vm 实例, computed 属性中对应的 getter。</p>
+<p>这时候我们看下 new Watcher 的实现。</p>
+<h3 id="实例化-computed-watcher"><a href="#实例化-computed-watcher" class="headerlink" title="实例化 computed watcher"></a>实例化 computed watcher</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constructor</span> (</span><br><span class="line">  vm: Component,</span><br><span class="line">  expOrFn: string | Function,</span><br><span class="line">  cb: Function,</span><br><span class="line">  options?: ?Object,</span><br><span class="line">  isRenderWatcher?: boolean</span><br><span class="line">) &#123;</span><br><span class="line">  <span class="keyword">this</span>.vm = vm</span><br><span class="line">  <span class="keyword">if</span> (isRenderWatcher) &#123;</span><br><span class="line">    vm._watcher = <span class="keyword">this</span></span><br><span class="line">  &#125;</span><br><span class="line">  vm._watchers.push(<span class="keyword">this</span>)</span><br><span class="line">  <span class="comment">// options</span></span><br><span class="line">  <span class="keyword">if</span> (options) &#123;</span><br><span class="line">    <span class="keyword">this</span>.deep = !!options.deep</span><br><span class="line">    <span class="keyword">this</span>.user = !!options.user</span><br><span class="line">    <span class="comment">// lazy 为 true</span></span><br><span class="line">    <span class="keyword">this</span>.lazy = !!options.lazy</span><br><span class="line">    <span class="keyword">this</span>.sync = !!options.sync</span><br><span class="line">    <span class="keyword">this</span>.before = options.before</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.deep = <span class="keyword">this</span>.user = <span class="keyword">this</span>.lazy = <span class="keyword">this</span>.sync = <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.cb = cb</span><br><span class="line">  <span class="keyword">this</span>.id = ++uid <span class="comment">// uid for batching</span></span><br><span class="line">  <span class="keyword">this</span>.active = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">this</span>.dirty = <span class="keyword">this</span>.lazy <span class="comment">// for lazy watchers</span></span><br><span class="line">  <span class="keyword">this</span>.deps = []</span><br><span class="line">  <span class="keyword">this</span>.newDeps = []</span><br><span class="line">  <span class="keyword">this</span>.depIds = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">  <span class="keyword">this</span>.newDepIds = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">  <span class="keyword">this</span>.expression = process.env.NODE_ENV !== <span class="string">'production'</span></span><br><span class="line">    ? expOrFn.toString()</span><br><span class="line">    : <span class="string">''</span></span><br><span class="line">  <span class="comment">// parse expression for getter</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> expOrFn === <span class="string">'function'</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.getter = expOrFn</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.getter = parsePath(expOrFn)</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.getter) &#123;</span><br><span class="line">      <span class="keyword">this</span>.getter = noop</span><br><span class="line">      process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; warn(</span><br><span class="line">        <span class="string">`Failed watching path: "<span class="subst">$&#123;expOrFn&#125;</span>" `</span> +</span><br><span class="line">        <span class="string">'Watcher only accepts simple dot-delimited paths. '</span> +</span><br><span class="line">        <span class="string">'For full control, use a function instead.'</span>,</span><br><span class="line">        vm</span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.value = <span class="keyword">this</span>.lazy</span><br><span class="line">    ? <span class="literal">undefined</span></span><br><span class="line">    : <span class="keyword">this</span>.get()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时 this.lazy 为 true, 然后会把用户定义的 getter 传入的并保存在当前 computed watcher 的 this.getter中。</p>
+<h3 id="defineComputed-实现"><a href="#defineComputed-实现" class="headerlink" title="defineComputed 实现"></a>defineComputed 实现</h3><p>接下来我们需要关注一下英文注释：</p>
+<p>component-defined computed properties are already defined on the<br>component prototype. We only need to define computed properties defined<br>at instantiation here.</p>
+<p>这句话其实就是介绍, 对于子组件来说, 其声明的 computed 属性已经被定义在当前组件的原型中, 这时候 key in vm 其实会为 true。</p>
+<p>为什么已经定义在子组件中呢?</p>
+<p>我们可以了解到, 在对子组件在初始化的过程中, 会通过 Vue.extend 来获取组件的构造器</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 继承组件定义</span></span><br><span class="line"><span class="keyword">const</span> Sub = <span class="function"><span class="keyword">function</span> <span class="title">VueComponent</span> (<span class="params">options</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 执行Vue.prototype._init方法</span></span><br><span class="line">  <span class="keyword">this</span>._init(options)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 继承父组件Vue的原型</span></span><br><span class="line">Sub.prototype = <span class="built_in">Object</span>.create(Super.prototype)</span><br><span class="line"><span class="comment">// 拦截重置构造函数</span></span><br><span class="line">Sub.prototype.constructor = Sub</span><br><span class="line"></span><br><span class="line">...省略</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (Sub.options.props) &#123;</span><br><span class="line">  initProps(Sub)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (Sub.options.computed) &#123;</span><br><span class="line">  initComputed(Sub)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Vue.extend 的方法其实在进行 initState 的 initComputed 调用前, 已经在获取子组件的构造器的时候就调用了 initComputed 对 computed 进行挂载初始化了。</p>
+<p>defineComputed 的实现如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">defineComputed</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  target: any, <span class="regexp">//</span> Sub原型</span></span></span><br><span class="line"><span class="function"><span class="params">  key: string,</span></span></span><br><span class="line"><span class="function"><span class="params">  userDef: Object | Function <span class="regexp">//</span> computed getter<span class="regexp">/setter</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">) &#123;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  const shouldCache = !isServerRendering()</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  if (typeof userDef === 'function') &#123;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">    sharedPropertyDefinition.get = shouldCache</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      ? createComputedGetter(key)</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      : createGetterInvoker(userDef)</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">    sharedPropertyDefinition.set = noop</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  &#125; else &#123;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">    sharedPropertyDefinition.get = userDef.get</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      ? shouldCache &amp;&amp; userDef.cache !== false</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">        ? createComputedGetter(key)</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">        : createGetterInvoker(userDef.get)</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      : noop</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">    sharedPropertyDefinition.set = userDef.set || noop</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  &#125;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  if (process.env.NODE_ENV !== 'production' &amp;&amp;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      sharedPropertyDefinition.set === noop) &#123;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">    sharedPropertyDefinition.set = function () &#123;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      warn(</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">        `Computed property "$&#123;key&#125;" was assigned to but it has no setter.`,</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">        this</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">      )</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">    &#125;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  &#125;</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">  Object.defineProperty(target, key, sharedPropertyDefinition)</span></span></span></span><br><span class="line"><span class="function"><span class="params"><span class="regexp">&#125;</span></span></span></span><br></pre></td></tr></table></figure>
+<p>defineComputed 其实通过 Object.defineProperty 为当前的 Sub 原型定义对应计算属性的 getter/setter, 在原型上定义主要是为了给多个组件能够共享调用 createComputedGetter 这个 getter 的优化点。</p>
+<h3 id="createComputedGetter-实现"><a href="#createComputedGetter-实现" class="headerlink" title="createComputedGetter 实现"></a>createComputedGetter 实现</h3><p>接下来主要看下 createComputedGetter 的实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createComputedGetter</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">computedGetter</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> watcher = <span class="keyword">this</span>._computedWatchers &amp;&amp; <span class="keyword">this</span>._computedWatchers[key]</span><br><span class="line">    <span class="keyword">if</span> (watcher) &#123;</span><br><span class="line">      <span class="keyword">if</span> (watcher.dirty) &#123;</span><br><span class="line">        watcher.evaluate()</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (Dep.target) &#123;</span><br><span class="line">        watcher.depend()</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> watcher.value</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">evaluate () &#123;</span><br><span class="line">  <span class="keyword">this</span>.value = <span class="keyword">this</span>.get()</span><br><span class="line">  <span class="keyword">this</span>.dirty = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>createComputedGetter 返回一个函数, 这个函数 computedGetter 就是每个 computed 属性所对应的 getter 函数, 当 computed 的属性被访问时, 比如在渲染过程中属性被访问, 会触发 computedGetter 的执行, 该函数其实就是触发当前 computed watcher 的 evaluate 或者 depend 方法执行, 一开始 watcher.dirty 为 true, 原因是 dirty 的初始值其实就是我们传入的 computedWatcherOptions = { lazy: true } 的 lazy。于是执行 watcher.evaluate() 这时候会调用 this.get() 进行求值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">get</span> () &#123;</span><br><span class="line">  <span class="comment">// 把当前的watcher, 渲染watcher 或者 computed watcher 赋值给Dep.target</span></span><br><span class="line">  pushTarget(<span class="keyword">this</span>)</span><br><span class="line">  <span class="keyword">let</span> value</span><br><span class="line">  <span class="keyword">const</span> vm = <span class="keyword">this</span>.vm</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 执行在mountComponet中传入的updateComponent</span></span><br><span class="line">    value = <span class="keyword">this</span>.getter.call(vm, vm)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.user) &#123;</span><br><span class="line">      handleError(e, vm, <span class="string">`getter for watcher "<span class="subst">$&#123;<span class="keyword">this</span>.expression&#125;</span>"`</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> e</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    <span class="comment">// "touch" every property so they are all tracked as</span></span><br><span class="line">    <span class="comment">// dependencies for deep watching</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.deep) &#123;</span><br><span class="line">      traverse(value)</span><br><span class="line">    &#125;</span><br><span class="line">    popTarget()</span><br><span class="line">    <span class="keyword">this</span>.cleanupDeps()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们之前已经了解，pushTarget(this) 其实就是把当前的 computed watcher 赋值给 Dep.target, 接着执行 this.getter 计算 computed 属性对应的数值。</p>
+<p>这里需要特别注意一点, this.getter 为用户给 computed 属性定义的 getter 方法, 此方法执行会触发这个方法所依赖的响应式数据的 getter 的执行。</p>
+<p>这时候需要特别关注，当前的 Dep.target 为此时 computed 属性对应的 computed watcher, 而触发响应式数据的 getter 的执行则会使得响应式数据对象对应的 dep 收集 Dep.target, 也就是此时的 computed watcher。当前的 computed watcher 会被 push 到响应式对象的 dep.subs 的数组中, 这里其实就是当前的 computed watcher 订阅了所依赖的响应式数据的变化。</p>
+<p>最后执行完成后调用 popTarget 把原始的 watcher, 比如渲染 watcher 恢复重新赋值给 Dep.target。</p>
+<p>this.get() 执行完成后则把 this.dirty 置为 false。</p>
+<p>回到 computedGetter, 如果处于渲染过程中, 也就是 Dep.target 不为空, 则继续执行了 watcher.depend </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">depend () &#123;</span><br><span class="line">  <span class="keyword">let</span> i = <span class="keyword">this</span>.deps.length</span><br><span class="line">  <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">    <span class="keyword">this</span>.deps[i].depend()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当前的 computed watcher 已经订阅了所依赖的响应式数据的变化, 于是 computed watcher 的 deps 为所有依赖的响应式数据对应的 Dep。于是执行 dep.depend, 把当前的 Dep.target 也就是当前的渲染 watcher, push 到每个响应式数据对象所对应的 dep.subs 中。当前的渲染 watcher 订阅了 computed watcher 所依赖的数据的变化, 用于依赖数据更新触发视图 update 渲染。完成后, 然后返回通过 evaluate 计算得到的值。</p>
+<p>这里整个 computed 的 get 求值就已经完成了。</p>
+<h2 id="Computed-变更-Set-过程"><a href="#Computed-变更-Set-过程" class="headerlink" title="Computed 变更 Set 过程"></a>Computed 变更 Set 过程</h2><p>当 computed 属性所依赖的响应式数据发生变更后, 则响应式数据会触发其对应的 setter 执行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>: function reactiveSetter (newVal) &#123;</span><br><span class="line">  <span class="keyword">const</span> value = getter ? getter.call(obj) : val</span><br><span class="line">  <span class="comment">/* eslint-disable no-self-compare */</span></span><br><span class="line">  <span class="keyword">if</span> (newVal === value || (newVal !== newVal &amp;&amp; value !== value)) &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* eslint-enable no-self-compare */</span></span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; customSetter) &#123;</span><br><span class="line">    customSetter()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// #7981: for accessor properties without setter</span></span><br><span class="line">  <span class="keyword">if</span> (getter &amp;&amp; !setter) <span class="keyword">return</span></span><br><span class="line">  <span class="keyword">if</span> (setter) &#123;</span><br><span class="line">    setter.call(obj, newVal)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    val = newVal</span><br><span class="line">  &#125;</span><br><span class="line">  childOb = !shallow &amp;&amp; observe(newVal)</span><br><span class="line">  dep.notify()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>set 的执行我们之前有了解过, 这里主要看两个点</p>
+<ul>
+<li>newVal === value || (newVal !== newVal &amp;&amp; value !== value)</li>
+<li>dep.notify()</li>
+</ul>
+<p>第一个是 set 的触发会对比当前更新的值是否发生变更, 如果没有变更则直接 return 不往下执行触发视图更新。</p>
+<p>第二个则是执行了当前响应式数据对象对应的 dep 的 notify 方法</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">notify () &#123;</span><br><span class="line">  <span class="comment">// stabilize the subscriber list first</span></span><br><span class="line">  <span class="keyword">const</span> subs = <span class="keyword">this</span>.subs.slice()</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; !config.async) &#123;</span><br><span class="line">    <span class="comment">// subs aren't sorted in scheduler if not running async</span></span><br><span class="line">    <span class="comment">// we need to sort them now to make sure they fire in correct</span></span><br><span class="line">    <span class="comment">// order</span></span><br><span class="line">    subs.sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> a.id - b.id)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = subs.length; i &lt; l; i++) &#123;</span><br><span class="line">    subs[i].update()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为在 get 过程中, 计算属性对应的 computed watcher 订阅了响应式数据的 dep, 这时候会通知 computed watcher 进行 update, 对应的渲染 watcher 也订阅了响应式数据的 dep, 也会执行 update。</p>
+<p>computed watcher 的 update 会先执行, 然后执行渲染 watcher 的 update</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">update () &#123;</span><br><span class="line">  <span class="comment">/* istanbul ignore else */</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.lazy) &#123;</span><br><span class="line">    <span class="keyword">this</span>.dirty = <span class="literal">true</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.sync) &#123;</span><br><span class="line">    <span class="keyword">this</span>.run()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    queueWatcher(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>computed watcher 执行 update 把其对应的 dirty 属性置为 true, 接着执行渲染 watcher 的update, 渲染 watcher 的 update 执行了 queueWatcher 让视图在下一个 tick 进行更新。</p>
+<p>于是视图进行 flushSchedulerQueue 更新, 渲染 watcher 的更新会触发 computed 属性的 getter, 所以就再次执行 computedGetter 的执行, computed watcher 的 evaluate 和 depend 再次执行, 重新依赖收集所依赖的响应式数据, 接着返回数据更新后的新的 computed 值, 接着视图触发渲染更新。</p>
+<p>这里已经完成了整个 computed 属性的初始化的解析以及当 computed 属性所依赖的数据发生变更后的重新计算依赖和数值的过程。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/07/03/Vue源码浅析之Computed初始化/" data-id="ckrbhuady002m3l1t65zmo4zp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Vue/">Vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/28/Vue源码解析之Watcher原理/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue源码解析之Watcher原理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/26/Vue源码浅析之nextTick/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Vue源码浅析之nextTick</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

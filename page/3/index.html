@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Betterlin ’s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="程序人生">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Betterlin ’s Blog">
+<meta property="og:url" content="http://yoursite.com/page/3/index.html">
+<meta property="og:site_name" content="Betterlin ’s Blog">
+<meta property="og:description" content="程序人生">
+<meta property="og:locale" content="default">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Betterlin ’s Blog">
+<meta name="twitter:description" content="程序人生">
+  
+    <link rel="alternate" href="/atom.xml" title="Betterlin ’s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <nav class="navgator outer">
+  <div id="header-inner" class="inner">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      
+        <a class="main-nav-link" href="/">主页</a>
+      
+        <a class="main-nav-link" href="/archives">归档</a>
+      
+        <a class="main-nav-link" href="/about">个人</a>
+      
+    </nav>
+    <nav id="sub-nav">
+      
+        <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+    </div>
+  </div>
+</nav>
+<header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Betterlin ’s Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">浪住, 别稳, 能输!</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-微信H5开发历程记录" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/10/28/微信H5开发历程记录/" class="article-date">
+  <time datetime="2017-10-28T14:14:17.000Z" itemprop="datePublished">2017-10-28</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/28/微信H5开发历程记录/">微信H5开发历程记录</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/wechat.png" alt="wechat"></p>
+<h2 id="登录授权"><a href="#登录授权" class="headerlink" title="登录授权"></a>登录授权</h2><ul>
+<li>微信OAuth：在微信下使用oauth进行用户授权，以便获取用户信息，服务端要配置appID和secret，当用户进入H5页面时候，发现没有授权，就引导用户进行跳转链接授权，这时候会跳转url到</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://open.weixin.qq.com/connect/oauth2/authorize?appid=$&#123;config.appId&#125;&amp;redirect_uri=$&#123;encodeURIComponent(config.redirectUrl)&#125;&amp;response_type=code&amp;scope=snsapi_userinfo&amp;state=1#wechat_redirect</span><br></pre></td></tr></table></figure>
+<p>redirectUrl是表示授权后的回调路由跳转，然后回调路由微信会在url里面注入code和state，凭借code和state后端可以向微信获取用户的access_token，要获取用户信息，要使用access_token</p>
+<ul>
+<li>向微信请求用户信息</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> nconf <span class="keyword">from</span> <span class="string">'nconf'</span></span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Promise</span> <span class="keyword">from</span> <span class="string">'bluebird'</span></span><br><span class="line"><span class="keyword">const</span> request = <span class="built_in">Promise</span>.promisifyAll(<span class="built_in">require</span>(<span class="string">'request'</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> getToken = <span class="keyword">async</span> (code) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="string">`<span class="subst">$&#123;nconf.get(<span class="string">'wechat:baseUrl'</span>)&#125;</span>/sns/oauth2/access_token?appid=<span class="subst">$&#123;nconf.get(<span class="string">'wechat:appId'</span>)&#125;</span>&amp;secret=<span class="subst">$&#123;nconf.get(<span class="string">'wechat:appSecret'</span>)&#125;</span>&amp;code=<span class="subst">$&#123;code&#125;</span>&amp;grant_type=authorization_code`</span>;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> request.getAsync(&#123;</span><br><span class="line">    url,</span><br><span class="line">    json: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">const</span> body = res.body</span><br><span class="line">  <span class="keyword">if</span> (!body.access_token) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(<span class="keyword">new</span> <span class="built_in">Error</span>(body.errcode +<span class="string">'/'</span>+ body.errmsg))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> body</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> getUserInfo =<span class="keyword">async</span> (token, openid) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> url = <span class="string">`<span class="subst">$&#123;nconf.get(<span class="string">'wechat:baseUrl'</span>)&#125;</span>/sns/userinfo?access_token=<span class="subst">$&#123;token&#125;</span>&amp;openid=<span class="subst">$&#123;openid&#125;</span>&amp;lang=zh_CN`</span></span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> request.getAsync(&#123;</span><br><span class="line">    url,</span><br><span class="line">    json: <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">const</span> body = res.body</span><br><span class="line">  <span class="keyword">if</span>(!body.openid) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(<span class="keyword">new</span> <span class="built_in">Error</span>(body.errcode +<span class="string">'/'</span>+ body.errmsg))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> body</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123;</span><br><span class="line">  getToken,</span><br><span class="line">  getUserInfo</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ul>
+<li>JS-SDK设置：微信的js-sdk调用比较简单，但是配置需要注意安全域名</li>
+</ul>
+<p><img src="/images/save-domain.png" alt="安全域名"><br>切记：只能填写域名或者ip，不要多加其他字段</p>
+<p><img src="/images/save-domain2.png" alt="安全域名"><br>切记：这个地方还要设置安全域名，坑爹！一开始不知道</p>
+<ul>
+<li>微信的js-sdk需要config，这时候需要服务器提供签名认证，使用wechat-api自动获取access_token(注意保存，不能多次频繁获取)</li>
+</ul>
+<h2 id="服务器认证"><a href="#服务器认证" class="headerlink" title="服务器认证"></a>服务器认证</h2><p><img src="/images/server.png" alt="服务器"></p>
+<p>微信需要对你的服务器进行认证，你的服务器需要进行http或者https的响应</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; exchangeToken, getJSConfig &#125; <span class="keyword">from</span> <span class="string">'../controllers/wechat'</span>;</span><br><span class="line"><span class="keyword">import</span> nconf <span class="keyword">from</span> <span class="string">'nconf'</span></span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">"crypto"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function">(<span class="params">router, commonRouter, authRouter, wechatRouter</span>) =&gt;</span> &#123;</span><br><span class="line">  wechatRouter.post(<span class="string">'/exchangeToken'</span>, exchangeToken);</span><br><span class="line">  wechatRouter.get(<span class="string">'/getJSConfig'</span>, getJSConfig);</span><br><span class="line">  wechatRouter.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> signature = req.query.signature,</span><br><span class="line">      timestamp = req.query.timestamp,</span><br><span class="line">      nonce = req.query.nonce,</span><br><span class="line">      echostr = req.query.echostr;</span><br><span class="line">    <span class="keyword">let</span> array = [nconf.get(<span class="string">'wechat:token'</span>), timestamp, nonce];</span><br><span class="line">    array.sort();</span><br><span class="line">    <span class="keyword">let</span> tempStr = array.join(<span class="string">""</span>);</span><br><span class="line">    <span class="keyword">const</span> hashCode = crypto.createHash(<span class="string">"sha1"</span>);</span><br><span class="line">    <span class="keyword">let</span> resultCode = hashCode.update(tempStr, <span class="string">"utf8"</span>).digest(<span class="string">"hex"</span>);</span><br><span class="line">    <span class="keyword">if</span> (resultCode === signature) &#123;</span><br><span class="line">      res.send(echostr);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      res.send(<span class="string">"mismatch"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="要点注意"><a href="#要点注意" class="headerlink" title="要点注意"></a>要点注意</h3><ul>
+<li><p>vue.js History路由和后台接口冲突问题：vue前端路由push一个路由可以正常跳转，但是如果路由直接复制到浏览器或者刷新就会和后端的服务接口发生冲突，解决方法是对nginx进行url强制转化</p>
+</li>
+<li><p>vue.js Hash路由在微信授权跳转回来的时候由于带有#的原因，导致注入code和state会在#前面，无法用this.$route.query来获取，需要使用window.location.href自行正则匹配获取</p>
+</li>
+<li><p>Nuxt服务端渲染由于是第一次加使用后端直出的模版，但是当前端路由跳转后，就不是又后端直出了，而是使用前端的bundle文件进行渲染，在ios不会出现js-sdk invalid url的错误，但是在安卓下就会出错，而且js-sdk不能配置多次，一个页面进去只能配置一次，而且需要在wx.ready的回调方法里面对微信的js-sdk接口进行配置和使用。解决方法是不使用nuxt的vue-router，而是使用window的location.href来路由跳转，不过这样性能不好，最好是不要在router-view的外层进行配置，而是单独对里面的子页面进行配置</p>
+</li>
+<li><p>H5下，音频播放问题，在ios下面，播放音频视频都需要用户去触发事件才能执行</p>
+</li>
+<li><p>正式配置微信的服务号，设置安全域名需要上传一个文件，类似证书吧，这个路径微信写着要放置到web的根目录下面，原来所谓的web根目录就是静态服务器下面的public文件夹，一开始配置nginx root路径好久，发现没卵用。</p>
+</li>
+<li><p>原来微信下每个公众号的对应用户的openid都是不一样的，在发送消息推送，以为和测试号的id一样，最后查了数据库发现不一致</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/28/微信H5开发历程记录/" data-id="ckrbhuacr00153l1tqa2cev66" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Wechat/">Wechat</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-写作建议和性能优化小结" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/10/09/写作建议和性能优化小结/" class="article-date">
+  <time datetime="2017-10-09T15:32:18.000Z" itemprop="datePublished">2017-10-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/09/写作建议和性能优化小结/">CSS写作建议和性能优化小结</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/css-layout.png" alt="css"></p>
+<h2 id="CSS渲染规则"><a href="#CSS渲染规则" class="headerlink" title="CSS渲染规则"></a>CSS渲染规则</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.nav</span> <span class="selector-tag">h3</span> <span class="selector-tag">a</span> &#123; <span class="attribute">font-size</span>: <span class="number">14px</span>; &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>渲染过程: 首先找到所有的a，沿着a的父元素查找h3，然后再沿着h3，查找.nav。中途找到了符合匹配规则的节点就加入结果集。如果找到根元素html都没有匹配，则不再遍历这条路径，从下一个a开始重复这个查找匹配（只要页面上有多个最右节点为a）</p>
+</li>
+<li><p>CSS选择器从右向左匹配：从右向左的匹配在第一步就筛选掉了大量的不符合条件的最右节点（叶子节点）；而从左向右的匹配规则的性能都浪费在了失败的查找上面</p>
+</li>
+</ul>
+<h2 id="嵌套层级不要超过-3-级"><a href="#嵌套层级不要超过-3-级" class="headerlink" title="嵌套层级不要超过 3 级"></a>嵌套层级不要超过 3 级</h2><ul>
+<li>CSS的元素嵌套层级不能超过3级，过度的嵌套会导致代码臃肿，冗余，导致CSS文件的体积变大，影响渲染的速度，而且过于依赖HTML文档结构。如果以后要修改样式，可能要使用!important覆盖。</li>
+</ul>
+<h2 id="样式级别"><a href="#样式级别" class="headerlink" title="样式级别"></a>样式级别</h2><ul>
+<li>!important &gt; 行内样式 &gt; ID 样式 &gt; Class 样式 &gt; 标签名样式</li>
+<li>组合选择器使用权值会叠加的，ID 的权值是100，Class 是10，标签名是 1</li>
+</ul>
+<p><img src="/images/css-weight.png" alt="css-weight"></p>
+<h2 id="inline-block-的边距解决方法"><a href="#inline-block-的边距解决方法" class="headerlink" title="inline-block 的边距解决方法"></a>inline-block 的边距解决方法</h2><ul>
+<li>删除代码之前的空行空格</li>
+<li>父元素font-size设置为0</li>
+</ul>
+<h2 id="图片要设置-width-和-height"><a href="#图片要设置-width-和-height" class="headerlink" title="图片要设置 width 和 height"></a>图片要设置 width 和 height</h2><ul>
+<li><p>img很建议设置width和height。目的是为了在网速差或者其它原因加载不出图片的时候，保证布局不会乱</p>
+</li>
+<li><p>PC 站：建议在img标签的属性设置width和height。这样避免加载不出 CSS 而错位；</p>
+</li>
+<li><p>手机站：建议用 CSS 设置img的width和height，因为手机站要做适配，在属性设置width和height不灵活，比如使用rem布局，在属性那里设置不了width和height；</p>
+</li>
+<li><p>如果图片不固定：但是有一个max-width和max-height，那么建议在img的父元素设置width和height。img根据父元素的width和height设置max-width和max-height。</p>
+</li>
+</ul>
+<h2 id="任意元素垂直居中"><a href="#任意元素垂直居中" class="headerlink" title="任意元素垂直居中"></a>任意元素垂直居中</h2><ul>
+<li>table-cell：</li>
+</ul>
+<p><img src="/images/table-cell.png" alt="table-cell"></p>
+<ul>
+<li><p>flex (过于简单，忽略)</p>
+</li>
+<li><p>position， transform</p>
+</li>
+</ul>
+<p><img src="/images/pos-tran.png" alt="pos-tran"></p>
+<ul>
+<li>position margin</li>
+</ul>
+<p><img src="/images/pos-mar.png" alt="pos-mar"></p>
+<p>这个方式不推荐使用，因为这个写法，.div2的宽高必须要设置，否则就是 100%，比如设置了top:0;bottom:0;效果和设置height:100%;是一样的。如果想要避免，就必须要设置height。</p>
+<h2 id="图片预加载"><a href="#图片预加载" class="headerlink" title="图片预加载"></a>图片预加载</h2><ul>
+<li>懒加载：页面加载的时候，先加载一部分内容（一般是先加载首屏内容），其它内容等到需要加载的时候再进行加载。</li>
+<li>预加载：页面加载的时候，先加载一部分内容（一般是先加载首屏内容），其它内容等到先加载的一部分内容（一般是首屏内容）加载完了，再进行加载。</li>
+</ul>
+<h2 id="慎用-通配符"><a href="#慎用-通配符" class="headerlink" title="慎用 * 通配符"></a>慎用 * 通配符</h2><ul>
+<li>通配符代码少，但是性能差，因为渲染的时候，要匹配页面上所有的元素</li>
+</ul>
+<h2 id="CSS-在-head-引入"><a href="#CSS-在-head-引入" class="headerlink" title="CSS 在 head 引入"></a>CSS 在 head 引入</h2><ul>
+<li>浏览器在所有的 stylesheets 加载完成之后，才会开始渲染整个页面。在此之前，浏览器不会渲染页面里的任何内容，页面会一直呈现空白。这也是为什么要把 stylesheet 放在头部的原因。如果放在 HTML 页面底部，页面渲染就不仅仅是在等待 stylesheet 的加载，还要等待 HTML 内容加载完成，这样一来，用户看到页面的时间会更晚。</li>
+</ul>
+<h2 id="避免使用-import"><a href="#避免使用-import" class="headerlink" title="避免使用 @import"></a>避免使用 @import</h2><ul>
+<li>@import会影响浏览器的并行下载，使得页面在加载时增加额外的延迟，增添了额外的往返耗时。而且多个@import可能会导致下载顺序紊乱。</li>
+</ul>
+<h2 id="不要在-ID-选择器前面进行嵌套或写标签"><a href="#不要在-ID-选择器前面进行嵌套或写标签" class="headerlink" title="不要在 ID 选择器前面进行嵌套或写标签"></a>不要在 ID 选择器前面进行嵌套或写标签</h2><ul>
+<li>ID 在页面上本来就是唯一的，而且人家权值那么大，前方嵌套（.content #test）完全是浪费性能，以及多写一些没有意义的代码。这个虽然是一句话，但是还是有人犯这样的错。</li>
+<li>除了嵌套，在 ID 的前面也不需要加标签或者其它选择器。比如div#test或者.test#test。这两种方式完全是多余的，理由就是 ID 在页面就是唯一的。前面加任何东西都是多余的！</li>
+</ul>
+<h2 id="CSS3-动画的优化"><a href="#CSS3-动画的优化" class="headerlink" title="CSS3 动画的优化"></a>CSS3 动画的优化</h2><ul>
+<li>CSS3 动画或者过渡尽量使用transform和opacity来实现动画，不要使用left和top；</li>
+<li>动画和过渡能用CSS3解决的，就不要使用JS。如果是复杂的动画可以使用CSS3+JS（或者HTML5+CSS3+JS）配合开发</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/10/09/写作建议和性能优化小结/" data-id="ckrbhuacj000q3l1tdncoomn3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Css/">Css</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-初音未来也会跳极乐净土" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/08/11/初音未来也会跳极乐净土/" class="article-date">
+  <time datetime="2017-08-11T10:19:16.000Z" itemprop="datePublished">2017-08-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/前端/">前端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/11/初音未来也会跳极乐净土/">初音未来也会跳极乐净土</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/bikini-miku.jpg" alt="bikini-miku"></p>
+<h2 id="ThreeJS"><a href="#ThreeJS" class="headerlink" title="ThreeJS"></a>ThreeJS</h2><h3 id="三个必要元素：-场景-scene-相机-camera-渲染器-renderer"><a href="#三个必要元素：-场景-scene-相机-camera-渲染器-renderer" class="headerlink" title="三个必要元素： 场景(scene), 相机(camera),  渲染器(renderer)"></a>三个必要元素： 场景(scene), 相机(camera),  渲染器(renderer)</h3><blockquote>
+<p>场景相当于舞台,相机相当于眼睛,渲染器用来把相机拍到的呈现在渲染在浏览器上</p>
+</blockquote>
+<ul>
+<li><p>场景：场景提供了添加/删除物体的方法, 同时也涵盖添加雾效果以及材质覆盖等方法;</p>
+</li>
+<li><p>相机：相机提供在浏览器下以不同的角度去观看场景，常用的相机类型为：CubeCamera(立方体),  OrthographicCamera(正交),PerspectiveCamera(远景)</p>
+</li>
+<li><p>渲染器：渲染器决定了渲染的结果应该画在页面的什么元素上面，并且以怎样的方式来绘制</p>
+</li>
+</ul>
+<h3 id="详细概念"><a href="#详细概念" class="headerlink" title="详细概念"></a>详细概念</h3><ul>
+<li><p>相机：照相机分为两种, 使用透视投影照相机获得的结果是类似人眼在真实世界中看到的有“近大远小”的效果，而使用正交投影照相机获得的结果就像我们在数学几何学课上老师教我们画的效果，对于在三维空间内平行的线，投影到二维空间中也一定是平行的。然后创建6个透视投影相机并渲染到1个WebGL渲染器目标(WebGLRenderTarget)Cube对象上就形成了CubeCamera(立方体相机)</p>
+</li>
+<li><p>坐标系：右手坐标，需要注意物体的坐标位置与相机之间的关系</p>
+</li>
+<li><p>光源</p>
+</li>
+</ul>
+<blockquote>
+<p>环境光：经过多次反射而来的光称为环境光，无法确定其最初的方向。环境光是一种无处不在的光。环境光源放出的光线被认为来自任何方向。因此，当你仅为场景指定环境光时，所有的物体无论法向量如何，都将表现为同样的明暗程度。<br>点光源：由这种光源放出的光线来自同一点，且方向辐射自四面八方。例如蜡烛放出的光，萤火虫放出的光。<br>聚光灯：这种光源的光线从一个锥体中射出，在被照射的物体上产生聚光的效果。使用这种光源需要指定光的射出方向以及锥体的顶角。<br>平行光：也称方向光（Directional Light），是一组没有衰减的平行的光线，类似太阳光的效果</p>
+</blockquote>
+<p>多种光源可以叠加进行使用，实现不同的视觉灯光效果，也可以通过控制光源来实现阴影效果。</p>
+<ul>
+<li>渲染器<ul>
+<li>CanvasRenderer</li>
+<li>WebGLRenderer<blockquote>
+<p>Canvas渲染器不使用WebGL来绘制场景，而使用相对较慢的Canvas 2D Context API<br>WebGL渲染器使用WebGL来绘制您的场景，使用WebGL将能够利用GPU硬件加速从而提高渲染性能。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="ThreeJS实现必要过程"><a href="#ThreeJS实现必要过程" class="headerlink" title="ThreeJS实现必要过程"></a>ThreeJS实现必要过程</h3><ul>
+<li><p>初始化相机</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">initCamera() &#123;</span><br><span class="line">  <span class="comment">// 使用远景相机PerspectiveCamera</span></span><br><span class="line">  <span class="keyword">this</span>.camera = <span class="keyword">new</span> THREE.PerspectiveCamera(<span class="number">45</span>, <span class="built_in">window</span>.innerWidth / <span class="built_in">window</span>.innerHeight, <span class="number">1</span>, <span class="number">2000</span>)</span><br><span class="line">  <span class="keyword">this</span>.camera.position.z = <span class="number">30</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化场景</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">initScene() &#123;</span><br><span class="line">  <span class="keyword">this</span>.scene = <span class="keyword">new</span> THREE.Scene()</span><br><span class="line">  <span class="keyword">this</span>.scene.background = <span class="keyword">new</span> THREE.Color(<span class="number">0x000000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化光线</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">initLight() &#123;</span><br><span class="line">  <span class="comment">// 使用环境光</span></span><br><span class="line">  <span class="keyword">let</span> ambient = <span class="keyword">new</span> THREE.AmbientLight(<span class="number">0x666666</span>)</span><br><span class="line">  <span class="comment">// 添加光源到场景中</span></span><br><span class="line">  <span class="keyword">this</span>.scene.add(ambient)</span><br><span class="line">  <span class="comment">// 使用平行光</span></span><br><span class="line">  <span class="keyword">let</span> directionalLight = <span class="keyword">new</span> THREE.DirectionalLight(<span class="number">0x887766</span>)</span><br><span class="line">  directionalLight.position.set(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">1</span>).normalize()</span><br><span class="line">  <span class="keyword">this</span>.scene.add(directionalLight)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化渲染器</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">initRenderer() &#123;</span><br><span class="line">  <span class="comment">// 插入DOM节点</span></span><br><span class="line">  <span class="built_in">document</span>.body.appendChild(<span class="keyword">this</span>.container)</span><br><span class="line">  <span class="comment">// 使用WebGLRenderer</span></span><br><span class="line">  <span class="keyword">this</span>.renderer = <span class="keyword">new</span> THREE.WebGLRenderer(&#123;</span><br><span class="line">    antialias: <span class="literal">true</span> <span class="comment">// 抗锯齿</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// 设置像素</span></span><br><span class="line">  <span class="keyword">this</span>.renderer.setPixelRatio(<span class="built_in">window</span>.devicePixelRatio)</span><br><span class="line">  <span class="comment">// 设置渲染面积</span></span><br><span class="line">  <span class="keyword">this</span>.renderer.setSize(<span class="built_in">window</span>.innerWidth, <span class="built_in">window</span>.innerHeight)</span><br><span class="line">  <span class="comment">// 渲染器renderer的domElement元素，表示渲染器中的画布，所有的渲染都是画在domElement上的</span></span><br><span class="line">  <span class="keyword">this</span>.container.appendChild(<span class="keyword">this</span>.renderer.domElement)</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">``</span><span class="string">` </span></span><br><span class="line"><span class="string">- 添加一个物体</span></span><br><span class="line"><span class="string">`</span><span class="string">``</span>javascript</span><br><span class="line">initObject() &#123;</span><br><span class="line">  <span class="comment">// 几何物体,一个立方体</span></span><br><span class="line">  <span class="keyword">let</span> geometry = <span class="keyword">new</span> THREE.CubeGeometry(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>);</span><br><span class="line">  <span class="comment">// 物体材质</span></span><br><span class="line">  <span class="keyword">let</span> material = <span class="keyword">new</span> THREE.MeshBasicMaterial(&#123; <span class="attr">color</span>: <span class="number">0x00ff60</span> &#125;);</span><br><span class="line">  <span class="comment">// 物体实例</span></span><br><span class="line">  <span class="keyword">this</span>.cube = <span class="keyword">new</span> THREE.Mesh(geometry, material); </span><br><span class="line">  <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.cube);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加动画</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">animate () &#123;</span><br><span class="line">  <span class="keyword">this</span>.cube.rotation.x += <span class="number">0.1</span>;</span><br><span class="line">  <span class="keyword">this</span>.cube.rotation.y += <span class="number">0.1</span>;</span><br><span class="line">  <span class="keyword">this</span>.renderer.render(<span class="keyword">this</span>.scene, <span class="keyword">this</span>.camera)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>循环渲染</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">this</span>.animate()</span><br><span class="line">  <span class="comment">// 利用requestAnimationFrame()实现动画递归</span></span><br><span class="line">  循环</span><br><span class="line">  requestAnimationFrame(<span class="keyword">this</span>.render.bind(<span class="keyword">this</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>根据上面六个过程可以组合为一个通用的类来进行Three的简单使用<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseThree</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.renderer = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.width = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.height = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.camera = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.scene = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.light = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.windowHalfX = <span class="built_in">window</span>.innerWidth / <span class="number">2</span></span><br><span class="line">    <span class="keyword">this</span>.windowHalfY = <span class="built_in">window</span>.innerHeight / <span class="number">2</span></span><br><span class="line">    <span class="keyword">this</span>.container = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  initCamera() &#123;&#125;</span><br><span class="line">  initScene() &#123;&#125;</span><br><span class="line">  initLight() &#123;&#125;</span><br><span class="line">  initRenderer() &#123;&#125;</span><br><span class="line">  initObject() &#123;&#125;</span><br><span class="line">  render () &#123;&#125;</span><br><span class="line">  animate () &#123;&#125;</span><br><span class="line">  </span><br><span class="line">  start () &#123;</span><br><span class="line">    <span class="comment">// 初始化</span></span><br><span class="line">    <span class="keyword">this</span>.initCamera()</span><br><span class="line">    <span class="keyword">this</span>.initScene()</span><br><span class="line">    <span class="keyword">this</span>.initLight()</span><br><span class="line">    <span class="keyword">this</span>.initRenderer()</span><br><span class="line">    <span class="keyword">this</span>.initObject()</span><br><span class="line">    <span class="comment">// 开始渲染</span></span><br><span class="line">    <span class="keyword">this</span>.render()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="WebVR"><a href="#WebVR" class="headerlink" title="WebVR"></a>WebVR</h2><h3 id="WebVR简单了解"><a href="#WebVR简单了解" class="headerlink" title="WebVR简单了解"></a>WebVR简单了解</h3><ul>
+<li>WebVR的体验方式<ul>
+<li>VR模式<ul>
+<li>滑配式HMD + 移动端浏览器：浏览器水平陀螺仪的参数来获取用户的头部倾斜和转动的朝向，并告知页面需要渲染哪一个朝向的场景，移动端需使用Chrome Beta版本的浏览器</li>
+<li>分离式HMD + PC端浏览器：佩戴Oculus Rift的分离式头显浏览连接在PC主机端的网页，没有体验过。。。</li>
+</ul>
+</li>
+<li>裸眼模式： 使用鼠标拖拽场景</li>
+</ul>
+</li>
+</ul>
+<h3 id="实现WebVR准备工作"><a href="#实现WebVR准备工作" class="headerlink" title="实现WebVR准备工作"></a>实现WebVR准备工作</h3><blockquote>
+<p>需要引入的js插件：</p>
+<ol>
+<li>webvr-polyfill.js：需要引入webvr-polyfill.js来支持WebVR网页，它提供了大量VR相关的API，比如Navigator.getVRDevices()获取VR头显信息的方法</li>
+<li>VRcontrols.js：VR控制器，是three.js的一个相机控制器对象，引入VRcontrols.js可以根据用户在空间的朝向渲染场景，它通过调用WebVR API的orientation值控制camera的rotation属性</li>
+<li>VReffect.js：VR分屏器，这是three.js的一个场景分屏的渲染器，提供戴上VR头显的显示方式，VREffect.js重新创建了左右两个相机，对场景做二次渲染，产生双屏效果。</li>
+<li>webvr-manager.js：这是WebVR的方案适配插件，它提供PC端和移动端的两种适配方式，通过new WebVRManager()可以生成一个VR图标，提供VR模式和裸眼模式的不同体验，当用户在移动端点击按钮进入VR模式时，WebVRManager便会调用VREffect分屏器进行分屏，而退出VR模式时，WebVRManager便用回renderer渲染器进行单屏渲染。</li>
+</ol>
+</blockquote>
+<h3 id="初始化VR控件"><a href="#初始化VR控件" class="headerlink" title="初始化VR控件"></a>初始化VR控件</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">initVR() &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.effect = <span class="keyword">new</span> THREE.VREffect(<span class="keyword">this</span>.renderer)</span><br><span class="line">  <span class="keyword">this</span>.controls = <span class="keyword">new</span> THREE.VRControls(<span class="keyword">this</span>.camera)</span><br><span class="line">  <span class="keyword">this</span>.manager = <span class="keyword">new</span> WebVRManager(<span class="keyword">this</span>.renderer, <span class="keyword">this</span>.effect)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 动画渲染更新</span></span><br><span class="line">render() &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>.ready) &#123;</span><br><span class="line">    <span class="keyword">this</span>.helper.animate(<span class="keyword">this</span>.clock.getDelta())</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.physicsHelper != <span class="literal">null</span> &amp;&amp; <span class="keyword">this</span>.physicsHelper.visible) &#123;</span><br><span class="line">      <span class="comment">// 物理重力等效果</span></span><br><span class="line">      <span class="keyword">this</span>.physicsHelper.update()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 加载MMD模型时使用</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.ikHelper != <span class="literal">null</span> &amp;&amp; <span class="keyword">this</span>.ikHelper.visible) &#123;</span><br><span class="line">      <span class="keyword">this</span>.ikHelper.update()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 使控制器能够实时更新</span></span><br><span class="line">    <span class="keyword">this</span>.controls.update()</span><br><span class="line">    <span class="comment">// this.renderer.render(this.scene, this.camera)</span></span><br><span class="line">    <span class="keyword">this</span>.manager.render(<span class="keyword">this</span>.scene, <span class="keyword">this</span>.camera)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="WebVR结合ThreeJS发生的碰撞"><a href="#WebVR结合ThreeJS发生的碰撞" class="headerlink" title="WebVR结合ThreeJS发生的碰撞"></a>WebVR结合ThreeJS发生的碰撞</h2><h3 id="导入MMD模型"><a href="#导入MMD模型" class="headerlink" title="导入MMD模型"></a>导入MMD模型</h3><ul>
+<li>引入MMD模型解析脚本<ul>
+<li>MMDParser.js</li>
+<li>TGALoader.js</li>
+<li>MMDLoader.js</li>
+<li>CCDIKSolver.js</li>
+<li>MMDPhysics.js</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入mmd模型</span></span><br><span class="line">importMMD() &#123;</span><br><span class="line">  <span class="comment">// 模型文件路径 ^_^可以引入各种性感的初音未来模型</span></span><br><span class="line">  <span class="keyword">let</span> modelFile = <span class="string">'asserts/models/mmd/bikini-miku/sakura.pmx'</span></span><br><span class="line">  <span class="comment">// 模型动作文件, 用了极乐净土的模型动作</span></span><br><span class="line">  <span class="keyword">let</span> vmdFiles = [<span class="string">'asserts/models/mmd/vmds/power.vmd'</span>]</span><br><span class="line">  <span class="comment">// 背景音乐文件, 背景音乐当然是极乐净土啦</span></span><br><span class="line">  <span class="keyword">let</span> audioFile = <span class="string">'asserts/models/mmd/audios/power.mp3'</span></span><br><span class="line">  <span class="keyword">let</span> audioParams = &#123; <span class="attr">delayTime</span>: <span class="number">0</span> &#125;</span><br><span class="line">  <span class="comment">// 新建一个loader用于加载mmd模型</span></span><br><span class="line">  <span class="keyword">let</span> loader = <span class="keyword">new</span> THREE.MMDLoader()</span><br><span class="line">  <span class="keyword">this</span>.helper = <span class="keyword">new</span> THREE.MMDHelper()</span><br><span class="line">  <span class="comment">// 异步加载文件</span></span><br><span class="line">  loader.load(modelFile, vmdFiles, object =&gt; &#123;</span><br><span class="line">    <span class="keyword">this</span>.mesh = object</span><br><span class="line">    <span class="keyword">this</span>.mesh.position.y = <span class="number">-10</span></span><br><span class="line">    <span class="comment">// this.scene.add(this.mesh)</span></span><br><span class="line">    <span class="keyword">this</span>.helper.add(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="comment">// 设置模型动画</span></span><br><span class="line">    <span class="keyword">this</span>.helper.setAnimation(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.ikHelper = <span class="keyword">new</span> THREE.CCDIKHelper(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.ikHelper.visible = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.ikHelper)</span><br><span class="line">    <span class="comment">// 设置模型物理动效</span></span><br><span class="line">    <span class="keyword">this</span>.helper.setPhysics(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.physicsHelper = <span class="keyword">new</span> THREE.MMDPhysicsHelper(<span class="keyword">this</span>.mesh)</span><br><span class="line">    <span class="keyword">this</span>.physicsHelper.visible = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.physicsHelper)</span><br><span class="line">    <span class="keyword">this</span>.helper.doAnimation = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">this</span>.helper.doIk = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">this</span>.helper.enablePhysics = <span class="literal">true</span></span><br><span class="line">    <span class="comment">// 加载音乐</span></span><br><span class="line">    loader.loadAudio(audioFile, (audio, listener) =&gt; &#123;</span><br><span class="line">      listener.position.z = <span class="number">1</span></span><br><span class="line">      <span class="keyword">this</span>.helper.setAudio(audio, listener, audioParams)</span><br><span class="line">      <span class="keyword">this</span>.helper.unifyAnimationDuration(&#123; <span class="attr">afterglow</span>: <span class="number">2.0</span> &#125;)</span><br><span class="line">      <span class="keyword">this</span>.scene.add(audio)</span><br><span class="line">      <span class="keyword">this</span>.scene.add(listener)</span><br><span class="line">      <span class="keyword">this</span>.scene.add(<span class="keyword">this</span>.mesh)</span><br><span class="line">      <span class="keyword">this</span>.ready = <span class="literal">true</span></span><br><span class="line">    &#125;, xhr =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (xhr.lengthComputable) &#123;</span><br><span class="line">        <span class="keyword">var</span> percentComplete = xhr.loaded / xhr.total * <span class="number">100</span></span><br><span class="line">        <span class="built_in">console</span>.log(<span class="built_in">Math</span>.round(percentComplete, <span class="number">2</span>) + <span class="string">'% downloaded'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;, err =&gt; &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(err)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;, xhr =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (xhr.lengthComputable) &#123;</span><br><span class="line">      <span class="keyword">var</span> percentComplete = xhr.loaded / xhr.total * <span class="number">100</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="built_in">Math</span>.round(percentComplete, <span class="number">2</span>) + <span class="string">'% downloaded'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, err =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="创建一个全景环境"><a href="#创建一个全景环境" class="headerlink" title="创建一个全景环境"></a>创建一个全景环境</h3><ul>
+<li><p>准备文件：6张不同视角的图片，或者一张全景拍摄的图片</p>
+</li>
+<li><p>读取图片文件并渲染</p>
+</li>
+<li><p>使用6张不同视角图片组合的立体全景效果</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> urls = [</span><br><span class="line">  r + <span class="string">"px.jpg"</span>, r + <span class="string">"nx.jpg"</span>,</span><br><span class="line">  r + <span class="string">"py.jpg"</span>, r + <span class="string">"ny.jpg"</span>,</span><br><span class="line">  r + <span class="string">"pz.jpg"</span>, r + <span class="string">"nz.jpg"</span></span><br><span class="line">]</span><br><span class="line"><span class="comment">// 加载图片</span></span><br><span class="line"><span class="keyword">let</span> textureCube = <span class="keyword">new</span> THREE.CubeTextureLoader().load(urls)</span><br><span class="line">textureCube.format = THREE.RGBFormat</span><br><span class="line">textureCube.mapping = THREE.CubeReflectionMapping</span><br><span class="line"><span class="keyword">let</span> cubeShader = THREE.ShaderLib[<span class="string">"cube"</span>]</span><br><span class="line"><span class="keyword">let</span> cubeMaterial = <span class="keyword">new</span> THREE.ShaderMaterial(&#123;</span><br><span class="line">  fragmentShader: cubeShader.fragmentShader,</span><br><span class="line">  vertexShader: cubeShader.vertexShader,</span><br><span class="line">  uniforms: cubeShader.uniforms,</span><br><span class="line">  depthWrite: <span class="literal">false</span>,</span><br><span class="line">  side: THREE.BackSide</span><br><span class="line">&#125;)</span><br><span class="line">cubeMaterial.uniforms[<span class="string">"tCube"</span>].value = textureCube</span><br><span class="line"><span class="keyword">let</span> cubeMesh = <span class="keyword">new</span> THREE.Mesh(<span class="keyword">new</span> THREE.BoxBufferGeometry(<span class="number">100</span>, <span class="number">100</span>, <span class="number">100</span>), cubeMaterial)</span><br><span class="line"><span class="keyword">this</span>.scene.add(cubeMesh)</span><br></pre></td></tr></table></figure>
+<p>由于只是为了体验，没有关注性能优化，请见谅。<br><a href="https://github.com/lgybetter/webvr-threejs," title="github源码" target="_blank" rel="noopener">github源码</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/08/11/初音未来也会跳极乐净土/" data-id="ckrbhuae700303l1t7k9p3y9k" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Node环境开发Opencv" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/04/24/Node环境开发Opencv/" class="article-date">
+  <time datetime="2017-04-24T06:31:51.000Z" itemprop="datePublished">2017-04-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/后端/">后端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/24/Node环境开发Opencv/">Node环境开发Opencv</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Opencv-安装使用"><a href="#Opencv-安装使用" class="headerlink" title="Opencv 安装使用"></a>Opencv 安装使用</h3><ul>
+<li><p>下载Opencv安装包: <a href="http://opencv.org/releases.html" target="_blank" rel="noopener">http://opencv.org/releases.html</a></p>
+</li>
+<li><p>解压进入Opencv目录</p>
+</li>
+<li><p>编译Opencv(需要cmake)</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir release</span><br><span class="line"><span class="built_in">cd</span> release</span><br><span class="line">cmake -G <span class="string">"Unix Makefiles"</span> .. (为Unix 系统生成Makefile，Mac OSX是基于Unix的。未安装cmake 可以通过Homebrew安装，未安装Homebrew需安装Homebrew）</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装Opencv</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make install</span><br></pre></td></tr></table></figure>
+<ul>
+<li>安装完成的目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/lib (Opencv库文件)</span><br><span class="line">/usr/<span class="built_in">local</span>/include (Opencv头文件）</span><br><span class="line">/usr/<span class="built_in">local</span>/share/ (Opencv xml配置文件)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用Opencv(C++ Version)</li>
+</ul>
+<p>编写CMakeLists.txt文件<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">project( ORBFeatureAndCompare ) <span class="comment">// 项目的名称</span></span><br><span class="line">cmake_minimum_required(VERSION <span class="number">2.8</span>) <span class="comment">// cmake的版本要求</span></span><br><span class="line">find_package( OpenCV REQUIRED ) <span class="comment">// 查找对应的Opencv依赖库</span></span><br><span class="line">find_package(Boost COMPONENTS <span class="built_in">log</span> log_setup thread filesystem system) <span class="comment">// 查找对应的Boost依赖库(下文出现Boost的安装方法)</span></span><br><span class="line">add_executable( ORBFeatureAndCompare ORBFeatureAndCompare )  <span class="comment">// 指定可运行的文件</span></span><br><span class="line"><span class="comment">// 引入对应的依赖库文件的位置</span></span><br><span class="line">target_link_libraries(ORBFeatureAndCompare</span><br><span class="line">    $&#123;OpenCV_LIBS&#125;</span><br><span class="line">    $&#123;Boost_LOG_SETUP_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_LOG_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_FILESYSTEM_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_THREAD_LIBRARY&#125;</span><br><span class="line">    $&#123;Boost_SYSTEM_LIBRARY&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>编写Opencv的cpp文件<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//必要的头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/imgproc/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem/fstream.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;  </span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">  ....</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>创建一个images(其他命名都可以)的资源文件夹<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> images</span><br><span class="line">cmake ..</span><br><span class="line">make</span><br><span class="line">./ORBFeatureAndCompare //编译出的可执行程序</span><br></pre></td></tr></table></figure></p>
+<h3 id="安装使用Boost进行数据序列化"><a href="#安装使用Boost进行数据序列化" class="headerlink" title="安装使用Boost进行数据序列化"></a>安装使用Boost进行数据序列化</h3><ul>
+<li><p>下载Boost安装包: <a href="https://dl.bintray.com/boostorg/release/1.64.0/source/" target="_blank" rel="noopener">https://dl.bintray.com/boostorg/release/1.64.0/source/</a></p>
+</li>
+<li><p>解压进入Boost目录</p>
+</li>
+<li><p>编译安装Boost</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./bootstrap.sh</span><br><span class="line">./b2</span><br></pre></td></tr></table></figure>
+<ul>
+<li>引入Boost库进行数据序列化,同样是在CmakeList中引入文件路径, 在cpp文件中使用</li>
+</ul>
+<h3 id="封装cpp程序为Node-Addon"><a href="#封装cpp程序为Node-Addon" class="headerlink" title="封装cpp程序为Node Addon"></a>封装cpp程序为Node Addon</h3><ul>
+<li><p>依赖安装</p>
+<ul>
+<li>全局安装node-gyp</li>
+<li>本地安装nan</li>
+</ul>
+</li>
+<li><p>编写binding.gyp</p>
+</li>
+</ul>
+<figure class="highlight gyp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"targets"</span>: [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">"target_name"</span>: <span class="string">"feature"</span>,</span><br><span class="line">    <span class="string">"sources"</span>: [ <span class="string">"./src/feature.cc"</span> ],</span><br><span class="line">    <span class="string">"include_dirs"</span>: [</span><br><span class="line">      <span class="string">"&lt;!(node -e \"require('nan')\")"</span>,</span><br><span class="line">      <span class="string">"/usr/local/include/boost"</span>,</span><br><span class="line">      <span class="string">"/usr/local/include/opencv2"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">"conditions"</span>: [</span><br><span class="line">      [ <span class="string">"OS==\"linux\" or OS==\"freebsd\" or OS==\"openbsd\" or OS==\"solaris\" or OS==\"aix\""</span>, &#123;</span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      [<span class="string">"OS==\"mac\""</span>, &#123;</span><br><span class="line">          <span class="string">"libraries"</span>: [</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_log_setup-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_log-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_filesystem-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_thread-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libboost_system-mt.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_core.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_highgui.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_imgproc.3.2.0.dylib"</span>,</span><br><span class="line">            <span class="string">"/usr/local/lib/libopencv_features2d.3.2.0.dylib"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写node c++ 插件</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;node.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;nan.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/imgproc/imgproc.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/features2d/features2d.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;boost/filesystem/fstream.hpp&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iterator&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> boost::filesystem;</span><br><span class="line"><span class="keyword">namespace</span> newfs = boost::filesystem;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> v8;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;uchar&gt; <span class="title">matToString</span><span class="params">(cv::Mat descriptorMat)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">vector</span>&lt;uchar&gt; buf;</span><br><span class="line">  imencode(<span class="string">".png"</span>, descriptorMat, buf);</span><br><span class="line">  <span class="keyword">return</span> buf;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;uchar&gt; <span class="title">descriptorMat</span><span class="params">(cv::Mat image)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">vector</span>&lt;cv::KeyPoint&gt; keyPoint;</span><br><span class="line">  cv::Ptr&lt;cv::ORB&gt; orb = cv::ORB::create(<span class="number">4000</span>, <span class="number">1.2f</span>, <span class="number">8</span>, <span class="number">31</span>, <span class="number">0</span>, <span class="number">2</span>,             cv::ORB::HARRIS_SCORE, <span class="number">31</span>, <span class="number">20</span>);</span><br><span class="line">  orb-&gt;detect(image, keyPoint);</span><br><span class="line">  cv::Mat descriptorMat;</span><br><span class="line">  orb-&gt;compute(image, keyPoint, descriptorMat);</span><br><span class="line">  <span class="keyword">return</span> matToString(descriptorMat);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">imageFeature</span><span class="params">(<span class="keyword">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  <span class="keyword">if</span> (args.Length() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong number of arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!args[<span class="number">0</span>]-&gt;IsString()) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function">String::Utf8Value <span class="title">pathValue</span><span class="params">(Local&lt;String&gt;::Cast(args[<span class="number">0</span>]))</span></span>;</span><br><span class="line">  <span class="built_in">string</span> path = <span class="built_in">string</span>(*pathValue);</span><br><span class="line">  cv::Mat image = cv::imread(path, <span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (image.empty()) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Input image error"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">vector</span>&lt;uchar&gt; descriptorString = descriptorMat(image);</span><br><span class="line">  Local&lt;Object&gt; buf = Nan::NewBuffer(descriptorString.size()).ToLocalChecked();</span><br><span class="line">  uchar* data = (uchar*) node::Buffer::Data(buf);</span><br><span class="line">  <span class="built_in">memcpy</span>(data, &amp;descriptorString[<span class="number">0</span>], descriptorString.size());</span><br><span class="line">  v8::Local&lt;v8::Object&gt; globalObj = Nan::GetCurrentContext()-&gt;Global();</span><br><span class="line">  v8::Local&lt;v8::Function&gt; bufferConstructor = v8::Local&lt;v8::Function&gt;::Cast(globalObj-&gt;Get(Nan::New&lt;String&gt;(<span class="string">"Buffer"</span>).ToLocalChecked()));</span><br><span class="line">  v8::Local&lt;v8::Value&gt; constructorArgs[<span class="number">3</span>] = &#123;buf, Nan::New&lt;v8::Integer&gt;((<span class="keyword">unsigned</span>)descriptorString.size()), Nan::New&lt;v8::Integer&gt;(<span class="number">0</span>)&#125;;</span><br><span class="line">  v8::Local&lt;v8::Object&gt; actualBuffer = bufferConstructor-&gt;NewInstance(<span class="number">3</span>, constructorArgs);</span><br><span class="line">  args.GetReturnValue().Set(actualBuffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">bfMatcherCompare</span> <span class="params">(cv::Mat &amp;descriptors1, cv::Mat &amp;descriptors2)</span> </span>&#123;</span><br><span class="line">  <span class="function">cv::BFMatcher <span class="title">matcher</span><span class="params">(cv::NORM_HAMMING)</span></span>;</span><br><span class="line">  <span class="built_in">vector</span>&lt;cv::DMatch&gt; matches;</span><br><span class="line">  matcher.match(descriptors1, descriptors2, matches);</span><br><span class="line">  <span class="keyword">double</span> max_dist = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">double</span> min_dist = <span class="number">100</span>;</span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">  for (int i = 0; i &lt; descriptors1.rows; i++)</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    double dist = matches[i].distance;</span></span><br><span class="line"><span class="comment">    if (dist &lt; min_dist)</span></span><br><span class="line"><span class="comment">      min_dist = dist;</span></span><br><span class="line"><span class="comment">    if (dist &gt; max_dist)</span></span><br><span class="line"><span class="comment">      max_dist = dist;</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  vector&lt;cv::DMatch&gt; good_matches;</span></span><br><span class="line"><span class="comment">  for (int i = 0; i &lt; descriptors1.rows; i++)</span></span><br><span class="line"><span class="comment">  &#123;</span></span><br><span class="line"><span class="comment">    if (matches[i].distance &lt; 3 * min_dist)</span></span><br><span class="line"><span class="comment">      good_matches.push_back(matches[i]);</span></span><br><span class="line"><span class="comment">  &#125;</span></span><br><span class="line"><span class="comment">  return good_matches.size();</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; descriptors1.rows; i++) &#123;</span><br><span class="line">    <span class="keyword">double</span> dist = matches[i].distance;</span><br><span class="line">    <span class="keyword">if</span> (dist &lt; min_dist) &#123;</span><br><span class="line">      min_dist = dist;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (dist &gt; max_dist) &#123;</span><br><span class="line">      max_dist = dist;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; good_matches;</span><br><span class="line">  <span class="keyword">double</span> good_matches_sum = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; descriptors1.rows; i++) &#123;</span><br><span class="line">    <span class="keyword">double</span> distance = matches[i].distance;</span><br><span class="line">    <span class="keyword">if</span> (distance &lt;= <span class="built_in">std</span>::max(<span class="number">2</span> * min_dist, <span class="number">0.02</span>)) &#123;</span><br><span class="line">      good_matches.push_back(matches[i]);</span><br><span class="line">      good_matches_sum += distance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">double</span>) good_matches_sum / (<span class="keyword">double</span>) good_matches.size();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">similarity</span><span class="params">(<span class="keyword">const</span> FunctionCallbackInfo&lt;Value&gt;&amp; args)</span> </span>&#123;</span><br><span class="line">  Isolate* isolate = args.GetIsolate();</span><br><span class="line">  Local&lt;Object&gt; arg1 = args[<span class="number">0</span>]-&gt;ToObject();</span><br><span class="line">  <span class="keyword">int</span> size1 = args[<span class="number">1</span>]-&gt;NumberValue();</span><br><span class="line">  Local&lt;Object&gt; arg2 = args[<span class="number">2</span>]-&gt;ToObject();</span><br><span class="line">  <span class="keyword">int</span> size2 = args[<span class="number">3</span>]-&gt;NumberValue();</span><br><span class="line">  <span class="keyword">if</span> (args.Length() &lt; <span class="number">4</span>) &#123;</span><br><span class="line">    isolate-&gt;ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, <span class="string">"Wrong number of arguments"</span>)));</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  uchar*buffer1 = (uchar*) node::Buffer::Data(arg1);</span><br><span class="line">  <span class="function"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;uchar&gt; <span class="title">vec1</span><span class="params">(buffer1, buffer1 +  (<span class="keyword">unsigned</span> <span class="keyword">int</span>) size1)</span></span>;</span><br><span class="line">  cv::Mat img_decode1;</span><br><span class="line">  img_decode1 = cv::imdecode(vec1, CV_8U);</span><br><span class="line">  uchar*buffer2 = (uchar*) node::Buffer::Data(arg2);</span><br><span class="line">  <span class="function"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;uchar&gt; <span class="title">vec2</span><span class="params">(buffer2, buffer2 +  (<span class="keyword">unsigned</span> <span class="keyword">int</span>) size2)</span></span>;</span><br><span class="line">  cv::Mat img_decode2;</span><br><span class="line">  img_decode2 = cv::imdecode(vec2, CV_8U);</span><br><span class="line">  <span class="keyword">int</span> similarity = bfMatcherCompare(img_decode1, img_decode2);</span><br><span class="line">  args.GetReturnValue().Set(similarity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">(Local&lt;Object&gt; exports, Local&lt;Object&gt; <span class="keyword">module</span>)</span> </span>&#123;</span><br><span class="line">  NODE_SET_METHOD(exports, <span class="string">"imageFeature"</span>, imageFeature);</span><br><span class="line">  NODE_SET_METHOD(exports, <span class="string">"similarity"</span>, similarity);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">NODE_MODULE(addon, init)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编写Js文件</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> feature = <span class="built_in">require</span>(<span class="string">'./build/Release/feature'</span>);</span><br><span class="line"></span><br><span class="line">exports.getImageFeature = <span class="function">(<span class="params">filePath</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> feature.imageFeature(filePath).toString(<span class="string">'utf8'</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">exports.getImageSimilarity = <span class="function">(<span class="params">descriptor1, descriptor2</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> matBuffer1 = Buffer.from(descriptor1);</span><br><span class="line">  <span class="keyword">let</span> matBuffer2 = Buffer.from(descriptor2);</span><br><span class="line">  <span class="keyword">return</span> feature.similarity(matBuffer1, matBuffer1.length, matBuffer2, matBuffer2.length);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编译运行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node-gyp configure build</span><br><span class="line">node test.js</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/04/24/Node环境开发Opencv/" data-id="ckrbhuadp002c3l1tqse54ndf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenCV/">OpenCV</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Cpp语法解析器" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/03/26/Cpp语法解析器/" class="article-date">
+  <time datetime="2017-03-26T10:40:30.000Z" itemprop="datePublished">2017-03-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/后端/">后端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/26/Cpp语法解析器/">C++语法解析器</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="架构分析"><a href="#架构分析" class="headerlink" title="架构分析"></a>架构分析</h2><ol>
+<li>Node进行文件数据处理</li>
+<li>Vue.js进行视图的呈现</li>
+<li>Electron作为客户端</li>
+</ol>
+<h2 id="C-语法解析"><a href="#C-语法解析" class="headerlink" title="C++语法解析"></a>C++语法解析</h2><h3 id="效果展示"><a href="#效果展示" class="headerlink" title="效果展示"></a>效果展示</h3><p><img src="/images/cpp-analysis.gif" alt="cppAnalysis"></p>
+<h3 id="读取形式"><a href="#读取形式" class="headerlink" title="读取形式"></a>读取形式</h3><p>按照代码行进行读取, 每次读取到一行就进行遍历分析</p>
+<h3 id="关键字与特殊符号建立映射"><a href="#关键字与特殊符号建立映射" class="headerlink" title="关键字与特殊符号建立映射"></a>关键字与特殊符号建立映射</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 关键字</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">let</span> keyWords = [</span><br><span class="line">  <span class="string">'asm'</span>, <span class="string">'auto'</span>,</span><br><span class="line">  <span class="string">'bool'</span>, <span class="string">'break'</span>,</span><br><span class="line">  <span class="string">'case'</span>, <span class="string">'catch'</span>, <span class="string">'char'</span>, <span class="string">'class'</span>, <span class="string">'const'</span>, <span class="string">'continue'</span>, <span class="string">'cin'</span>, <span class="string">'cout'</span>,</span><br><span class="line">  <span class="string">'default'</span>, <span class="string">'delete'</span>, <span class="string">'do'</span>, <span class="string">'double'</span>, <span class="string">'define'</span>,</span><br><span class="line">  <span class="string">'else'</span>, <span class="string">'enum'</span>, <span class="string">'except'</span>, <span class="string">'explicit'</span>, <span class="string">'extern'</span>, <span class="string">'endl'</span>,</span><br><span class="line">  <span class="string">'false'</span>, <span class="string">'finally'</span>, <span class="string">'float'</span>, <span class="string">'for'</span>, <span class="string">'friend'</span>,</span><br><span class="line">  <span class="string">'goto'</span>,</span><br><span class="line">  <span class="string">'if'</span>, <span class="string">'inline'</span>, <span class="string">'int'</span>, <span class="string">'include'</span>,</span><br><span class="line">  <span class="string">'long'</span>,</span><br><span class="line">  <span class="string">'mutable'</span>, <span class="string">'main'</span>,</span><br><span class="line">  <span class="string">'namespace'</span>, <span class="string">'new'</span>,</span><br><span class="line">  <span class="string">'operator'</span>,</span><br><span class="line">  <span class="string">'private'</span>, <span class="string">'protectde'</span>, <span class="string">'public'</span>, <span class="string">'printf'</span>,</span><br><span class="line">  <span class="string">'register'</span>, <span class="string">'return'</span>,</span><br><span class="line">  <span class="string">'short'</span>, <span class="string">'signed'</span>, <span class="string">'szieof'</span>, <span class="string">'static'</span>, <span class="string">'struct'</span>, <span class="string">'string'</span>, <span class="string">'switch'</span>, <span class="string">'std'</span>, <span class="string">'scanf'</span>,</span><br><span class="line">  <span class="string">'template'</span>, <span class="string">'this'</span>, <span class="string">'throw'</span>, <span class="string">'true'</span>, <span class="string">'try'</span>, <span class="string">'typedef'</span>, <span class="string">'typename'</span>,</span><br><span class="line">  <span class="string">'union'</span>, <span class="string">'unsigned'</span>, <span class="string">'using'</span>,</span><br><span class="line">  <span class="string">'virtual'</span>, <span class="string">'void'</span>,</span><br><span class="line">  <span class="string">'while'</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 特殊字符</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">let</span> specialWords = [</span><br><span class="line">  <span class="string">','</span>, <span class="string">';'</span>, <span class="string">'('</span>, <span class="string">')'</span>, <span class="string">'&#123;'</span>, <span class="string">'&#125;'</span>, <span class="string">'#'</span>, <span class="string">'^'</span>, <span class="string">'?'</span>, <span class="string">':'</span>, <span class="string">'.'</span>, <span class="string">'['</span>, <span class="string">']'</span>, <span class="string">'+'</span>, <span class="string">'-'</span>, <span class="string">'*'</span>, <span class="string">'/'</span>, <span class="string">'%'</span>, <span class="string">'='</span>, <span class="string">'&gt;'</span>, <span class="string">'&lt;'</span>, <span class="string">'!'</span>, <span class="string">'~'</span>, <span class="string">'|'</span>, <span class="string">'&amp;'</span>,</span><br><span class="line">  <span class="string">'&amp;&amp;'</span>, <span class="string">'||'</span>, <span class="string">'=='</span>, <span class="string">'&gt;='</span>, <span class="string">'&lt;='</span>, <span class="string">'!='</span>, <span class="string">'++'</span>, <span class="string">'--'</span>, <span class="string">'::'</span>, <span class="string">'&lt;&lt;'</span>, <span class="string">'&gt;&gt;'</span>, <span class="string">'+='</span>, <span class="string">'-='</span>, <span class="string">'*='</span>, <span class="string">'/='</span>, <span class="string">'%='</span>, <span class="string">'&amp;='</span>, <span class="string">'^='</span>, <span class="string">'-&gt;'</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">keyWords.forEach(<span class="function"><span class="params">word</span> =&gt;</span> &#123;</span><br><span class="line">  wordsMap.set(word, <span class="string">'keyWord'</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">specialWords.forEach(<span class="function"><span class="params">word</span> =&gt;</span> &#123;</span><br><span class="line">  wordsMap.set(word, <span class="string">'specialWord'</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="遍历分析过程"><a href="#遍历分析过程" class="headerlink" title="遍历分析过程"></a>遍历分析过程</h3><ul>
+<li><p>代码注释匹配</p>
+<ul>
+<li>当读到一行中包含\/<em>的两个字符时候, 这时把代码注释的标志设置为true, 然后一直读取，知道遇到\</em>/的时候就把标志重新置为false</li>
+<li>判断是否可以构成单词，成立的条件是不以数字开头，并且只包含数字, 下划线, 以及字母, 可以通过正则来/[a-z]|[A-z]|_/匹配</li>
+<li>判断是否为字符串或者字符, 成立条件是以”,’开头</li>
+<li>判断是否为数字</li>
+<li>判断是否为特殊字符, 这时就通过建立的映射进行关键字查找</li>
+<li>判断空格</li>
+</ul>
+</li>
+<li><p>代码解释</p>
+</li>
+</ul>
+<p>判断工具函数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//判断是否是字母与下划线</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">judgeWord</span>(<span class="params">word</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> wordPatten = <span class="regexp">/[a-z]|[A-z]|\_/</span></span><br><span class="line">  <span class="keyword">return</span> wordPatten.test(word)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//判断是否为数字</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">judgeNumber</span>(<span class="params">number</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> numberPatten = <span class="regexp">/[0-9]/</span></span><br><span class="line">  <span class="keyword">return</span> numberPatten.test(number)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//判断是否为特殊字符</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">judgeSpecialWord</span>(<span class="params">letter</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> wordsMap.get(letter) === <span class="string">'specialWord'</span> ? <span class="literal">true</span> : <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//判断是否为关键词</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">judgeKeyWord</span>(<span class="params">letter</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> wordsMap.get(letter) === <span class="string">'keyWord'</span> ? <span class="literal">true</span> : <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>行分析函数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line">exports.analysisLine = <span class="function">(<span class="params">line, annotation</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> oneLine = []</span><br><span class="line">  <span class="keyword">let</span> word = <span class="string">''</span></span><br><span class="line">  <span class="keyword">let</span> i = <span class="number">0</span></span><br><span class="line">  <span class="keyword">let</span> includeFile = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">while</span> (i &lt; line.length) &#123;</span><br><span class="line">    <span class="comment">//注释代码的优先级最高，需要先进行判断</span></span><br><span class="line">    <span class="keyword">if</span> (line[i] === <span class="string">'/'</span> &amp;&amp; line[i + <span class="number">1</span>] === <span class="string">'*'</span>) &#123;</span><br><span class="line">      word += line[i]</span><br><span class="line">      i++</span><br><span class="line">      annotation = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!annotation) &#123;</span><br><span class="line">      <span class="comment">//表示不是注释内容</span></span><br><span class="line">      <span class="keyword">if</span> (judgeWord(line[i])) &#123;</span><br><span class="line">        <span class="comment">//表示是属于字母与下划线</span></span><br><span class="line">        word += line[i]</span><br><span class="line">        <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; (judgeNumber(line[i + <span class="number">1</span>]) || judgeWord(line[i + <span class="number">1</span>]))) &#123;</span><br><span class="line">          i++</span><br><span class="line">          word += line[i]</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (judgeKeyWord(word)) &#123;</span><br><span class="line">          <span class="comment">//判断单词是否属于关键词</span></span><br><span class="line">          oneLine.push(&#123;</span><br><span class="line">            word: word,</span><br><span class="line">            type: <span class="string">'keyWord'</span></span><br><span class="line">          &#125;)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">//不为关键词, 则为标识符</span></span><br><span class="line">          oneLine.push(&#123;</span><br><span class="line">            word: word,</span><br><span class="line">            type: <span class="string">'identifier'</span></span><br><span class="line">          &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//由于include是属于头文件的引入, 需要对头文件进行特殊处理</span></span><br><span class="line">        <span class="keyword">if</span> (word === <span class="string">'include'</span>) &#123;</span><br><span class="line">          includeFile = <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">        word = <span class="string">''</span></span><br><span class="line">        i++</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (line[i] === <span class="string">'"'</span>) &#123;</span><br><span class="line">        <span class="comment">//字符串判断</span></span><br><span class="line">        <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; line[i + <span class="number">1</span>] !== <span class="string">'"'</span>) &#123;</span><br><span class="line">          word += line[i]</span><br><span class="line">          i++</span><br><span class="line">        &#125;</span><br><span class="line">        word += (line[i] || <span class="string">''</span> )+ (line[i + <span class="number">1</span>] || <span class="string">''</span>)</span><br><span class="line">        oneLine.push(&#123;</span><br><span class="line">          word: word,</span><br><span class="line">          type: <span class="string">'string'</span></span><br><span class="line">        &#125;)</span><br><span class="line">        word = <span class="string">''</span></span><br><span class="line">        i += <span class="number">2</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (line[i] === <span class="string">'\''</span>) &#123;</span><br><span class="line">        <span class="comment">//字符判断</span></span><br><span class="line">        <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; line[i + <span class="number">1</span>] !== <span class="string">'\''</span>) &#123;</span><br><span class="line">          word += line[i]</span><br><span class="line">          i++</span><br><span class="line">        &#125;</span><br><span class="line">        word += (line[i] || <span class="string">''</span> )+ (line[i + <span class="number">1</span>] || <span class="string">''</span>)</span><br><span class="line">        oneLine.push(&#123;</span><br><span class="line">          word: word,</span><br><span class="line">          type: <span class="string">'char'</span></span><br><span class="line">        &#125;)</span><br><span class="line">        word = <span class="string">''</span></span><br><span class="line">        i += <span class="number">2</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (judgeNumber(line[i])) &#123;</span><br><span class="line">        <span class="comment">//数字判断</span></span><br><span class="line">        word += line[i]</span><br><span class="line">        <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; (judgeNumber(line[i + <span class="number">1</span>]) || line[i + <span class="number">1</span>] === <span class="string">'.'</span>)) &#123;</span><br><span class="line">          i++</span><br><span class="line">          word += line[i]</span><br><span class="line">        &#125;</span><br><span class="line">        oneLine.push(&#123;</span><br><span class="line">          word: word,</span><br><span class="line">          type: <span class="string">'number'</span></span><br><span class="line">        &#125;)</span><br><span class="line">        word = <span class="string">''</span></span><br><span class="line">        i++</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (judgeSpecialWord(line[i])) &#123;</span><br><span class="line">        <span class="comment">//特殊字符判断</span></span><br><span class="line">        <span class="keyword">if</span> (line[i] === <span class="string">'&lt;'</span> &amp;&amp; includeFile) &#123;</span><br><span class="line">          <span class="comment">//处理头文件的引入</span></span><br><span class="line">          oneLine.push(&#123;</span><br><span class="line">            word: line[i],</span><br><span class="line">            type: <span class="string">'specialWord'</span></span><br><span class="line">          &#125;)</span><br><span class="line">          i++</span><br><span class="line">          word += line[i]</span><br><span class="line">          <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; line[i + <span class="number">1</span>] !== <span class="string">'&gt;'</span>) &#123;</span><br><span class="line">            i++</span><br><span class="line">            word += line[i]</span><br><span class="line">          &#125;</span><br><span class="line">          oneLine.push(&#123;</span><br><span class="line">            word: word,</span><br><span class="line">            type: <span class="string">'libraryFile'</span></span><br><span class="line">          &#125;)</span><br><span class="line">          word = <span class="string">''</span></span><br><span class="line">          i++</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">//处理//的注释代码</span></span><br><span class="line">          <span class="keyword">if</span> (line[i] === <span class="string">'/'</span> &amp;&amp; line[i + <span class="number">1</span>] === <span class="string">'/'</span>) &#123;</span><br><span class="line">            i++</span><br><span class="line">            <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length) &#123;</span><br><span class="line">              i++</span><br><span class="line">              word += line[i]</span><br><span class="line">            &#125;</span><br><span class="line">            oneLine.push(&#123;</span><br><span class="line">              word: word,</span><br><span class="line">              type: <span class="string">'Annotations'</span></span><br><span class="line">            &#125;)</span><br><span class="line">            word = <span class="string">''</span></span><br><span class="line">            i += <span class="number">3</span></span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            word += line[i]</span><br><span class="line">            <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; (judgeSpecialWord(word + line[i + <span class="number">1</span>]))) &#123;</span><br><span class="line">              i++</span><br><span class="line">              word += line[i]</span><br><span class="line">            &#125;</span><br><span class="line">            oneLine.push(&#123;</span><br><span class="line">              word: word,</span><br><span class="line">              type: <span class="string">'specialWord'</span></span><br><span class="line">            &#125;)</span><br><span class="line">            word = <span class="string">''</span></span><br><span class="line">            i++</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (line[i] === <span class="string">' '</span>) &#123;</span><br><span class="line">        oneLine.push(&#123;</span><br><span class="line">          word: line[i],</span><br><span class="line">          type: <span class="string">'space'</span></span><br><span class="line">        &#125;)</span><br><span class="line">        i++</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//表示注释内容</span></span><br><span class="line">      <span class="keyword">while</span> (i + <span class="number">1</span> &lt; line.length &amp;&amp; (line[i + <span class="number">1</span>] !== <span class="string">'*'</span> &amp;&amp; line[i + <span class="number">2</span>] !== <span class="string">'/'</span>)) &#123;</span><br><span class="line">        word += line[i]</span><br><span class="line">        i++</span><br><span class="line">      &#125;</span><br><span class="line">      word += line[i] + (line[i + <span class="number">1</span>] || <span class="string">''</span>) + (line[i + <span class="number">2</span>] || <span class="string">''</span>)</span><br><span class="line">      oneLine.push(&#123;</span><br><span class="line">        word: word,</span><br><span class="line">        type: <span class="string">'Annotations'</span></span><br><span class="line">      &#125;)</span><br><span class="line">      annotation = <span class="literal">false</span>;</span><br><span class="line">      word = <span class="string">''</span></span><br><span class="line">      i += <span class="number">3</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> oneLine</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="界面实现过程"><a href="#界面实现过程" class="headerlink" title="界面实现过程"></a>界面实现过程</h3><ul>
+<li>Electron, Vue搭建</li>
+</ul>
+<p>具体的搭建过程省略, 可查看源码或自行查找资料</p>
+<ul>
+<li><p>动态编辑显示</p>
+<ul>
+<li>数据绑定, 使用v-model结合watch进行数据监控, 当数据发生变化的时候重新分析每行数据</li>
+<li>二维数组保存分析的数据, 使用二维数组保存分析完的词法, 保留原生的代码行</li>
+<li>通过v-bind:class对不同类型的词法进行代码高亮的简单呈现</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"container"</span>&gt;</span><br><span class="line">    &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"navigator"</span>&gt;</span><br><span class="line">      &lt;button <span class="class"><span class="keyword">class</span></span>=<span class="string">"menu-btn"</span> @click=<span class="string">"open"</span>&gt;open&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;button class="menu-btn" @click="save"&gt;save&lt;/</span>button&gt;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;div class="content"&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div class="code-input"&gt;</span></span><br><span class="line"><span class="regexp">        &lt;textarea v-model="codeInput"&gt;</span></span><br><span class="line"><span class="regexp">        &lt;/</span>textarea&gt;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div class="code-show"&gt;</span></span><br><span class="line"><span class="regexp">        &lt;div v-for="(line, index) in codeShowArr"&gt;</span></span><br><span class="line"><span class="regexp">          &lt;p v-for="word in line" :class="word.type"&gt;</span></span><br><span class="line"><span class="regexp">            &lt;template v-if="word.type==='space'"&gt;</span></span><br><span class="line"><span class="regexp">              &amp;nbsp</span></span><br><span class="line"><span class="regexp">            &lt;/</span>template&gt;</span><br><span class="line">            &lt;template v-<span class="keyword">else</span>&gt;</span><br><span class="line">              &#123;&#123;word.word&#125;&#125;</span><br><span class="line">            &lt;<span class="regexp">/template&gt;</span></span><br><span class="line"><span class="regexp">          &lt;/</span>p&gt;</span><br><span class="line">        &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  &lt;/</span>div&gt;</span><br><span class="line">&lt;<span class="regexp">/template&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;script&gt;</span></span><br><span class="line"><span class="regexp">import &#123; analysisLine &#125; from '../</span>controllers/analysis<span class="string">'</span></span><br><span class="line"><span class="string">import fileController from '</span>../controllers/fileController<span class="string">'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">export default &#123;</span></span><br><span class="line"><span class="string">  watch: &#123;</span></span><br><span class="line"><span class="string">    codeInput: function() &#123;</span></span><br><span class="line"><span class="string">      this.codeShowArr = []</span></span><br><span class="line"><span class="string">      this.codeInput.split(/\r?\n/).forEach(line =&gt; &#123;</span></span><br><span class="line"><span class="string">        let wordArr = []</span></span><br><span class="line"><span class="string">        analysisLine(line, this.annotation).forEach(word =&gt; &#123;</span></span><br><span class="line"><span class="string">          wordArr.push(word)</span></span><br><span class="line"><span class="string">        &#125;)</span></span><br><span class="line"><span class="string">        this.codeShowArr.push(wordArr)</span></span><br><span class="line"><span class="string">      &#125;)</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;,</span></span><br><span class="line"><span class="string">  data () &#123;</span></span><br><span class="line"><span class="string">    return &#123;</span></span><br><span class="line"><span class="string">      codeInput: '</span><span class="string">',</span></span><br><span class="line"><span class="string">      codeShow: '</span><span class="string">',</span></span><br><span class="line"><span class="string">      codeShowArr: [],</span></span><br><span class="line"><span class="string">      annotation: false</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;,</span></span><br><span class="line"><span class="string">  methods: &#123;</span></span><br><span class="line"><span class="string">    open() &#123;</span></span><br><span class="line"><span class="string">      fileController.openDialog().then(filePath =&gt; &#123;</span></span><br><span class="line"><span class="string">        return fileController.readPackage(filePath)</span></span><br><span class="line"><span class="string">      &#125;).then(res =&gt; &#123;</span></span><br><span class="line"><span class="string">        this.codeInput = res</span></span><br><span class="line"><span class="string">      &#125;)</span></span><br><span class="line"><span class="string">    &#125;,</span></span><br><span class="line"><span class="string">    save() &#123;</span></span><br><span class="line"><span class="string">      fileController.openDialog().then(filePath =&gt; &#123;</span></span><br><span class="line"><span class="string">        return fileController.writePackage(filePath, this.codeShowArr)</span></span><br><span class="line"><span class="string">      &#125;)</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>文件的读取和写入</p>
+<ul>
+<li>使用Electron中引入Node的fs模块来进行文件读取写入处理</li>
+<li>使用Electron的Dialog控件选取文件</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="built_in">Promise</span> <span class="keyword">from</span> <span class="string">'bluebird'</span></span><br><span class="line"><span class="keyword">import</span> electron <span class="keyword">from</span> <span class="string">'electron'</span></span><br><span class="line"><span class="keyword">const</span> &#123;dialog&#125; = electron.remote</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">Promise</span>.promisifyAll(<span class="built_in">require</span>(<span class="string">'fs'</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> writePackage = <span class="function">(<span class="params">filePath, data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> fs.writeFileAsync(filePath, <span class="built_in">JSON</span>.stringify(data, <span class="literal">null</span>, <span class="number">2</span>)).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(err)</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> readPackage = <span class="function">(<span class="params">filePath</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> fs.readFileAsync(filePath, <span class="string">'utf-8'</span>).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.reject(err)</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> openDialog = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    dialog.showOpenDialog(&#123;</span><br><span class="line">      properties: [</span><br><span class="line">        <span class="string">'openFile'</span>,</span><br><span class="line">      ]</span><br><span class="line">    &#125;, (res) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span>(!res) &#123;</span><br><span class="line">        <span class="keyword">return</span> reject(<span class="string">'404'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> resolve(res[<span class="number">0</span>])</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  writePackage,</span><br><span class="line">  readPackage,</span><br><span class="line">  openDialog</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对此, 一个简单的C++词法分析就完成了, 过程并不复杂, 只要理解了优先级和并列情况的区分就比较清晰的写出, 由于<br>个人匆匆写完这个程序, 并没有对js部分的代码进行优化, 质量过低, 仅供参考</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/03/26/Cpp语法解析器/" data-id="ckrbhuadm00283l1tmcu86h4z" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Electron/">Electron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node/">Node</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-MongoDB原生命令CURD" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2017/03/22/MongoDB原生命令CURD/" class="article-date">
+  <time datetime="2017-03-22T14:39:05.000Z" itemprop="datePublished">2017-03-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/数据库/">数据库</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/22/MongoDB原生命令CURD/">MongoDB原生命令CURD</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>《MongoDB权威指南》学习摘录</p>
+</blockquote>
+<h2 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h2><h3 id="使用insert方法"><a href="#使用insert方法" class="headerlink" title="使用insert方法"></a>使用insert方法</h3><ul>
+<li>该操作文档会自动生成一个”_id”键</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.foo.insert(&#123;“bar” : “baz”&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="批量插入，使用batchInsert函数"><a href="#批量插入，使用batchInsert函数" class="headerlink" title="批量插入，使用batchInsert函数"></a>批量插入，使用batchInsert函数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.foo.batchInsert([&#123; <span class="string">"_id"</span> : 0 &#125; , &#123; <span class="string">"_id"</span> : 1 &#125; , &#123; <span class="string">"_id"</span> : 2 &#125;])</span><br></pre></td></tr></table></figure>
+<p>当前mongodb能接受的最大消息长度是48MB,并且如果在执行批量插入过程中有一个文档插入失败，则在该文档之前的所有文档都会成功插入到集合中，而这个文档之后的所有文档全部插入失败。</p>
+<h2 id="Remove"><a href="#Remove" class="headerlink" title="Remove"></a>Remove</h2><h3 id="使用remove方法"><a href="#使用remove方法" class="headerlink" title="使用remove方法"></a>使用remove方法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//删除foo集合的所有文档</span><br><span class="line">&gt;db.foo.remove()</span><br><span class="line"></span><br><span class="line">//删除指定查询文档作为可选参数</span><br><span class="line">&gt;db.mailing.list.remove( &#123; “opt-out” : <span class="literal">true</span> &#125; )</span><br></pre></td></tr></table></figure>
+<h3 id="使用drop-比直接删除集合会更快"><a href="#使用drop-比直接删除集合会更快" class="headerlink" title="使用drop()比直接删除集合会更快"></a>使用drop()比直接删除集合会更快</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.foo.drop()</span><br></pre></td></tr></table></figure>
+<h2 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h2><h3 id="文档替换"><a href="#文档替换" class="headerlink" title="文档替换"></a>文档替换</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>: ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"joe"</span>,</span><br><span class="line">  <span class="attr">"friends"</span>: <span class="number">32</span>,</span><br><span class="line">  <span class="attr">"enemies"</span>: <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在需要更新”friends”和”enemies”两个字段到”relationships”子文档中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&gt;var joe = db.users.findOne(&#123;<span class="string">"name"</span>:joe&#125;);</span><br><span class="line">&gt;joe.relationships = &#123;<span class="string">"friends"</span>:joe.friends,<span class="string">"enemies"</span>:joe.enemies&#125;;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"friends"</span>:32,</span><br><span class="line">  <span class="string">"enemies"</span>:2</span><br><span class="line">&#125;</span><br><span class="line">&gt;joe.username = joe.name;</span><br><span class="line"><span class="string">"joe"</span></span><br><span class="line">&gt;delete joe.friends;</span><br><span class="line"><span class="literal">true</span></span><br><span class="line">&gt;delete joe.enemies;</span><br><span class="line"><span class="literal">true</span></span><br><span class="line">&gt;delete joe.name;</span><br><span class="line"><span class="literal">true</span></span><br><span class="line">&gt;db.users.update(&#123;<span class="string">"name"</span>:<span class="string">"joe"</span>&#125;,joe);</span><br></pre></td></tr></table></figure>
+<p>更新后的文档</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"username"</span>:<span class="string">"joe"</span>,</span><br><span class="line">  <span class="attr">"relationships"</span>:&#123;</span><br><span class="line">    <span class="attr">"friends"</span>:<span class="number">32</span>,</span><br><span class="line">    <span class="attr">"enemies"</span>:<span class="number">2</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>常见的错误是查询条件匹配到多个文档，然后更新的时候回由于第二个参数的存在就产生重复的”_id”值,对于这种情况要使用”_id”值来进行查询</p>
+<h3 id="使用修改器"><a href="#使用修改器" class="headerlink" title="使用修改器"></a>使用修改器</h3><ul>
+<li>“$inc”修改器使用</li>
+</ul>
+<p>当有人访问页面的时候，就通过url找到该页面，然后使用”$inc”修改器增加”pagerviews”的值</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"url"</span>:<span class="string">"www.lgybetter.com"</span>,</span><br><span class="line">  <span class="attr">"pagerviews"</span>:<span class="number">52</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.analytics.update(&#123;<span class="string">"url"</span>:<span class="string">"www.lgybetter.com"</span>&#125;,&#123;<span class="string">"<span class="variable">$inc</span>"</span> : &#123;<span class="string">"pagerviews"</span> : 1&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>注意，使用修改器时，”_id”并不会改变，而文档替换过则会</p>
+<ul>
+<li>“$set”修改器使用</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.update(&#123;<span class="string">"_id"</span>:ObjectId(...)&#125;,&#123;<span class="string">"<span class="variable">$set</span>"</span> : &#123;<span class="string">"favorite book"</span> : <span class="string">"War and Peace"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>于是更新后的文档就有了”favorite book”键，如果要继续修改则：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.update(&#123;<span class="string">"_id"</span>:ObjectId(...)&#125;,&#123;<span class="string">"<span class="variable">$set</span>"</span> : &#123;<span class="string">"favorite book"</span> : <span class="string">"Green Eggs and Ham"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>也可以变为数组的类型</p>
+<ul>
+<li>使用”$unset”可以将这个键完全删除：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.update(&#123;<span class="string">"name"</span>:joe&#125;,&#123;<span class="string">"<span class="variable">$unset</span>"</span> : &#123;<span class="string">"favorite book"</span> : 1&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>“$push”修改器使用</li>
+</ul>
+<p>如果数组存在，”$push”会向已有的数组的末尾加入一个元素，如果没有改数组就创建一个新的数组</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="attr">"title"</span>:<span class="string">"A blog post"</span>,</span><br><span class="line">  <span class="attr">"content"</span>:<span class="string">"..."</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.blogs.posts.update(&#123;<span class="string">"title"</span> : <span class="string">"A blog post"</span>&#125;,&#123;<span class="string">"<span class="variable">$push</span>"</span> : &#123;</span><br><span class="line">	<span class="string">"comments"</span> : &#123;<span class="string">"name"</span> : <span class="string">"joe"</span>,<span class="string">"email"</span> : <span class="string">"joe@example.com"</span>,<span class="string">"content"</span>:<span class="string">"nice post."</span>&#125;</span><br><span class="line">&#125;&#125;)</span><br><span class="line">&gt;db.blog.posts.findOne()</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="string">"title"</span>:<span class="string">"A blog post"</span>,</span><br><span class="line">  <span class="string">"content"</span>:<span class="string">"..."</span>,</span><br><span class="line">  <span class="string">"comments"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>:<span class="string">"joe"</span>,</span><br><span class="line">      <span class="string">"email"</span>:<span class="string">"joe@example.com"</span>,</span><br><span class="line">      <span class="string">"content"</span>:<span class="string">"nice post"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意，”$push”会创建一个数组的类型，可用于动态添加数据</p>
+<ul>
+<li>用”$push”一次添加多个数据，配合使用”$each”</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.stock.ticker.update(&#123;<span class="string">"_id"</span>:<span class="string">"GOOG"</span>&#125;,&#123;</span><br><span class="line">  <span class="string">"<span class="variable">$push</span>"</span> : &#123;<span class="string">"hourly"</span> : &#123; <span class="string">"<span class="variable">$each</span>"</span> : [</span><br><span class="line">    562.776,562.790,559.123</span><br><span class="line">  ]&#125;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用”$slice”来固定数组的最大长度</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.movies.find(&#123;<span class="string">"genre"</span> : <span class="string">"horror"</span>&#125;,&#123;</span><br><span class="line">  <span class="string">"<span class="variable">$push</span>"</span> : &#123; <span class="string">"top10"</span> : &#123;</span><br><span class="line">      <span class="string">"<span class="variable">$each</span>"</span> : [<span class="string">"Nightmare on Elm Street"</span> , <span class="string">"Saw"</span>],</span><br><span class="line">      <span class="string">"<span class="variable">$slice</span>"</span> : -10,</span><br><span class="line">      <span class="string">"<span class="variable">$sort</span>"</span> : &#123;<span class="string">"rating"</span> : -1&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>注意，”$slice”的值应该是负整数,”$sort”可以用来对数组中的所有对象进行排序，不能只将”$slice”或者”$sort”与”$push”配合使用，且必须使用”$each”。</p>
+<ul>
+<li>使用”$ne”,使得数组变为数据集合</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.paper.update(&#123;<span class="string">"authors cited"</span> : &#123;<span class="string">"<span class="variable">$ne</span>"</span> : <span class="string">"Richie"</span>&#125;,</span><br><span class="line">  &#123;<span class="string">"<span class="variable">$push</span>"</span> : &#123;<span class="string">"authors cited"</span> : <span class="string">"Richie"</span>&#125;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>“$addToSet”和”$each”组合使用，效果是与”$ne”一样，但是可以用来同时插入多条数据</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.update(&#123;<span class="string">"_id"</span> : ObjectId(<span class="string">"..."</span>)&#125;, &#123;<span class="string">"<span class="variable">$addToSet</span>"</span> :</span><br><span class="line">  &#123;<span class="string">"emails"</span> : &#123;<span class="string">"<span class="variable">$each</span>"</span> :</span><br><span class="line">    [<span class="string">"joe@php.net"</span>,<span class="string">"joe@example.com"</span>,<span class="string">"joe@python.org"</span>]</span><br><span class="line">  &#125;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>使用”$pop”删除数组元素{“$pop” : {“key” : 1}}从数组末尾删除，{“$pop” : {“key” : -1}}从数组头部删除</p>
+</li>
+<li><p>使用”$pull”删除元素</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.lists.update(&#123;&#125;,&#123;<span class="string">"<span class="variable">$pull</span>"</span> : &#123;<span class="string">"todo"</span> : <span class="string">"laundry"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="使用upsert"><a href="#使用upsert" class="headerlink" title="使用upsert"></a>使用upsert</h3><p>upsert是一种特殊的更新，要是没有找到符合更新条件的文档，就会以这个条件和更新<br>文档为基础创建一个新的文档。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.analytics.update(&#123;<span class="string">"url"</span> : <span class="string">"/blog"</span>&#125; , &#123;<span class="string">"<span class="variable">$inc</span>"</span> : &#123;<span class="string">"pageviews"</span> : 1&#125;&#125; ,<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>有时候，需要在创建文档的同时创建字段并为它赋值，但是在之后的所有更新操作中，该字段的值就不再改变。这时候就使用”$setOnInsert”</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.update(&#123;&#125; , &#123;<span class="string">"<span class="variable">$setOnInsert</span>"</span> : &#123;<span class="string">"createdAt"</span> new Date()&#125;&#125;,<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="更新多个文档"><a href="#更新多个文档" class="headerlink" title="更新多个文档"></a>更新多个文档</h3><p>具体的操作值通过:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.runCommand(&#123;getLastError:1&#125;)</span><br></pre></td></tr></table></figure>
+<p>返回结果</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"err"</span>:<span class="literal">null</span>,</span><br><span class="line">  <span class="attr">"updatedExisting"</span>:<span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"n"</span>:<span class="number">5</span>,</span><br><span class="line">  <span class="attr">"ok"</span>:<span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Find"><a href="#Find" class="headerlink" title="Find"></a>Find</h2><h3 id="find入门操作"><a href="#find入门操作" class="headerlink" title="find入门操作"></a>find入门操作</h3><ul>
+<li><p>查询该集合下的所有文档</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.c.find()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查询特定值的文档,可以同时添加多个条件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.find(&#123;<span class="string">"age"</span> : 20&#125;)</span><br><span class="line">&gt;db.users.find(&#123;<span class="string">"age"</span> : 20 , <span class="string">"name"</span> : <span class="string">"lgy"</span>&#125;)</span><br><span class="line">//指定需要返回的键</span><br><span class="line">&gt;db.users.find(&#123;&#125; , &#123;<span class="string">"username"</span> : 1,<span class="string">"email"</span> : 1&#125;)</span><br><span class="line">//返回结果</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"_id"</span>:ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="string">"username"</span>:<span class="string">"lgy"</span>,</span><br><span class="line">  <span class="string">"email"</span>:<span class="string">"lgy@example.com"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过查询，默认情况下回返回”_id”这个键，如果希望不出现其他的键值，就使用如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.find(&#123;&#125;,&#123;<span class="string">"username"</span> : 1,<span class="string">"_id"</span> : 0&#125;)</span><br><span class="line">//返回结果</span><br><span class="line">&#123;</span><br><span class="line">	<span class="string">"username"</span>:<span class="string">"lgy"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="查询条件"><a href="#查询条件" class="headerlink" title="查询条件"></a>查询条件</h3><ul>
+<li>查询条件：</li>
+</ul>
+<p>“$lt”,”$lte”,”$gt”,”$gte”就是全部的比较操作符，分别对应&lt;,&lt;=,&gt;,&gt;=</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//查询18 ~ 30岁的用户：</span><br><span class="line">&gt;db.users.find(&#123;<span class="string">"age"</span> : &#123;<span class="string">"<span class="variable">$gte</span>"</span> : 18 , <span class="string">"<span class="variable">$lte</span>"</span> : 30&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>“$ne”表示不等于某个特定的值<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//查询用户名不为<span class="string">"lgy"</span>的所有用户</span><br><span class="line">&gt;db.users.find(&#123;<span class="string">"username"</span> : &#123;<span class="string">"<span class="variable">$ne</span>"</span> : <span class="string">"lgy"</span>&#125;&#125;)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>OR查询：</li>
+</ul>
+<p>“$in” 和 “$or”两种方式进行OR查询</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.raffle.find(&#123;<span class="string">"ticket_no"</span> : &#123;<span class="string">"<span class="variable">$in</span>"</span> : [725,542,390]&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>“$nin”是与”$in”相反的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.raffle.find(&#123;<span class="string">"<span class="variable">$or</span>"</span> : [&#123;<span class="string">"ticket_no"</span> : 725&#125;,&#123;<span class="string">"winner"</span> : <span class="literal">true</span>&#125;]&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>两者结合使用：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.raffle.find(&#123;<span class="string">"<span class="variable">$or</span>"</span> : [&#123;<span class="string">"ticket_no"</span> : &#123;<span class="string">"<span class="variable">$in</span>"</span> : [725,542,300]&#125;&#125;,&#123;<span class="string">"winner"</span> : <span class="literal">true</span>&#125;]&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>$not</p>
+<p>  “$not”是元条件句，即可以在任何其他条件之上。</p>
+<pre><code>&quot;$mod&quot;通过传入两个参数，第一个用来作为除数，第二个是用来判定余数是否为此数字
+</code></pre><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.user.find(&#123;<span class="string">"id_num"</span> : &#123;<span class="string">"<span class="variable">$not</span>"</span> : &#123;<span class="string">"<span class="variable">$mod</span>"</span> : [5,1]&#125;&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="特定类型的查询"><a href="#特定类型的查询" class="headerlink" title="特定类型的查询"></a>特定类型的查询</h3><ul>
+<li>null</li>
+</ul>
+<p>null不仅会匹配某个键的值为null的文档，而且还匹配不包含这个键的文档</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.c.find(&#123;<span class="string">"z"</span> : null&#125;)</span><br></pre></td></tr></table></figure>
+<p>如果仅仅想匹配键值为null的文档，则可以加”$exists”条件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.c.find(&#123;<span class="string">"z"</span> : &#123;<span class="string">"<span class="variable">$in</span>"</span> : [null], <span class="string">"<span class="variable">$exists</span>"</span> : <span class="literal">true</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>正则表达式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.users.find(&#123;<span class="string">"name"</span> : /joey?/i&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>查询数组</li>
+</ul>
+<p>$all,可以用来进行多个元素匹配数组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//这样查找就可以匹配到同时存在的两个元素的文档</span><br><span class="line">&gt;db.food.find(&#123;<span class="string">"fruit"</span> : &#123;<span class="string">"<span class="variable">$all</span>"</span> : [<span class="string">"people"</span>,<span class="string">"banana"</span>]&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>$size用来查询特定长度的数组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.food.find(&#123;<span class="string">"furit"</span> : &#123;<span class="string">"<span class="variable">$size</span>"</span> : 3&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>$slice用来返回某个匹配数组元素的一个子集</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//返回前十条评论，如果把10换成-10就是返回后十条评论</span><br><span class="line">&gt;db.blog.posts.findOne(criteria,&#123;<span class="string">"comments"</span> : &#123;<span class="string">"<span class="variable">$slice</span>"</span> : 10&#125;&#125;)</span><br><span class="line"></span><br><span class="line">//这个操作会跳过前面23个元素，返回第24~33个元素</span><br><span class="line">&gt;db.blog.posts.findOne(criteria,&#123;<span class="string">"comments"</span> : &#123;<span class="string">"<span class="variable">$slice</span>"</span> : [23,10]&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>返回一个匹配的数组元素</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.blog.find(&#123;<span class="string">"comments.name"</span> : <span class="string">"bob"</span>&#125;, &#123;<span class="string">"comments.$"</span> : 1&#125;)</span><br><span class="line">//返回结果</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"id"</span> :　ObjectId(<span class="string">"..."</span>),</span><br><span class="line">  <span class="string">"comments"</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span> : <span class="string">"bob"</span>,</span><br><span class="line">      <span class="string">"email"</span> : <span class="string">"bob@example.com"</span>,</span><br><span class="line">      <span class="string">"content"</span> : <span class="string">"good post"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">//这样就只会返回第一条评论</span><br></pre></td></tr></table></figure>
+<ul>
+<li>查询内嵌文档</li>
+</ul>
+<p>现在有这样的数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: &#123;</span><br><span class="line">    <span class="attr">"first"</span>:<span class="string">"joe"</span>,</span><br><span class="line">    <span class="attr">"last"</span>:<span class="string">"Schmoe"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"age"</span>:<span class="number">45</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对内嵌文档的查询</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//用点表示法表达<span class="string">"进入内嵌文档内部"</span>的意思</span><br><span class="line">&gt;db.people.find(&#123;<span class="string">"name.first"</span> : <span class="string">"joe"</span> ,<span class="string">"name.last"</span> : <span class="string">"Schmoe"</span>&#125;)</span><br></pre></td></tr></table></figure>
+<p>要正确指定一组条件，而不必指定每个键，就需要使用”$elematch”</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;db.blog.find(&#123;<span class="string">"comments"</span> : &#123;<span class="variable">$elematch</span><span class="string">" : &#123;"</span>author<span class="string">" : "</span>joe<span class="string">", "</span>score<span class="string">" : &#123;"</span><span class="variable">$gte</span><span class="string">" : 5&#125;&#125;&#125;&#125;)</span></span><br></pre></td></tr></table></figure>
+<h3 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h3><ul>
+<li>游标查询的具体操作：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="keyword">for</span>(i = 0; i &lt;100; i ++) &#123;</span><br><span class="line">  db.collection.insert(&#123;x : i&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/03/22/MongoDB原生命令CURD/" data-id="ckrbhuadn00293l1tsb8go6qm" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-计算机网络体系结构" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2016/12/20/计算机网络体系结构/" class="article-date">
+  <time datetime="2016-12-20T13:01:28.000Z" itemprop="datePublished">2016-12-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/基础知识/">基础知识</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/20/计算机网络体系结构/">计算机网络体系结构</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="一-层次总览"><a href="#一-层次总览" class="headerlink" title="一. 层次总览"></a>一. 层次总览</h2><h3 id="1-TCP-IP-体系结构"><a href="#1-TCP-IP-体系结构" class="headerlink" title="1. TCP/IP 体系结构"></a>1. TCP/IP 体系结构</h3><ul>
+<li><p>应用层: TELNET, FTP, SMTP</p>
+</li>
+<li><p>运输层: TCP或UDP</p>
+</li>
+<li><p>网际层: IP</p>
+</li>
+<li><p>网络接口层</p>
+</li>
+</ul>
+<h3 id="2-五层协议体系结构-综合OSI和TCP-IP的优点"><a href="#2-五层协议体系结构-综合OSI和TCP-IP的优点" class="headerlink" title="2. 五层协议体系结构(综合OSI和TCP/IP的优点)"></a>2. 五层协议体系结构(综合OSI和TCP/IP的优点)</h3><ul>
+<li><p>应用层: 通过应用进程间的交互来完成特定网络应用</p>
+</li>
+<li><p>运输层: 两个主机进程之间的通信提供通用的数据传输服务</p>
+</li>
+<li><p>网络层: 为分组交换网上的不同主机提供通信服务。另一个任务就是要选择合适的路由，使源主机传输的分组能够找到目的主机</p>
+</li>
+<li><p>数据链路层: 两个相邻结点之间传送数据，根据链路层将网络层交付的IP数据报文封装成帧。</p>
+</li>
+<li><p>物理层: 传输比特数据</p>
+</li>
+</ul>
+<h2 id="二-层次分析"><a href="#二-层次分析" class="headerlink" title="二. 层次分析"></a>二. 层次分析</h2><h3 id="1-数据链路层"><a href="#1-数据链路层" class="headerlink" title="1. 数据链路层"></a>1. 数据链路层</h3><p>点对点信道: 一对一的点对点通信</p>
+<p>广播信道: 一对多的广播信道通信 </p>
+<ul>
+<li><p>同一个局域网，分组怎样从一个主机传送到另一个主机(不经过路由器)，这是属于数据链路层的范围</p>
+</li>
+<li><p>数据链路层的三个基本问题: 封装成帧, 透明传输, 差错监测</p>
+</li>
+<li><p>封装成帧: 给一段数据添加首尾部分，通过帧定界符(SOH/EOT)来判定，为提高帧的传输效率，应使得帧的数据部分长度尽可能大于首尾部分的长度(通过MTU，最大传送单元来控制)</p>
+</li>
+<li><p>透明传输: 简单地说就是不管从键盘上输入什么字符都可以放在帧中进行传输，其中需要注意的是当数据和帧定界符冲突时要对帧定界符进行转义</p>
+</li>
+<li><p>差错监测: 循环冗余监测CRC</p>
+</li>
+<li><p>点对点PPP协议: 1. 简单 2. 封装成帧 3. 透明性 4. 多种网络层协议 5. 多种类型链路 6. 差错监测 7. 检测链接状态 8. 传送最大单元 9. 网络层地址协商 10. 数据压缩协商</p>
+</li>
+<li><p>发送帧的类型: 1. 单播(一对一) 2. 广播(一对全体，全1地址) 3. 多播(一对多)</p>
+</li>
+<li><p>mac帧的格式: 目的地址 + 源地址 + 类型(标明交付上一层对应的协议) + 数据(IP数据报)</p>
+</li>
+</ul>
+<h3 id="2-网络层"><a href="#2-网络层" class="headerlink" title="2. 网络层"></a>2. 网络层</h3><p>网络层特点: 向上提供简单灵活的，无连接的，尽最大努力交付的数据报服务</p>
+<ul>
+<li><p>IP协议</p>
+<ul>
+<li><p>IP地址就是给因特网上的每一个主机(或路由器)的每一个接口分配一个世界唯一的32位标识符</p>
+</li>
+<li><p>IP地址 :: = {&lt;网络号&gt;, &lt;主机号&gt;}</p>
+</li>
+</ul>
+</li>
+<li><p>地址解析协议ARP</p>
+<ul>
+<li><p>根据IP地址获取MAC地址</p>
+</li>
+<li><p>每一个主机都有一个ARP高速缓存表</p>
+</li>
+</ul>
+</li>
+<li><p>网际控制报文协议ICMP</p>
+<ul>
+<li>ICMP差错报告报文: 1. 终点不可达(无法到达目的主机) 2. 源点抑制(目的主机由于拥塞丢失数据报) 3. 时间超过(主机收到部分数据报，但是其他的数据报接收超过限定时间，发送时间超过报文) 4. 参数问题(报文中有参数不正确) 5. 改变路由(重定向)</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-运输层"><a href="#3-运输层" class="headerlink" title="3. 运输层"></a>3. 运输层</h3><p>运输层: 向它上面的应用层提供通信服务， 真正进行通信的实体是在主机中的进程(一个主机的进程和另一个主机的一个进程在交换数据)</p>
+<ul>
+<li><p>UDP在传送数据之前不需要建立连接，不需要提供可靠交付</p>
+</li>
+<li><p>TCP提供面向连接的服务·</p>
+</li>
+<li><p>UDP协议 </p>
+<ul>
+<li><p>UDP是无连接的，使用尽最大努力交付，面向报文，没有拥塞控制</p>
+</li>
+<li><p>UDP的首部格式: 源端口 + 目的端口 + 长度 + 校验和</p>
+</li>
+<li><p>不使用拥塞控制的UDP有可能会引起网络产生严重的拥塞问题</p>
+</li>
+</ul>
+</li>
+<li><p>TCP协议</p>
+<ul>
+<li>TCP是面向连接的运输层协议，每一条TCP链接只能</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/12/20/计算机网络体系结构/" data-id="ckrbhuacu001b3l1t711g00ro" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/计算机网络/">计算机网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-设计模式之面向对象六大原则" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2016/08/10/设计模式之面向对象六大原则/" class="article-date">
+  <time datetime="2016-08-10T03:20:40.000Z" itemprop="datePublished">2016-08-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/基础知识/">基础知识</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/10/设计模式之面向对象六大原则/">设计模式之面向对象六大原则</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="1-单一职责原则"><a href="#1-单一职责原则" class="headerlink" title="1.单一职责原则"></a>1.单一职责原则</h3><ul>
+<li>单一职责原则是：对一个类而言，应该仅有一个引起它变化的原因。也就是，一个类中应该是一组相关性很高的函数，数据的封装。</li>
+</ul>
+<h3 id="2-开闭原则"><a href="#2-开闭原则" class="headerlink" title="2.开闭原则"></a>2.开闭原则</h3><ul>
+<li>开闭原则是：软件中的对象（类，模块，函数等）应该对于扩展是开放的，但是，对于修改时封闭的。程序一旦完成，程序中的一个类的实现只是因为错误而被修改，新的或者改变的特性应该通过新建不同的类实现，新建的类可以通过继承的方式来重用原类的代码。</li>
+</ul>
+<h3 id="3-里氏替换原则"><a href="#3-里氏替换原则" class="headerlink" title="3.里氏替换原则"></a>3.里氏替换原则</h3><ul>
+<li>里氏替换原则是：如果对每个类型为S的对象O1，都有类型为T的对象O2，使得以T定义的所有程序P在所有的对象O1都代换成O2时，程序P的行为没有发生变化，那么类型S是类型T的子类型。简单来说就是，所有引用基类的地方必须能透明地使用其子类的对象，就是父类能出现的地方子类就可以出现，替换成子类时不会发生错误，反过来就不行。</li>
+</ul>
+<h3 id="4-依赖倒置原则"><a href="#4-依赖倒置原则" class="headerlink" title="4.依赖倒置原则"></a>4.依赖倒置原则</h3><ul>
+<li><p>依赖倒置原则指代了一种特定的解耦形式，使得高层的模块不依赖低层的模块的实现细节的目的。有几个关键点如下：</p>
+<ol>
+<li>高层的模块不应该依赖低层模块，两者都应该依赖抽象。</li>
+<li>抽象不应该依赖细节。</li>
+<li>细节应该依赖抽象。</li>
+</ol>
+</li>
+</ul>
+<h3 id="5-接口隔离原则"><a href="#5-接口隔离原则" class="headerlink" title="5.接口隔离原则"></a>5.接口隔离原则</h3><ul>
+<li>接口隔离原则是：客户端不应该依赖它不需要的接口。也是说，类间的依赖关系应该建立在最小的接口上。</li>
+</ul>
+<h3 id="6-迪米特原则、"><a href="#6-迪米特原则、" class="headerlink" title="6.迪米特原则、"></a>6.迪米特原则、</h3><ul>
+<li>迪米特原则是：一个类应该对自己需要耦合或调用的类知道得最少，类的内部如何实现应该与调用者或者依赖者没关系。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/08/10/设计模式之面向对象六大原则/" data-id="ckrbhuacw001c3l1trr7ly44b" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-MongoDB指令操作" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2016/07/31/MongoDB指令操作/" class="article-date">
+  <time datetime="2016-07-31T07:14:52.000Z" itemprop="datePublished">2016-07-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/数据库/">数据库</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/31/MongoDB指令操作/">MongoDB指令操作</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="显示操作"><a href="#显示操作" class="headerlink" title="显示操作"></a>显示操作</h2><ul>
+<li>显示数据表</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ show dbs</span><br></pre></td></tr></table></figure>
+<ul>
+<li>显示collection操作</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ show collections</span><br></pre></td></tr></table></figure>
+<h2 id="命名规则"><a href="#命名规则" class="headerlink" title="命名规则"></a>命名规则</h2><ul>
+<li>集合使用名称进行标识。集合名可以是满足下列条件的任意UTF-8字符串</li>
+</ul>
+<ol>
+<li><p>集合名不能是空字符串(“”)</p>
+</li>
+<li><p>集合名不能包含\0字符(空字符)，这个字符表示集合名的结束</p>
+</li>
+<li><p>集合名不能以”system.”开头，这是为系统集合保留的前缀</p>
+</li>
+<li><p>用户创建的集合不能在集合名中包含保留字符’$’</p>
+</li>
+</ol>
+<ul>
+<li>数据库通过名称来标识</li>
+</ul>
+<ol>
+<li><p>不能是空字符串(“”)</p>
+</li>
+<li><p>不得含有 / , \ , . , “ , * , &lt; , &gt; , : , | , ? , $ (一个空格) , \0 (空字符) </p>
+</li>
+<li><p>数据库名区分大小写</p>
+</li>
+<li><p>数据库名最多为64字节</p>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/07/31/MongoDB指令操作/" data-id="ckrbhuabq00023l1tvcvfmpis" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-安卓动画点击呈现水波效果" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta" style="height: 28px;">
+    <a href="/2016/07/31/安卓动画点击呈现水波效果/" class="article-date">
+  <time datetime="2016-07-31T00:09:58.000Z" itemprop="datePublished">2016-07-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/客户端/">客户端</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/31/安卓动画点击呈现水波效果/">安卓动画点击呈现水波效果</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="安卓5-0以下的版本实现"><a href="#安卓5-0以下的版本实现" class="headerlink" title="安卓5.0以下的版本实现"></a>安卓5.0以下的版本实现</h2><p>recycler_view_background.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">selector</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:state_pressed</span>=<span class="string">"true"</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">shape</span> <span class="attr">android:shape</span>=<span class="string">"rectangle"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">"#cfd8dc"</span>&gt;</span><span class="tag">&lt;/<span class="name">solid</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">selector</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-0以上的版本实现为-ripple是5-0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下"><a href="#5-0以上的版本实现为-ripple是5-0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下" class="headerlink" title="5.0以上的版本实现为(ripple是5.0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下)"></a>5.0以上的版本实现为(ripple是5.0以上的版本新出现的，对于该图片应该放置在drawable-v21的文件夹下)</h2><p>recycler_view_background.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ripple</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:color</span>=<span class="string">"#cfd8dc"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">item</span> <span class="attr">android:drawable</span>=<span class="string">"@drawable/recycler_view_rectangle"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ripple</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>recycler_view_rectangle.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">shape</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">android:shape</span>=<span class="string">"rectangle"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">"#FFFFFF"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/07/31/安卓动画点击呈现水波效果/" data-id="ckrbhuacm000x3l1tti437y76" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/安卓/">安卓</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础知识/">基础知识</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/客户端/">客户端</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Browser/">Browser</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Css/">Css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Electron/">Electron</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Html/">Html</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Http/">Http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Javascript/">Javascript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MongoDB/">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenCV/">OpenCV</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreeJs/">ThreeJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TypeScript/">TypeScript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Wechat/">Wechat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安卓/">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Browser/" style="font-size: 10px;">Browser</a> <a href="/tags/Css/" style="font-size: 15px;">Css</a> <a href="/tags/Electron/" style="font-size: 10px;">Electron</a> <a href="/tags/Html/" style="font-size: 10px;">Html</a> <a href="/tags/Http/" style="font-size: 12.5px;">Http</a> <a href="/tags/Javascript/" style="font-size: 15px;">Javascript</a> <a href="/tags/MongoDB/" style="font-size: 12.5px;">MongoDB</a> <a href="/tags/Node/" style="font-size: 17.5px;">Node</a> <a href="/tags/OpenCV/" style="font-size: 10px;">OpenCV</a> <a href="/tags/React/" style="font-size: 15px;">React</a> <a href="/tags/ThreeJs/" style="font-size: 10px;">ThreeJs</a> <a href="/tags/TypeScript/" style="font-size: 12.5px;">TypeScript</a> <a href="/tags/Vue/" style="font-size: 20px;">Vue</a> <a href="/tags/Wechat/" style="font-size: 10px;">Wechat</a> <a href="/tags/安卓/" style="font-size: 15px;">安卓</a> <a href="/tags/计算机网络/" style="font-size: 10px;">计算机网络</a> <a href="/tags/设计模式/" style="font-size: 10px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">December 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/07/19/ReactDOM-render实现浅析/">ReactDOM.render 初始化过程浅析</a>
+          </li>
+        
+          <li>
+            <a href="/2020/02/16/React下Hooks使用姿势/">React下Hooks使用姿势</a>
+          </li>
+        
+          <li>
+            <a href="/2019/12/30/从零开始打造属于自己的UI库/">从零开始打造属于自己的UI库</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/28/Vue源码解析之Watcher原理/">Vue源码解析之Watcher原理</a>
+          </li>
+        
+          <li>
+            <a href="/2019/07/03/Vue源码浅析之Computed初始化/">Vue源码浅析之Computed初始化</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 betterlin<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/about" class="mobile-nav-link">个人</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
